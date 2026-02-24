@@ -223,8 +223,8 @@ const LeaguePage = ({ urlType }) => {
                 {lang === 'en' ? `${leagueName} ${t('seoTickets')}` : `${t('seoTickets')} ${leagueName}`}
               </h1>
               <p className="text-gray-300 text-sm mt-1">
-                {leagueTeams[league]?.country} 
-                {!isCup && ` • ${leagueTeams[league]?.teams?.length} Teams`}
+                {leagueTeams[actualLeague]?.country} 
+                {!isCup && ` • ${leagueTeams[actualLeague]?.teams?.length} Teams`}
                 {isCup && ' • Cup Competition'}
               </p>
             </div>
