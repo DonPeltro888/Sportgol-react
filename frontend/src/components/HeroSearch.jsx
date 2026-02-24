@@ -65,14 +65,14 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
       debounceRef.current = setTimeout(async () => {
         try {
           // Search events
-          const eventsData = await eventsAPI.getAll({ search: value, lang, limit: 6 });
+          const eventsData = await eventsAPI.getAll({ search: value, lang, limit: 4 });
           setEventResults(eventsData.events || []);
           
           // Search teams locally
           const searchLower = value.toLowerCase();
           const matchingTeams = allTeams.filter(team => 
             team.name.toLowerCase().includes(searchLower)
-          ).slice(0, 5);
+          ).slice(0, 3);
           setTeamResults(matchingTeams);
         } catch (error) {
           console.error('Search error:', error);
