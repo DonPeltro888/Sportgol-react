@@ -268,36 +268,29 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
                         <button
                           key={event.id || event._id}
                           onClick={() => handleEventClick(event)}
-                          className="w-full px-4 py-3 flex items-center gap-4 hover:bg-purple-600/20 transition-colors text-left border-b border-gray-800 last:border-b-0"
+                          className="w-full px-3 py-2 flex items-center gap-3 hover:bg-purple-600/20 transition-colors text-left border-b border-gray-800 last:border-b-0"
                           data-testid={`search-event-${event.id || event._id}`}
                         >
                           {/* Date */}
-                          <div className="flex-shrink-0 w-14 text-center">
-                            <div className="text-lg font-bold text-purple-400">
+                          <div className="flex-shrink-0 w-12 text-center">
+                            <div className="text-sm font-bold text-purple-400">
                               {formatDate(event.date)}
                             </div>
                           </div>
                           
                           {/* Event Info */}
                           <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-white truncate">
+                            <div className="font-medium text-white text-sm truncate">
                               {event.title}
                             </div>
-                            <div className="flex items-center gap-3 text-sm text-gray-400 mt-1">
+                            <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
                               <span className="flex items-center gap-1">
                                 <MapPin className="w-3 h-3" />
                                 {event.location}
                               </span>
                               {event.stadium && (
-                                <span className="truncate">{event.stadium}</span>
+                                <span className="truncate">- {event.stadium}</span>
                               )}
-                            </div>
-                          </div>
-                          
-                          {/* Price */}
-                          <div className="flex-shrink-0 text-right">
-                            <div className="text-green-400 font-bold">
-                              €{event.price || event.minPrice || '25'}+
                             </div>
                           </div>
                         </button>
