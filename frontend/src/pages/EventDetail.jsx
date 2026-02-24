@@ -159,7 +159,7 @@ const EventDetail = () => {
               <span className="text-sm">Torna agli eventi</span>
             </button>
             {/* H1 from SEO or default */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-white mb-3">
               {getMultiLang(event?.seo_h1) || `Biglietti ${eventTitle}`}
             </h1>
             <div className="flex flex-wrap gap-2">
@@ -232,9 +232,9 @@ const EventDetail = () => {
 
                 {/* 5) Informazioni Evento */}
                 {seoEventInfo && (
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 md:p-8">
-                    <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                      <Info className="w-6 h-6 text-blue-400" />
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-5 md:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
+                      <Info className="w-5 h-5 text-blue-400" />
                       Informazioni Evento
                     </h2>
                     <div className="text-gray-300 leading-relaxed whitespace-pre-line" dangerouslySetInnerHTML={{ __html: seoEventInfo }} />
@@ -243,9 +243,9 @@ const EventDetail = () => {
 
                 {/* 6) Biglietti Disponibili */}
                 {seoTicketsInfo && (
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 md:p-8">
-                    <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                      <Ticket className="w-6 h-6 text-green-400" />
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-5 md:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
+                      <Ticket className="w-5 h-5 text-green-400" />
                       Biglietti Disponibili
                     </h2>
                     <div className="text-gray-300 leading-relaxed whitespace-pre-line" dangerouslySetInnerHTML={{ __html: seoTicketsInfo }} />
@@ -254,9 +254,9 @@ const EventDetail = () => {
 
                 {/* 7) Settori Consigliati */}
                 {seoSectors && (
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 md:p-8">
-                    <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                      <Star className="w-6 h-6 text-yellow-400" />
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-5 md:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
+                      <Star className="w-5 h-5 text-yellow-400" />
                       Settori Consigliati
                     </h2>
                     <div className="text-gray-300 leading-relaxed whitespace-pre-line" dangerouslySetInnerHTML={{ __html: seoSectors }} />
@@ -265,9 +265,9 @@ const EventDetail = () => {
 
                 {/* 8) Prezzi e Domanda */}
                 {seoPricing && (
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 md:p-8">
-                    <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                      <Euro className="w-6 h-6 text-green-400" />
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-5 md:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
+                      <Euro className="w-5 h-5 text-green-400" />
                       Prezzi e Domanda
                     </h2>
                     <p className="text-gray-300 leading-relaxed">{seoPricing}</p>
@@ -276,9 +276,9 @@ const EventDetail = () => {
 
                 {/* 9) Venue */}
                 {seoVenue && (
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 md:p-8">
-                    <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                      <MapPin className="w-6 h-6 text-purple-400" />
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-5 md:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-purple-400" />
                       Lo Stadio
                     </h2>
                     <p className="text-gray-300 leading-relaxed">{seoVenue}</p>
@@ -287,8 +287,8 @@ const EventDetail = () => {
 
                 {/* 11) CTA */}
                 {seoCta && (
-                  <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-2xl p-6 md:p-8 text-center">
-                    <p className="text-white text-lg mb-4">{seoCta}</p>
+                  <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-2xl p-5 md:p-6 text-center">
+                    <p className="text-white text-base mb-3">{seoCta}</p>
                     <button onClick={handleContactUs}
                       className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3 px-8 rounded-xl transition-all inline-flex items-center gap-2">
                       <Ticket className="w-5 h-5" /> Acquista Ora
@@ -338,8 +338,8 @@ const EventDetail = () => {
 
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 sticky top-24">
-              <h3 className="text-xl font-bold text-white mb-6">Dettagli Evento</h3>
+            <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-5 sticky top-24">
+              <h3 className="text-base font-bold text-white mb-4">Dettagli Evento</h3>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <Calendar className="w-5 h-5 text-blue-400 mt-1" />

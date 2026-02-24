@@ -34,15 +34,15 @@ const EventsGrid = ({ events, loading }) => {
     <section className="py-12 px-4 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden z-0">
       <div className="container mx-auto relative">
         {/* Section Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-400 text-sm font-semibold mb-4">
-            <Trophy className="w-4 h-4" />
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-400 text-xs font-semibold mb-3">
+            <Trophy className="w-3 h-3" />
             {t('topEvents')}
           </div>
-          <h2 className="text-4xl md:text-5xl font-black mb-3">
+          <h2 className="text-2xl md:text-3xl font-black mb-2">
             <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{t('upcomingEvents')}</span>
           </h2>
-          <p className="text-gray-400 text-base max-w-2xl mx-auto">
+          <p className="text-gray-400 text-sm max-w-2xl mx-auto">
             {t('eventsSubtitle')}
           </p>
         </div>

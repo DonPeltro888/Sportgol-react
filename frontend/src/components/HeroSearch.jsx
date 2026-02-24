@@ -26,29 +26,29 @@ const HeroSearch = () => {
           {t('liveEvents')} • {t('bestPrices')} • {t('instantBooking')}
         </div>
 
-        <h1 className="text-4xl md:text-6xl font-black mb-4 animate-fade-in-up" style={{animationDelay: '0.1s'}}>
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-black mb-4 animate-fade-in-up" style={{animationDelay: '0.1s'}}>
           <span className="text-white">{t('findYour')} </span>
           <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">{t('perfect')}</span>
           <br />
           <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">{t('sportEvent')}</span>
         </h1>
         
-        <p className="text-gray-300 text-base md:text-lg mb-8 max-w-2xl mx-auto animate-fade-in-up" style={{animationDelay: '0.2s'}}>
+        <p className="text-gray-300 text-sm md:text-base mb-6 max-w-2xl mx-auto animate-fade-in-up" style={{animationDelay: '0.2s'}}>
           {t('heroSubtitle')}
         </p>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+        <div className="grid grid-cols-3 gap-3 max-w-xl mx-auto">
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-3">
-            <div className="text-2xl font-bold text-white mb-1">500+</div>
+            <div className="text-xl font-bold text-white mb-1">500+</div>
             <div className="text-gray-400 text-xs">{t('liveEventsCount')}</div>
           </div>
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-3">
-            <div className="text-2xl font-bold text-white mb-1">50k+</div>
+            <div className="text-xl font-bold text-white mb-1">50k+</div>
             <div className="text-gray-400 text-xs">{t('happyFans')}</div>
           </div>
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-3">
-            <div className="text-2xl font-bold text-white mb-1">24/7</div>
+            <div className="text-xl font-bold text-white mb-1">24/7</div>
             <div className="text-gray-400 text-xs">{t('support')}</div>
           </div>
         </div>
