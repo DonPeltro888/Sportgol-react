@@ -59,21 +59,18 @@ function App() {
             
             {/* 
               URL STRUCTURE (MEMORIZZATO):
-              - IT: /biglietti-{name}/ (biglietti PRIMA con trattino)
-              - EN: /{name}-tickets/ (tickets DOPO con trattino)  
-              - ES: /entradas-{name}/ (entradas PRIMA con trattino)
+              - IT: /biglietti-{name} (biglietti PRIMA con trattino)
+              - EN: /{name}-tickets (tickets DOPO con trattino)  
+              - ES: /entradas-{name} (entradas PRIMA con trattino)
             */}
             
-            {/* Team Routes */}
-            <Route path="/biglietti-:slug" element={<TeamPage />} />
-            <Route path="/:slug-tickets" element={<TeamPage />} />
-            <Route path="/entradas-:slug" element={<TeamPage />} />
+            {/* Team Routes - using wildcard for flexible matching */}
+            <Route path="/biglietti-*" element={<TeamPage urlType="it" />} />
+            <Route path="/*-tickets" element={<TeamPage urlType="en" />} />
+            <Route path="/entradas-*" element={<TeamPage urlType="es" />} />
             <Route path="/team/:slug" element={<TeamPage />} /> {/* Fallback */}
             
-            {/* League Routes */}
-            <Route path="/biglietti-:league" element={<LeaguePage />} />
-            <Route path="/:league-tickets" element={<LeaguePage />} />
-            <Route path="/entradas-:league" element={<LeaguePage />} />
+            {/* League Routes - need specific patterns to avoid conflicts */}
             <Route path="/league/:league" element={<LeaguePage />} /> {/* Fallback */}
             
             {/* Admin Routes */}
