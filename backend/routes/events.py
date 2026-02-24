@@ -35,8 +35,8 @@ async def get_events(
             query["featured"] = featured
         
         total = await db.events.count_documents(query)
-        # Sort by date (descending - most recent first) then by created_at
-        events = await db.events.find(query).sort([("date", -1), ("created_at", -1)]).skip(skip).limit(limit).to_list(length=limit)
+        # Sort by sort_date (descending - most recent first)
+        events = await db.events.find(query).sort([("sort_date", -1), ("created_at", -1)]).skip(skip).limit(limit).to_list(length=limit)
         
         # Convert ObjectId to string
         for event in events:
