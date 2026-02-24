@@ -2,6 +2,7 @@ import React from 'react';
 import EventListItem from './EventListItem';
 import { Trophy, Loader2, Globe, MapPin } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getTranslation } from '../translations';
 
 // Local locations per language
 const LOCAL_LOCATIONS = {
@@ -14,18 +15,12 @@ const LOCAL_LOCATIONS = {
        "Leeds", "Brighton", "Bournemouth", "Wolverhampton", "Burnley"]
 };
 
-const COUNTRY_NAMES = {
-  it: "Italia",
-  es: "España", 
-  en: "UK"
-};
-
 const EventsGrid = ({ events, loading }) => {
   const { lang } = useLanguage();
+  const t = (key) => getTranslation(lang, key);
   
   // Split events into local and international
   const localLocations = LOCAL_LOCATIONS[lang] || LOCAL_LOCATIONS.it;
-  const countryName = COUNTRY_NAMES[lang] || "Italia";
   
   const localEvents = events.filter(event => 
     localLocations.includes(event.location)
@@ -42,14 +37,13 @@ const EventsGrid = ({ events, loading }) => {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-400 text-sm font-semibold mb-4">
             <Trophy className="w-4 h-4" />
-            Top Events
+            {t('topEvents')}
           </div>
           <h2 className="text-4xl md:text-5xl font-black mb-3">
-            <span className="text-white">Upcoming </span>
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Events</span>
+            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{t('upcomingEvents')}</span>
           </h2>
           <p className="text-gray-400 text-base max-w-2xl mx-auto">
-            Don't miss out on the most exciting sporting events of the season
+            {t('eventsSubtitle')}
           </p>
         </div>
         
@@ -57,7 +51,7 @@ const EventsGrid = ({ events, loading }) => {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
-            <p className="text-gray-400">Loading events...</p>
+            <p className="text-gray-400">{t('loadingEvents')}</p>
           </div>
         ) : events.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -66,10 +60,10 @@ const EventsGrid = ({ events, loading }) => {
               <div className="px-4 py-3 border-b border-gray-700/50 flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-green-400" />
                 <span className="text-sm text-white font-semibold">
-                  Eventi {countryName}
+                  {t('eventsCountry')}
                 </span>
                 <span className="text-xs text-gray-500 ml-auto">
-                  {localEvents.length} eventi
+                  {localEvents.length} {t('events')}
                 </span>
               </div>
               <div className="max-h-[600px] overflow-y-auto">
@@ -79,7 +73,7 @@ const EventsGrid = ({ events, loading }) => {
                   ))
                 ) : (
                   <div className="p-8 text-center text-gray-500">
-                    Nessun evento locale disponibile
+                    {t('noEventsLocal')}
                   </div>
                 )}
               </div>
@@ -90,10 +84,10 @@ const EventsGrid = ({ events, loading }) => {
               <div className="px-4 py-3 border-b border-gray-700/50 flex items-center gap-2">
                 <Globe className="w-4 h-4 text-blue-400" />
                 <span className="text-sm text-white font-semibold">
-                  Eventi Internazionali
+                  {t('eventsInternational')}
                 </span>
                 <span className="text-xs text-gray-500 ml-auto">
-                  {internationalEvents.length} eventi
+                  {internationalEvents.length} {t('events')}
                 </span>
               </div>
               <div className="max-h-[600px] overflow-y-auto">
@@ -103,7 +97,7 @@ const EventsGrid = ({ events, loading }) => {
                   ))
                 ) : (
                   <div className="p-8 text-center text-gray-500">
-                    Nessun evento internazionale disponibile
+                    {t('noEventsInternational')}
                   </div>
                 )}
               </div>
@@ -112,8 +106,8 @@ const EventsGrid = ({ events, loading }) => {
         ) : (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">🔍</div>
-            <div className="text-gray-400 text-xl mb-2">No events found</div>
-            <p className="text-gray-500">Try adjusting your search criteria</p>
+            <div className="text-gray-400 text-xl mb-2">{t('noEventsFound')}</div>
+            <p className="text-gray-500">{t('adjustSearch')}</p>
           </div>
         )}
       </div>
