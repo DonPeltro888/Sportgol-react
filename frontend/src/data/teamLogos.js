@@ -21,6 +21,9 @@ const TEAM_LOGOS = {
   'Sassuolo': 'https://media.api-sports.io/football/teams/488.png',
   'Torino': 'https://media.api-sports.io/football/teams/503.png',
   'Udinese': 'https://media.api-sports.io/football/teams/494.png',
+  'Empoli': 'https://media.api-sports.io/football/teams/511.png',
+  'Monza': 'https://media.api-sports.io/football/teams/1579.png',
+  'Venezia': 'https://media.api-sports.io/football/teams/517.png',
   
   // Premier League - England
   'Arsenal': 'https://media.api-sports.io/football/teams/42.png',
