@@ -57,7 +57,7 @@ const TeamPage = () => {
   const teamLogo = getTeamLogo(teamName);
   const seoTitle = getSeoTitle('team', teamName, lang);
   const seoDescription = getSeoDescription('team', teamName, lang);
-  const canonicalUrl = `${window.location.origin}${getTeamUrl(extractSlug(), lang)}`;
+  const canonicalUrl = `${window.location.origin}${getTeamUrl(slug, lang)}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
