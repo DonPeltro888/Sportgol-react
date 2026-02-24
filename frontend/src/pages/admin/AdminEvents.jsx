@@ -33,7 +33,20 @@ const AdminEvents = () => {
     imageUrl: '',
     ticket_categories: [],
     seo_title: { it: '', es: '', en: '' },
-    seo_description: { it: '', es: '', en: '' }
+    seo_description: { it: '', es: '', en: '' },
+    // SEO Content
+    seo_intro: { it: '', es: '', en: '' },
+    seo_venue_info: { it: '', es: '', en: '' },
+    seo_sectors: { it: '', es: '', en: '' },
+    seo_pricing: { it: '', es: '', en: '' },
+    seo_cta: { it: '', es: '', en: '' },
+    // FAQ
+    faq_1_q: { it: '', es: '', en: '' },
+    faq_1_a: { it: '', es: '', en: '' },
+    faq_2_q: { it: '', es: '', en: '' },
+    faq_2_a: { it: '', es: '', en: '' },
+    faq_3_q: { it: '', es: '', en: '' },
+    faq_3_a: { it: '', es: '', en: '' }
   };
 
   const [formData, setFormData] = useState(defaultEvent);
