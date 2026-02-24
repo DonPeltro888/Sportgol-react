@@ -372,7 +372,7 @@ const Header = () => {
             <div className="py-2 border-t border-gray-800">
               <div className="text-xs text-purple-400 font-bold uppercase tracking-wider px-1 py-2 flex items-center gap-2">
                 <Trophy className="w-3 h-3" />
-                Cups
+                {t('cups')}
               </div>
               {cups.map((cup) => (
                 <button
