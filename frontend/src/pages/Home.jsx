@@ -6,14 +6,18 @@ import HeroSearch from '../components/HeroSearch';
 import EventsGrid from '../components/EventsGrid';
 import CategoriesSection from '../components/CategoriesSection';
 import Footer from '../components/Footer';
+import SEOHead from '../components/SEOHead';
 import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getTranslation } from '../translations';
+import { getSeoTitle, getSeoDescription } from '../utils/seoHelpers';
 
 const Home = () => {
   const { lang } = useLanguage();
   const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const t = (key) => getTranslation(lang, key);
 
   useEffect(() => {
     fetchEvents();
@@ -42,8 +46,19 @@ const Home = () => {
     }
   };
 
+  const seoTitle = getSeoTitle('home', '', lang);
+  const seoDescription = getSeoDescription('home', '', lang);
+  const canonicalUrl = window.location.origin;
+
   return (
     <>
+      <SEOHead 
+        title={seoTitle}
+        description={seoDescription}
+        canonicalUrl={canonicalUrl}
+        ogImage="https://images.unsplash.com/photo-1574629810360-7efbbe195018"
+      />
+      
       <Header />
       <StickySearch />
       <HeroSearch />
