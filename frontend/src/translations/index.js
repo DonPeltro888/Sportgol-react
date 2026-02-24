@@ -9,6 +9,19 @@ export const translations = {
     cups: "COPPE",
     language: "Lingua",
     
+    // URL prefix
+    urlPrefix: "biglietti",
+    
+    // SEO
+    seoTickets: "Biglietti",
+    seoBuy: "Acquista biglietti per",
+    seoAllMatches: "Tutte le partite",
+    seoHomeAway: "Casa e Trasferta",
+    seoTeamEvents: "eventi della squadra",
+    seoLeagueTeams: "squadre del campionato",
+    seoSiteTitle: "GOLEVENTS - Biglietti Eventi Sportivi",
+    seoSiteDescription: "Acquista biglietti per i migliori eventi sportivi. Serie A, Champions League, Europa League e molto altro.",
+    
     // Leagues
     serieA: "SERIE A",
     premierLeague: "PREMIER LEAGUE",
