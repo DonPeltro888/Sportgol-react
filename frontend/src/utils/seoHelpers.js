@@ -2,38 +2,41 @@
 
 import { getTranslation } from '../translations';
 
-// Get URL prefix based on language (biglietti, tickets, entradas)
-export const getUrlPrefix = (lang) => {
-  const prefixes = {
-    it: 'biglietti',
-    en: 'tickets',
-    es: 'entradas'
-  };
-  return prefixes[lang] || prefixes.it;
-};
+// Get URL suffix for English (tickets goes after the name)
+// IT: /biglietti/inter (prefix)
+// EN: /inter/tickets (suffix)
+// ES: /entradas/inter (prefix)
 
-// Get league URL prefix based on language
-export const getLeagueUrlPrefix = (lang) => {
-  const prefixes = {
-    it: 'biglietti-campionato',
-    en: 'tickets-league',
-    es: 'entradas-liga'
-  };
-  return prefixes[lang] || prefixes.it;
-};
-
-// Generate team URL with translated prefix
+// Generate team URL with translated structure
 export const getTeamUrl = (slug, lang) => {
-  const prefix = getUrlPrefix(lang);
   const cleanSlug = slug.toLowerCase().replace(/\s+/g, '-');
-  return `/${prefix}/${cleanSlug}`;
+  
+  if (lang === 'en') {
+    // English: name first, then tickets -> /inter/tickets
+    return `/${cleanSlug}/tickets`;
+  } else if (lang === 'es') {
+    // Spanish: entradas first -> /entradas/inter
+    return `/entradas/${cleanSlug}`;
+  } else {
+    // Italian: biglietti first -> /biglietti/inter
+    return `/biglietti/${cleanSlug}`;
+  }
 };
 
-// Generate league URL with translated prefix
+// Generate league URL with translated structure
 export const getLeagueUrl = (league, lang) => {
-  const prefix = getLeagueUrlPrefix(lang);
   const cleanLeague = league.toLowerCase().replace(/\s+/g, '-');
-  return `/${prefix}/${cleanLeague}`;
+  
+  if (lang === 'en') {
+    // English: name first -> /serie-a/tickets
+    return `/${cleanLeague}/tickets`;
+  } else if (lang === 'es') {
+    // Spanish: entradas-liga first -> /entradas-liga/serie-a
+    return `/entradas-liga/${cleanLeague}`;
+  } else {
+    // Italian: biglietti-campionato first -> /biglietti-campionato/serie-a
+    return `/biglietti-campionato/${cleanLeague}`;
+  }
 };
 
 // Generate canonical URL
