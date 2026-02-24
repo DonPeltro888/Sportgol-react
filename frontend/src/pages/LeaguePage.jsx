@@ -264,20 +264,38 @@ const LeaguePage = ({ urlType }) => {
             <>
               <h2 className="text-xl md:text-2xl font-bold text-white mb-6">{t('teamsTitle')}</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {leagueTeams[actualLeague]?.teams?.map((team, index) => (
-                  <Link
-                    key={index}
-                    to={getTeamUrl(getTeamSlug(team), lang)}
-                    className="group bg-gray-800/50 border border-gray-700 hover:border-blue-500 rounded-xl p-6 text-center transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20"
-                  >
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                      <span className="text-2xl font-bold text-white">
-                        {team.charAt(0)}
-                      </span>
-                    </div>
-                    <h3 className="font-bold text-white text-sm group-hover:text-blue-400 transition-colors">
-                      {lang === 'en' ? `${team} ${t('seoTickets')}` : `${t('seoTickets')} ${team}`}
-                    </h3>
+                {leagueTeams[actualLeague]?.teams?.map((team, index) => {
+                  const teamLogo = getTeamLogo(team);
+                  return (
+                    <Link
+                      key={index}
+                      to={getTeamUrl(getTeamSlug(team), lang)}
+                      className="group bg-gray-800/50 border border-gray-700 hover:border-blue-500 rounded-xl p-6 text-center transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20"
+                    >
+                      {/* Team Logo or Fallback Initial */}
+                      <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        {teamLogo ? (
+                          <img 
+                            src={teamLogo} 
+                            alt={`${t('seoTickets')} ${team}`}
+                            className="w-full h-full object-contain filter drop-shadow-lg"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div 
+                          className={`w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full items-center justify-center ${teamLogo ? 'hidden' : 'flex'}`}
+                        >
+                          <span className="text-2xl font-bold text-white">
+                            {team.charAt(0)}
+                          </span>
+                        </div>
+                      </div>
+                      <h3 className="font-bold text-white text-sm group-hover:text-blue-400 transition-colors">
+                        {lang === 'en' ? `${team} ${t('seoTickets')}` : `${t('seoTickets')} ${team}`}
+                      </h3>
                   </Link>
                 ))}
               </div>
