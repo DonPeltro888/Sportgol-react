@@ -216,8 +216,24 @@ const LeaguePage = ({ urlType }) => {
           </button>
           
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-              <Trophy className="w-7 h-7 text-white" />
+            {/* League/Cup Logo */}
+            <div className="w-14 h-14 flex items-center justify-center">
+              {getLeagueLogo(actualLeague) ? (
+                <img 
+                  src={getLeagueLogo(actualLeague)} 
+                  alt={leagueName}
+                  className="w-full h-full object-contain filter drop-shadow-lg"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div 
+                className={`w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full items-center justify-center ${getLeagueLogo(actualLeague) ? 'hidden' : 'flex'}`}
+              >
+                <Trophy className="w-7 h-7 text-white" />
+              </div>
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-black text-white">
