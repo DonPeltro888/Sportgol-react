@@ -265,7 +265,7 @@ const Header = () => {
                       <div className="px-4 py-3 bg-gradient-to-r from-purple-600/20 to-transparent border-b border-gray-700">
                         <h3 className="text-sm font-bold text-purple-400 flex items-center gap-2">
                           <Trophy className="w-4 h-4" />
-                          CUPS
+                          {t('cups')}
                         </h3>
                       </div>
                       <div className="p-2">
