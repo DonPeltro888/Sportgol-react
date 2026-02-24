@@ -1,7 +1,18 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
+
+const COUNTRY_NAMES = {
+  it: "Italiane",
+  es: "Españolas", 
+  en: "UK"
+};
 
 const CategoriesSection = ({ categories }) => {
+  const { lang } = useLanguage();
+  const countryLabel = COUNTRY_NAMES[lang] || "Italiane";
+  
   return (
     <section className="py-20 px-4 bg-black relative overflow-hidden">
       {/* Background gradient */}
@@ -10,14 +21,15 @@ const CategoriesSection = ({ categories }) => {
       <div className="container mx-auto relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-            Popular <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Teams</span>
+            Squadre <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{countryLabel}</span>
           </h2>
-          <p className="text-gray-400 text-lg">Explore events from the world's biggest clubs</p>
+          <p className="text-gray-400 text-lg">Esplora gli eventi delle squadre più importanti</p>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
           {categories.map((category, index) => (
-            <div
+            <Link
+              to={`/team/${category.slug}`}
               key={index}
               className="group relative bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-blue-500 rounded-xl p-6 text-center cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20 overflow-hidden"
             >
@@ -29,11 +41,11 @@ const CategoriesSection = ({ categories }) => {
                   Biglietti {category.name}
                 </h3>
                 <div className="flex items-center justify-center gap-1 text-blue-400 text-xs font-semibold">
-                  <span>{category.label}</span>
+                  <span>Vedi eventi</span>
                   <ArrowRight className="w-3 h-3 transform group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
