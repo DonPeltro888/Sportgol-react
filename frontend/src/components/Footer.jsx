@@ -1,7 +1,12 @@
 import React from 'react';
 import { MessageCircle, Mail, Phone, MapPin } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getTranslation } from '../translations';
 
 const Footer = () => {
+  const { lang } = useLanguage();
+  const t = (key) => getTranslation(lang, key);
+  
   return (
     <footer className="bg-black border-t border-gray-800 relative overflow-hidden">
       {/* Background gradient */}
@@ -21,35 +26,35 @@ const Footer = () => {
               </div>
             </div>
             <p className="text-gray-400 text-sm mb-4">
-              Your premier destination for booking tickets to the world's most exciting sporting events.
+              {t('footerDescription')}
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-bold text-white mb-4">Quick Links</h3>
+            <h3 className="font-bold text-white mb-4">{t('quickLinks')}</h3>
             <div className="space-y-2">
-              <a href="#about" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">About Us</a>
-              <a href="#events" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">All Events</a>
-              <a href="#calendar" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">Calendar</a>
-              <a href="#contact" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">Contact</a>
+              <a href="#about" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">{t('aboutUs')}</a>
+              <a href="#events" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">{t('allEvents')}</a>
+              <a href="#calendar" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">{t('calendar')}</a>
+              <a href="#contact" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">{t('contact')}</a>
             </div>
           </div>
 
           {/* Legal */}
           <div>
-            <h3 className="font-bold text-white mb-4">Legal</h3>
+            <h3 className="font-bold text-white mb-4">{t('legal')}</h3>
             <div className="space-y-2">
-              <a href="#terms" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">Terms & Conditions</a>
-              <a href="#privacy" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">Privacy Policy</a>
-              <a href="#refund" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">Refund Policy</a>
-              <a href="#cookies" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">Cookie Policy</a>
+              <a href="#terms" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">{t('termsConditions')}</a>
+              <a href="#privacy" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">{t('privacyPolicy')}</a>
+              <a href="#refund" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">{t('refundPolicy')}</a>
+              <a href="#cookies" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">{t('cookiePolicy')}</a>
             </div>
           </div>
 
           {/* Contact */}
           <div>
-            <h3 className="font-bold text-white mb-4">Get in Touch</h3>
+            <h3 className="font-bold text-white mb-4">{t('getInTouch')}</h3>
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-gray-400 text-sm">
                 <Mail className="w-4 h-4 text-blue-400" />
@@ -70,7 +75,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-gray-800">
           <p className="text-gray-500 text-sm">
-            © 2026 Golevents. All rights reserved.
+            © 2026 Golevents. {t('allRightsReserved')}
           </p>
           
           <a
@@ -81,7 +86,7 @@ const Footer = () => {
           >
             <span className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></span>
             <MessageCircle className="relative w-5 h-5" />
-            <span className="relative">WHATSAPP US</span>
+            <span className="relative">{t('whatsappUs')}</span>
           </a>
         </div>
       </div>
