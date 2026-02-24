@@ -7,6 +7,8 @@ import { Calendar, MapPin, ArrowLeft, Ticket, Info, MessageCircle, ChevronDown, 
 import { toast } from 'sonner';
 import SEOHead from '../components/SEOHead';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getTranslation } from '../translations';
+import { getSeoTitle, getSeoDescription } from '../utils/seoHelpers';
 
 const EventDetail = () => {
   const { id } = useParams();
@@ -16,6 +18,7 @@ const EventDetail = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('tickets');
   const [openFaq, setOpenFaq] = useState(null);
+  const t = (key) => getTranslation(lang, key);
 
   useEffect(() => {
     fetchEventDetail();
