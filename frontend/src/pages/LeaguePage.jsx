@@ -11,8 +11,8 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
 import { getLeagueUrl, getTeamUrl, getSeoTitle, getSeoDescription } from '../utils/seoHelpers';
 
-const LeaguePage = () => {
-  const { league } = useParams();
+const LeaguePage = ({ urlType }) => {
+  const { league, '*': wildcardLeague } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const [events, setEvents] = useState([]);
@@ -22,8 +22,31 @@ const LeaguePage = () => {
   const { lang } = useLanguage();
   const t = (key) => getTranslation(lang, key);
 
-  // The league is directly available from useParams
-  const actualLeague = league;
+  // Extract league from URL based on pattern
+  // REGOLE URL (MEMORIZZATO):
+  // - IT: /biglietti-serie-a -> estrai "serie-a"
+  // - EN: /serie-a-tickets -> estrai "serie-a"
+  // - ES: /entradas-serie-a -> estrai "serie-a"
+  const extractLeagueFromUrl = () => {
+    const path = location.pathname;
+    
+    // IT: /biglietti-serie-a -> remove "biglietti-" prefix
+    if (path.startsWith('/biglietti-')) {
+      return path.replace('/biglietti-', '');
+    }
+    // ES: /entradas-serie-a -> remove "entradas-" prefix
+    if (path.startsWith('/entradas-')) {
+      return path.replace('/entradas-', '');
+    }
+    // EN: /serie-a-tickets -> remove "-tickets" suffix
+    if (path.endsWith('-tickets')) {
+      return path.slice(1).replace(/-tickets$/, '');
+    }
+    // Fallback: /league/serie-a
+    return league || wildcardLeague || '';
+  };
+
+  const actualLeague = extractLeagueFromUrl();
 
   const leagueTeams = {
     'serie-a': {
