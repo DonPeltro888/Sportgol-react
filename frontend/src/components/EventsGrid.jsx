@@ -1,31 +1,45 @@
 import React from 'react';
 import EventCard from './EventCard';
+import { Trophy } from 'lucide-react';
 
 const EventsGrid = ({ events }) => {
   return (
-    <section className="py-16 px-4 bg-gray-50">
-      <div className="container mx-auto">
-        <h2 className="text-4xl font-bold text-center mb-12">
-          Upcoming <span className="text-blue-600">Events</span>
-        </h2>
-        
-        {/* Decorative line */}
-        <div className="flex items-center justify-center mb-12">
-          <div className="h-px bg-gray-300 flex-1 max-w-xs"></div>
-          <div className="mx-4 text-gray-400">
-            <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-            </svg>
+    <section className="py-20 px-4 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500 rounded-full filter blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl"></div>
+      </div>
+
+      <div className="container mx-auto relative z-10">
+        {/* Section Header */}
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-400 text-sm font-semibold mb-4">
+            <Trophy className="w-4 h-4" />
+            Top Events
           </div>
-          <div className="h-px bg-gray-300 flex-1 max-w-xs"></div>
+          <h2 className="text-5xl md:text-6xl font-black mb-4">
+            <span className="text-white">Upcoming </span>
+            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Events</span>
+          </h2>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            Don't miss out on the most exciting sporting events of the season
+          </p>
         </div>
         
         {/* Events Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-          {events.map((event) => (
-            <EventCard key={event.id} event={event} />
-          ))}
-        </div>
+        {events.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {events.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <div className="text-gray-400 text-xl mb-4">No events found</div>
+            <p className="text-gray-500">Try adjusting your search criteria</p>
+          </div>
+        )}
       </div>
     </section>
   );

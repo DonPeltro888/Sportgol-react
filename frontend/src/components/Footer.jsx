@@ -1,45 +1,88 @@
 import React from 'react';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Mail, Phone, MapPin } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white py-12 px-4">
-      <div className="container mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+    <footer className="bg-black border-t border-gray-800 relative overflow-hidden">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-t from-blue-950/20 to-transparent"></div>
+      
+      <div className="container mx-auto px-4 py-12 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Logo and Info */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-purple-500 to-orange-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-lg">G</span>
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-xl">G</span>
+              </div>
+              <div>
+                <div className="font-bold text-lg bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">GOLEVENTS</div>
+                <div className="text-xs text-gray-500 tracking-wider font-medium">TRAVEL SPORT FUN</div>
+              </div>
             </div>
-            <div>
-              <div className="font-bold text-lg">GOLEVENTS</div>
-              <div className="text-xs text-gray-400 tracking-wider">TRAVEL SPORT FUN</div>
+            <p className="text-gray-400 text-sm mb-4">
+              Your premier destination for booking tickets to the world's most exciting sporting events.
+            </p>
+          </div>
+
+          {/* Quick Links */}
+          <div>
+            <h3 className="font-bold text-white mb-4">Quick Links</h3>
+            <div className="space-y-2">
+              <a href="#about" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">About Us</a>
+              <a href="#events" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">All Events</a>
+              <a href="#calendar" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">Calendar</a>
+              <a href="#contact" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">Contact</a>
             </div>
           </div>
 
-          {/* Links */}
-          <div className="flex flex-wrap justify-center gap-6 text-sm">
-            <a href="#about" className="hover:text-blue-400 transition-colors">About Us</a>
-            <a href="#contact" className="hover:text-blue-400 transition-colors">Contact</a>
-            <a href="#terms" className="hover:text-blue-400 transition-colors">Terms & Conditions</a>
-            <a href="#privacy" className="hover:text-blue-400 transition-colors">Privacy Policy</a>
+          {/* Legal */}
+          <div>
+            <h3 className="font-bold text-white mb-4">Legal</h3>
+            <div className="space-y-2">
+              <a href="#terms" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">Terms & Conditions</a>
+              <a href="#privacy" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">Privacy Policy</a>
+              <a href="#refund" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">Refund Policy</a>
+              <a href="#cookies" className="block text-gray-400 hover:text-blue-400 text-sm transition-colors">Cookie Policy</a>
+            </div>
           </div>
 
-          {/* WhatsApp Button */}
+          {/* Contact */}
+          <div>
+            <h3 className="font-bold text-white mb-4">Get in Touch</h3>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <Mail className="w-4 h-4 text-blue-400" />
+                <span>info@golevents.com</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <Phone className="w-4 h-4 text-purple-400" />
+                <span>+1 (555) 123-4567</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <MapPin className="w-4 h-4 text-pink-400" />
+                <span>Milan, Italy</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-gray-800">
+          <p className="text-gray-500 text-sm">
+            © 2026 Golevents. All rights reserved.
+          </p>
+          
           <a
             href="https://wa.me/"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full flex items-center gap-2 font-semibold transition-all duration-300 hover:shadow-lg"
+            className="relative group bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-3 rounded-xl flex items-center gap-2 font-bold transition-all duration-300 shadow-lg shadow-green-500/20 hover:shadow-green-500/40 transform hover:scale-105"
           >
-            <MessageCircle className="w-5 h-5" />
-            WHATSAPP US
+            <span className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></span>
+            <MessageCircle className="relative w-5 h-5" />
+            <span className="relative">WHATSAPP US</span>
           </a>
-        </div>
-
-        {/* Copyright */}
-        <div className="text-center text-gray-400 text-sm mt-8 pt-8 border-t border-gray-800">
-          <p>© 2026 Golevents. All rights reserved.</p>
         </div>
       </div>
     </footer>
