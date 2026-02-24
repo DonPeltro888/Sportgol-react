@@ -59,7 +59,7 @@ const TeamPage = () => {
               <Users className="w-10 h-10 text-white" />
             </div>
             <div>
-              <h1 className="text-5xl md:text-6xl font-black text-white">{teamName}</h1>
+              <h1 className="text-5xl md:text-6xl font-black text-white">Biglietti {teamName}</h1>
               <p className="text-gray-300 text-lg mt-2">All matches - Home & Away</p>
             </div>
           </div>
