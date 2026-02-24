@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, TrendingUp, Zap, Calendar, MapPin, Loader2, X } from 'lucide-react';
+import { Search, TrendingUp, Zap, Calendar, MapPin, Loader2, X, Users, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
-import { eventsAPI } from '../services/api';
+import { eventsAPI, categoriesAPI } from '../services/api';
+import { getTeamLogo } from '../data/teamLogos';
 
 const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
   const [localQuery, setLocalQuery] = useState(searchQuery || '');
-  const [results, setResults] = useState([]);
+  const [eventResults, setEventResults] = useState([]);
+  const [teamResults, setTeamResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const { lang } = useLanguage();
@@ -15,6 +17,20 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
   const navigate = useNavigate();
   const searchRef = useRef(null);
   const debounceRef = useRef(null);
+  const [allTeams, setAllTeams] = useState([]);
+
+  // Load all teams on mount
+  useEffect(() => {
+    const loadTeams = async () => {
+      try {
+        const teams = await categoriesAPI.getAll({});
+        setAllTeams(teams || []);
+      } catch (error) {
+        console.error('Error loading teams:', error);
+      }
+    };
+    loadTeams();
+  }, []);
 
   useEffect(() => {
     setLocalQuery(searchQuery || '');
@@ -48,17 +64,27 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
       // Debounce API call
       debounceRef.current = setTimeout(async () => {
         try {
-          const data = await eventsAPI.getAll({ search: value, lang, limit: 8 });
-          setResults(data.events || []);
+          // Search events
+          const eventsData = await eventsAPI.getAll({ search: value, lang, limit: 6 });
+          setEventResults(eventsData.events || []);
+          
+          // Search teams locally
+          const searchLower = value.toLowerCase();
+          const matchingTeams = allTeams.filter(team => 
+            team.name.toLowerCase().includes(searchLower)
+          ).slice(0, 5);
+          setTeamResults(matchingTeams);
         } catch (error) {
           console.error('Search error:', error);
-          setResults([]);
+          setEventResults([]);
+          setTeamResults([]);
         } finally {
           setLoading(false);
         }
       }, 300);
     } else {
-      setResults([]);
+      setEventResults([]);
+      setTeamResults([]);
       setShowDropdown(false);
       setLoading(false);
     }
@@ -68,10 +94,16 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
     }
   };
 
-  const handleResultClick = (event) => {
+  const handleEventClick = (event) => {
     setShowDropdown(false);
     setLocalQuery('');
     navigate(`/event/${event.id || event._id}`);
+  };
+
+  const handleTeamClick = (team) => {
+    setShowDropdown(false);
+    setLocalQuery('');
+    navigate(`/team/${team.slug}`);
   };
 
   const handleSubmit = (e) => {
@@ -84,7 +116,8 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
 
   const clearSearch = () => {
     setLocalQuery('');
-    setResults([]);
+    setEventResults([]);
+    setTeamResults([]);
     setShowDropdown(false);
     if (onSearchChange) {
       onSearchChange('');
@@ -98,6 +131,8 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
       month: 'short'
     });
   };
+
+  const totalResults = teamResults.length + eventResults.length;
 
   return (
     <div className="relative py-24 px-4 overflow-hidden">
@@ -168,57 +203,107 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
 
           {/* AJAX Results Dropdown */}
           {showDropdown && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900/95 backdrop-blur-xl border border-gray-700 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[400px] overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900/95 backdrop-blur-xl border border-gray-700 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[500px] overflow-y-auto">
               {loading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
                   <span className="ml-3 text-gray-400">{t('loadingEvents')}</span>
                 </div>
-              ) : results.length > 0 ? (
+              ) : totalResults > 0 ? (
                 <div>
+                  {/* Header with total results */}
                   <div className="px-4 py-2 bg-gray-800/50 border-b border-gray-700">
                     <span className="text-xs text-gray-400 font-medium">
-                      {results.length} {t('events')} {lang === 'it' ? 'trovati' : lang === 'es' ? 'encontrados' : 'found'}
+                      {totalResults} {t('resultsFound')}
                     </span>
                   </div>
-                  {results.map((event) => (
-                    <button
-                      key={event.id || event._id}
-                      onClick={() => handleResultClick(event)}
-                      className="w-full px-4 py-3 flex items-center gap-4 hover:bg-blue-600/20 transition-colors text-left border-b border-gray-800 last:border-b-0"
-                      data-testid={`search-result-${event.id || event._id}`}
-                    >
-                      {/* Date */}
-                      <div className="flex-shrink-0 w-14 text-center">
-                        <div className="text-lg font-bold text-blue-400">
-                          {formatDate(event.date)}
-                        </div>
+
+                  {/* Teams Section */}
+                  {teamResults.length > 0 && (
+                    <div>
+                      <div className="px-4 py-2 bg-blue-600/20 border-b border-gray-700 flex items-center gap-2">
+                        <Users className="w-4 h-4 text-blue-400" />
+                        <span className="text-sm font-semibold text-blue-400">{t('teams')}</span>
+                        <span className="text-xs text-gray-500">({teamResults.length})</span>
                       </div>
-                      
-                      {/* Event Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-white truncate">
-                          {event.title}
-                        </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-400 mt-1">
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />
-                            {event.location}
-                          </span>
-                          {event.stadium && (
-                            <span className="truncate">{event.stadium}</span>
-                          )}
-                        </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 p-2">
+                        {teamResults.map((team) => {
+                          const logo = getTeamLogo(team.name);
+                          return (
+                            <button
+                              key={team.slug}
+                              onClick={() => handleTeamClick(team)}
+                              className="flex items-center gap-3 px-3 py-2 hover:bg-blue-600/20 rounded-lg transition-colors text-left"
+                              data-testid={`search-team-${team.slug}`}
+                            >
+                              {logo ? (
+                                <img 
+                                  src={logo} 
+                                  alt={team.name}
+                                  className="w-8 h-8 object-contain"
+                                  onError={(e) => e.target.style.display = 'none'}
+                                />
+                              ) : (
+                                <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
+                                  <Users className="w-4 h-4 text-gray-400" />
+                                </div>
+                              )}
+                              <span className="font-medium text-white">{team.name}</span>
+                            </button>
+                          );
+                        })}
                       </div>
-                      
-                      {/* Price */}
-                      <div className="flex-shrink-0 text-right">
-                        <div className="text-green-400 font-bold">
-                          €{event.price || event.minPrice || '25'}+
-                        </div>
+                    </div>
+                  )}
+
+                  {/* Events Section */}
+                  {eventResults.length > 0 && (
+                    <div>
+                      <div className="px-4 py-2 bg-purple-600/20 border-b border-gray-700 flex items-center gap-2">
+                        <Trophy className="w-4 h-4 text-purple-400" />
+                        <span className="text-sm font-semibold text-purple-400">{t('eventsLabel')}</span>
+                        <span className="text-xs text-gray-500">({eventResults.length})</span>
                       </div>
-                    </button>
-                  ))}
+                      {eventResults.map((event) => (
+                        <button
+                          key={event.id || event._id}
+                          onClick={() => handleEventClick(event)}
+                          className="w-full px-4 py-3 flex items-center gap-4 hover:bg-purple-600/20 transition-colors text-left border-b border-gray-800 last:border-b-0"
+                          data-testid={`search-event-${event.id || event._id}`}
+                        >
+                          {/* Date */}
+                          <div className="flex-shrink-0 w-14 text-center">
+                            <div className="text-lg font-bold text-purple-400">
+                              {formatDate(event.date)}
+                            </div>
+                          </div>
+                          
+                          {/* Event Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-white truncate">
+                              {event.title}
+                            </div>
+                            <div className="flex items-center gap-3 text-sm text-gray-400 mt-1">
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {event.location}
+                              </span>
+                              {event.stadium && (
+                                <span className="truncate">{event.stadium}</span>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Price */}
+                          <div className="flex-shrink-0 text-right">
+                            <div className="text-green-400 font-bold">
+                              €{event.price || event.minPrice || '25'}+
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ) : localQuery.length >= 2 ? (
                 <div className="py-8 text-center text-gray-400">
