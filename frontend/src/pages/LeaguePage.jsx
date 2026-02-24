@@ -212,7 +212,7 @@ const LeaguePage = () => {
           ) : (
             // Teams Grid View
             <>
-              <h2 className="text-3xl font-bold text-white mb-8">All Teams</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-white mb-6">All Teams</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {leagueTeams[league]?.teams?.map((team, index) => (
                   <Link
