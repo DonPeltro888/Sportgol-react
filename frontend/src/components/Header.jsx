@@ -4,6 +4,7 @@ import { Menu, X, ChevronDown, ChevronRight, Trophy, Flag } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
+import { getTeamUrl, getLeagueUrl } from '../utils/seoHelpers';
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
