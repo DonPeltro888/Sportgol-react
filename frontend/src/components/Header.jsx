@@ -5,6 +5,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
 import { getTeamUrl, getLeagueUrl } from '../utils/seoHelpers';
+import { getLeagueLogo } from '../data/teamLogos';
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
