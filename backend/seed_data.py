@@ -357,6 +357,23 @@ team_descriptions = {
     "Union Berlin": "1. FC Union Berlin - Eiserne (Iron Ones). Alte Försterei atmosphere.",
     "Werder Bremen": "SV Werder Bremen - Green and white tradition. Weser Stadium.",
     "Wolfsburg": "VfL Wolfsburg - Volkswagen city club. Modern success story.",
+    
+    # Ligue 1 teams
+    "PSG": "Paris Saint-Germain - French giants dominating Ligue 1. Parc des Princes.",
+    "Monaco": "AS Monaco - Principality club with rich history. Stade Louis II.",
+    "Marseille": "Olympique de Marseille - Only French club to win Champions League. Stade Vélodrome passion.",
+    "Lyon": "Olympique Lyonnais - Seven consecutive Ligue 1 titles. Groupama Stadium.",
+    "Angers": "Angers SCO - Western France club fighting in top flight.",
+    "Le Havre": "Le Havre AC - Historic Norman club by the sea.",
+    
+    # Turkish Super Lig teams
+    "Galatasaray": "Galatasaray SK - Turkish giants with 24 league titles. RAMS Park.",
+    "Fenerbahçe": "Fenerbahçe SK - Istanbul powerhouse. Eternal rivals of Galatasaray.",
+    "Beşiktaş": "Beşiktaş JK - Black Eagles of Istanbul. Vodafone Park atmosphere.",
+    "Trabzonspor": "Trabzonspor - Black Sea club breaking Istanbul dominance.",
+    "Alanyaspor": "Alanyaspor - Mediterranean coast club rising in Turkish football.",
+    "Antalyaspor": "Antalyaspor - Tourist city's football pride.",
+    "Kocaelispor": "Kocaelispor - Industrial city club with fighting spirit.",
 }
 
 categories_data = []
