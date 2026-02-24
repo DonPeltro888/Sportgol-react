@@ -101,3 +101,113 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: Test the Golevents backend API with health check, events pagination, search, filtering, categories, and global search endpoints
+
+backend:
+  - task: "Health check endpoint GET /api/"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Initial setup - needs testing for health check endpoint"
+
+  - task: "Get all events with pagination GET /api/events"
+    implemented: true
+    working: "NA"
+    file: "routes/events.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Initial setup - needs testing for events pagination with page and limit params"
+
+  - task: "Search events by query GET /api/events?search=milan"
+    implemented: true
+    working: "NA"
+    file: "routes/events.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Initial setup - needs testing for search functionality"
+
+  - task: "Filter events by league GET /api/events?league=SERIE%20A"
+    implemented: true
+    working: "NA"
+    file: "routes/events.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Initial setup - needs testing for league filtering"
+
+  - task: "Get all categories GET /api/categories"
+    implemented: true
+    working: "NA"
+    file: "routes/categories.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Initial setup - needs testing for categories endpoint"
+
+  - task: "Global search endpoint GET /api/search?q=roma"
+    implemented: true
+    working: "NA"
+    file: "routes/search.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Initial setup - needs testing for global search functionality"
+
+frontend:
+  - task: "Not applicable for this testing session"
+    implemented: false
+    working: "NA"
+    file: ""
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Frontend testing not required for this session - focusing only on backend API testing"
+
+metadata:
+  created_by: "testing_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Health check endpoint GET /api/"
+    - "Get all events with pagination GET /api/events"
+    - "Search events by query GET /api/events?search=milan"
+    - "Filter events by league GET /api/events?league=SERIE%20A"
+    - "Get all categories GET /api/categories"
+    - "Global search endpoint GET /api/search?q=roma"
+  stuck_tasks: []
+  test_all: true
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "testing"
+    message: "Created initial test structure for Golevents backend API testing. All endpoints implemented and ready for testing. Using BACKEND_URL: https://golevents-clone.preview.emergentagent.com/api"
