@@ -32,15 +32,19 @@ const AdminEvents = () => {
     featured: false,
     imageUrl: '',
     ticket_categories: [],
+    // SEO Meta
     seo_title: { it: '', es: '', en: '' },
     seo_description: { it: '', es: '', en: '' },
-    // SEO Content
-    seo_intro: { it: '', es: '', en: '' },
-    seo_venue_info: { it: '', es: '', en: '' },
-    seo_sectors: { it: '', es: '', en: '' },
-    seo_pricing: { it: '', es: '', en: '' },
-    seo_cta: { it: '', es: '', en: '' },
-    // FAQ
+    seo_h1: { it: '', es: '', en: '' },
+    // SEO Content (following prompt structure)
+    seo_intro: { it: '', es: '', en: '' },           // 4) Intro
+    seo_event_info: { it: '', es: '', en: '' },      // 5) Informazioni Evento
+    seo_tickets_info: { it: '', es: '', en: '' },    // 6) Biglietti disponibili
+    seo_sectors: { it: '', es: '', en: '' },         // 7) Settori consigliati
+    seo_pricing: { it: '', es: '', en: '' },         // 8) Prezzi e domanda
+    seo_venue: { it: '', es: '', en: '' },           // 9) Venue personalizzata
+    seo_cta: { it: '', es: '', en: '' },             // 11) CTA finale
+    // 10) FAQ
     faq_1_q: { it: '', es: '', en: '' },
     faq_1_a: { it: '', es: '', en: '' },
     faq_2_q: { it: '', es: '', en: '' },
