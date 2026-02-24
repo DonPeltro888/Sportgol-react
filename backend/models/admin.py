@@ -40,16 +40,19 @@ class EventCreate(BaseModel):
     featured: bool = False
     imageUrl: str = ""
     ticket_categories: List[TicketCategory] = []
-    # SEO
+    # SEO Meta
     seo_title: MultiLangText = Field(default_factory=MultiLangText)
     seo_description: MultiLangText = Field(default_factory=MultiLangText)
-    # SEO Content (for Details tab)
-    seo_intro: MultiLangText = Field(default_factory=MultiLangText)
-    seo_venue_info: MultiLangText = Field(default_factory=MultiLangText)
-    seo_sectors: MultiLangText = Field(default_factory=MultiLangText)
-    seo_pricing: MultiLangText = Field(default_factory=MultiLangText)
-    seo_cta: MultiLangText = Field(default_factory=MultiLangText)
-    # FAQ (multilingual)
+    seo_h1: MultiLangText = Field(default_factory=MultiLangText)
+    # SEO Content (Details tab) - Following prompt structure
+    seo_intro: MultiLangText = Field(default_factory=MultiLangText)  # 4) Intro
+    seo_event_info: MultiLangText = Field(default_factory=MultiLangText)  # 5) Informazioni Evento
+    seo_tickets_info: MultiLangText = Field(default_factory=MultiLangText)  # 6) Biglietti disponibili
+    seo_sectors: MultiLangText = Field(default_factory=MultiLangText)  # 7) Settori consigliati
+    seo_pricing: MultiLangText = Field(default_factory=MultiLangText)  # 8) Prezzi e domanda
+    seo_venue: MultiLangText = Field(default_factory=MultiLangText)  # 9) Venue personalizzata
+    seo_cta: MultiLangText = Field(default_factory=MultiLangText)  # 11) CTA finale
+    # FAQ (10)
     faq_1_q: MultiLangText = Field(default_factory=MultiLangText)
     faq_1_a: MultiLangText = Field(default_factory=MultiLangText)
     faq_2_q: MultiLangText = Field(default_factory=MultiLangText)
@@ -70,6 +73,20 @@ class EventUpdate(BaseModel):
     ticket_categories: Optional[List[TicketCategory]] = None
     seo_title: Optional[MultiLangText] = None
     seo_description: Optional[MultiLangText] = None
+    seo_h1: Optional[MultiLangText] = None
+    seo_intro: Optional[MultiLangText] = None
+    seo_event_info: Optional[MultiLangText] = None
+    seo_tickets_info: Optional[MultiLangText] = None
+    seo_sectors: Optional[MultiLangText] = None
+    seo_pricing: Optional[MultiLangText] = None
+    seo_venue: Optional[MultiLangText] = None
+    seo_cta: Optional[MultiLangText] = None
+    faq_1_q: Optional[MultiLangText] = None
+    faq_1_a: Optional[MultiLangText] = None
+    faq_2_q: Optional[MultiLangText] = None
+    faq_2_a: Optional[MultiLangText] = None
+    faq_3_q: Optional[MultiLangText] = None
+    faq_3_a: Optional[MultiLangText] = None
 
 # Menu Category
 class MenuCategoryCreate(BaseModel):
