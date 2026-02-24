@@ -86,6 +86,8 @@ const formatCupTitle = (title, league) => {
 };
 
 const EventListItem = ({ event }) => {
+  const { lang } = useLanguage();
+  
   // Parse date to get day, month, year, day of week
   const parseDate = (dateStr) => {
     try {
