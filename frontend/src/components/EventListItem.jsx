@@ -42,40 +42,40 @@ const EventListItem = ({ event }) => {
       className="flex items-stretch bg-gray-800/50 hover:bg-gray-700/50 border-b border-gray-700/50 transition-colors group"
     >
       {/* Date Box */}
-      <div className="flex-shrink-0 w-28 md:w-32 py-5 px-3 flex flex-col items-center justify-center border-r border-gray-700/50">
-        <span className="text-xs text-gray-400 font-semibold tracking-wide">{dateInfo.dayOfWeek}</span>
-        <span className="text-3xl md:text-4xl font-bold text-white">{dateInfo.day}</span>
-        <span className="text-sm text-gray-400">
+      <div className="flex-shrink-0 w-20 md:w-24 py-3 px-2 flex flex-col items-center justify-center border-r border-gray-700/50">
+        <span className="text-[10px] text-gray-400 font-semibold tracking-wide">{dateInfo.dayOfWeek}</span>
+        <span className="text-2xl md:text-3xl font-bold text-white">{dateInfo.day}</span>
+        <span className="text-xs text-gray-400">
           {dateInfo.month} {dateInfo.year}
         </span>
       </div>
 
       {/* Event Info */}
-      <div className="flex-1 py-4 px-4 min-w-0 flex flex-col justify-center">
+      <div className="flex-1 py-3 px-3 min-w-0 flex flex-col justify-center">
         {/* Title */}
-        <h3 className="text-lg md:text-xl font-bold text-blue-400 group-hover:text-blue-300 transition-colors line-clamp-2">
+        <h3 className="text-sm md:text-base font-bold text-blue-400 group-hover:text-blue-300 transition-colors leading-tight">
           {title}
         </h3>
         
         {/* Stadium */}
-        <p className="text-gray-400 mt-1">
+        <p className="text-gray-400 text-xs mt-1 truncate">
           {event.stadium || 'Stadium TBD'}
         </p>
         
         {/* Price & Location */}
-        <div className="flex items-center gap-2 mt-2">
-          <span className="text-green-400 font-bold text-lg">€{priceMin}+</span>
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-green-400 font-bold text-sm">€{priceMin}+</span>
           <span className="text-gray-600">•</span>
-          <span className="text-gray-400 text-sm flex items-center gap-1">
-            <MapPin className="w-3.5 h-3.5" />
+          <span className="text-gray-400 text-xs flex items-center gap-1 truncate">
+            <MapPin className="w-3 h-3 flex-shrink-0" />
             {location || 'Location TBD'}
           </span>
         </div>
       </div>
 
       {/* Arrow */}
-      <div className="flex-shrink-0 flex items-center px-4">
-        <ChevronRight className="w-7 h-7 text-blue-400 group-hover:text-blue-300 transition-colors" />
+      <div className="flex-shrink-0 flex items-center px-2">
+        <ChevronRight className="w-5 h-5 text-blue-400 group-hover:text-blue-300 transition-colors" />
       </div>
     </Link>
   );
