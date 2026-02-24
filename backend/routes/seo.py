@@ -6,7 +6,7 @@ import os
 
 router = APIRouter(prefix="/api", tags=["seo"])
 
-BASE_URL = os.environ.get("BASE_URL", "https://sports-events-hub.preview.emergentagent.com")
+BASE_URL = os.environ.get("BASE_URL", "https://sportevents-preview.preview.emergentagent.com")
 
 @router.get("/sitemap.xml")
 async def sitemap():
