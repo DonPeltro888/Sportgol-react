@@ -6,11 +6,14 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 ## Core Features (Completed)
 
 ### Public Website
-1. **Homepage** con **lista eventi multi-colonna** (2 colonne su desktop) e ricerca in tempo reale
+1. **Homepage** con **lista eventi in due colonne separate**:
+   - Colonna sinistra: **Eventi [Paese]** (Italia/España/UK in base alla lingua)
+   - Colonna destra: **Eventi Internazionali**
 2. **Filtro eventi per lingua**:
    - IT: Eventi in Italia + Champions League + Londra, Manchester, Madrid, Barcellona
    - ES: Eventi in Spagna + Londra, Manchester, Madrid, Barcellona
    - EN: Eventi in UK + Madrid, Barcellona, Milano, Roma, Firenze
+3. **Sezione Squadre filtrata per paese**: Mostra solo squadre del paese corrispondente alla lingua selezionata
 2. **Pagine di dettaglio** per ogni evento con Schema.org markup
 3. **Pagine per campionati/coppe** che elencano squadre o eventi
 4. **Pagine per squadre** con tutti gli eventi della squadra
