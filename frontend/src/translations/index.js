@@ -51,6 +51,11 @@ export const translations = {
     happyFans: "Fan Soddisfatti",
     support: "Supporto",
     
+    // Search Results
+    teams: "Squadre",
+    eventsLabel: "Eventi",
+    resultsFound: "risultati trovati",
+    
     // Events Grid
     topEvents: "Top Eventi",
     upcomingEvents: "Prossimi Eventi",
@@ -138,6 +143,11 @@ export const translations = {
     happyFans: "Fans Felices",
     support: "Soporte",
     
+    // Search Results
+    teams: "Equipos",
+    eventsLabel: "Eventos",
+    resultsFound: "resultados encontrados",
+    
     // Events Grid
     topEvents: "Top Eventos",
     upcomingEvents: "Próximos Eventos",
@@ -224,6 +234,11 @@ export const translations = {
     liveEventsCount: "Live Events",
     happyFans: "Happy Fans",
     support: "Support",
+    
+    // Search Results
+    teams: "Teams",
+    eventsLabel: "Events",
+    resultsFound: "results found",
     
     // Events Grid
     topEvents: "Top Events",
