@@ -11,7 +11,7 @@ from datetime import datetime
 from urllib.parse import quote
 
 # Backend URL from frontend .env
-BACKEND_URL = "https://ticket-hub-eu.preview.emergentagent.com/api"
+BACKEND_URL = "https://sports-events-hub.preview.emergentagent.com/api"
 
 def log_test_result(test_name, success, details=""):
     """Log test results with timestamp"""

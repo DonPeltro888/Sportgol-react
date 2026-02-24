@@ -222,7 +222,7 @@ test_plan:
 
 agent_communication:
   - agent: "testing"
-    message: "Created initial test structure for Golevents backend API testing. All endpoints implemented and ready for testing. Using BACKEND_URL: https://ticket-hub-eu.preview.emergentagent.com/api"
+    message: "Created initial test structure for Golevents backend API testing. All endpoints implemented and ready for testing. Using BACKEND_URL: https://sports-events-hub.preview.emergentagent.com/api"
   - agent: "testing"
     message: "CRITICAL ISSUE FOUND AND FIXED: Circular import error preventing backend startup. Routes were importing 'db' from server.py while server.py was importing routes. Created separate database.py module to resolve this. After fix, all 6 API endpoints are working correctly."
   - agent: "testing"
