@@ -4,11 +4,12 @@ import { useAdminAuth } from '../../contexts/AdminAuthContext';
 import { Plus, Pencil, Trash2, Search, X, Save, ChevronDown, Ticket } from 'lucide-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import ImageUploader from '../../components/admin/ImageUploader';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const AdminEvents = () => {
-  const { authFetch } = useAdminAuth();
+  const { authFetch, token } = useAdminAuth();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
