@@ -294,7 +294,7 @@ const Header = () => {
               data-testid="nav-about"
               className="text-gray-300 hover:text-white font-semibold text-sm transition-all duration-200 relative group/link px-3 py-2"
             >
-              ABOUT US
+              {t('aboutUs')}
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 group-hover/link:w-full transition-all duration-300"></span>
             </Link>
 
