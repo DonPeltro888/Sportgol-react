@@ -1,5 +1,5 @@
-from fastapi import APIRouter, HTTPException
-from typing import List
+from fastapi import APIRouter, HTTPException, Query
+from typing import List, Optional
 from models.category import Category, CategoryCreate
 from database import db
 import logging
@@ -8,10 +8,18 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/categories", tags=["categories"])
 
 @router.get("", response_model=List[dict])
-async def get_categories():
-    """Get all categories"""
+async def get_categories(
+    lang: Optional[str] = Query(None, description="Filter by country/language: it, es, en")
+):
+    """Get all categories, optionally filtered by country"""
     try:
-        categories = await db.categories.find().to_list(length=100)
+        query = {}
+        
+        # Filter by country if lang is provided
+        if lang and lang in ['it', 'es', 'en']:
+            query["country"] = lang
+        
+        categories = await db.categories.find(query).to_list(length=100)
         
         for category in categories:
             category["_id"] = str(category["_id"])
