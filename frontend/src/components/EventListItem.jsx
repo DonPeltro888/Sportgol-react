@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, MapPin, Clock } from 'lucide-react';
+import { ChevronRight, MapPin } from 'lucide-react';
 
 const EventListItem = ({ event }) => {
   // Parse date to get day, month, year, day of week
@@ -12,7 +12,7 @@ const EventListItem = ({ event }) => {
         const parsed = new Date(Date.parse(dateStr));
         if (!isNaN(parsed.getTime())) {
           return {
-            dayOfWeek: parsed.toLocaleDateString('en-US', { weekday: 'long' }),
+            dayOfWeek: parsed.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase(),
             day: parsed.getDate(),
             month: parsed.toLocaleDateString('en-US', { month: 'short' }),
             year: parsed.getFullYear()
@@ -20,7 +20,7 @@ const EventListItem = ({ event }) => {
         }
       }
       return {
-        dayOfWeek: date.toLocaleDateString('en-US', { weekday: 'long' }),
+        dayOfWeek: date.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase(),
         day: date.getDate(),
         month: date.toLocaleDateString('en-US', { month: 'short' }),
         year: date.getFullYear()
@@ -39,41 +39,35 @@ const EventListItem = ({ event }) => {
   return (
     <Link 
       to={`/event/${eventId}`}
-      className="flex items-stretch bg-white hover:bg-gray-50 border-b border-gray-200 transition-colors group"
+      className="flex items-stretch bg-gray-800/50 hover:bg-gray-700/50 border-b border-gray-700/50 transition-colors group"
     >
       {/* Date Box */}
-      <div className="flex-shrink-0 w-24 md:w-28 py-4 px-3 flex flex-col items-center justify-center bg-gray-50 border-r border-gray-200">
-        <span className="text-xs text-gray-500 font-medium uppercase">{dateInfo.dayOfWeek}</span>
-        <span className="text-2xl md:text-3xl font-bold text-gray-800">{dateInfo.day}</span>
-        <span className="text-xs text-gray-500">
+      <div className="flex-shrink-0 w-28 md:w-32 py-5 px-3 flex flex-col items-center justify-center border-r border-gray-700/50">
+        <span className="text-xs text-gray-400 font-semibold tracking-wide">{dateInfo.dayOfWeek}</span>
+        <span className="text-3xl md:text-4xl font-bold text-white">{dateInfo.day}</span>
+        <span className="text-sm text-gray-400">
           {dateInfo.month} {dateInfo.year}
         </span>
       </div>
 
       {/* Event Info */}
-      <div className="flex-1 py-4 px-4 min-w-0">
+      <div className="flex-1 py-4 px-4 min-w-0 flex flex-col justify-center">
         {/* Title */}
-        <h3 className="text-base md:text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+        <h3 className="text-lg md:text-xl font-bold text-blue-400 group-hover:text-blue-300 transition-colors line-clamp-2">
           {title}
         </h3>
         
-        {/* Time & Stadium */}
-        <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-          {event.time && (
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              {event.time}
-            </span>
-          )}
-          <span>{event.stadium || 'Stadium TBD'}</span>
-        </div>
+        {/* Stadium */}
+        <p className="text-gray-400 mt-1">
+          {event.stadium || 'Stadium TBD'}
+        </p>
         
         {/* Price & Location */}
         <div className="flex items-center gap-2 mt-2">
-          <span className="text-green-600 font-semibold">€{priceMin}+</span>
-          <span className="text-gray-400">•</span>
-          <span className="text-gray-500 text-sm flex items-center gap-1">
-            <MapPin className="w-3 h-3" />
+          <span className="text-green-400 font-bold text-lg">€{priceMin}+</span>
+          <span className="text-gray-600">•</span>
+          <span className="text-gray-400 text-sm flex items-center gap-1">
+            <MapPin className="w-3.5 h-3.5" />
             {location || 'Location TBD'}
           </span>
         </div>
@@ -81,7 +75,7 @@ const EventListItem = ({ event }) => {
 
       {/* Arrow */}
       <div className="flex-shrink-0 flex items-center px-4">
-        <ChevronRight className="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
+        <ChevronRight className="w-7 h-7 text-blue-400 group-hover:text-blue-300 transition-colors" />
       </div>
     </Link>
   );
