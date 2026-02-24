@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import List
-from server import db
+from database import db
 import logging
 
 logger = logging.getLogger(__name__)
