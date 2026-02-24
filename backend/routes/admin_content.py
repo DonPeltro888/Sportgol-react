@@ -432,6 +432,34 @@ async def get_public_translations(lang: str = "it", category: Optional[str] = No
     
     return result
 
+@router.get("/public/settings")
+async def get_public_settings(lang: str = "it"):
+    """Get site settings for frontend (public)"""
+    settings = await db.site_settings.find_one({"_key": "main"})
+    
+    if not settings:
+        return {}
+    
+    def get_lang_value(obj):
+        if not obj:
+            return ""
+        if isinstance(obj, dict):
+            return obj.get(lang, obj.get("it", ""))
+        return obj
+    
+    return {
+        "logo_url": settings.get("logo_url", ""),
+        "site_name": get_lang_value(settings.get("site_name")),
+        "site_description": get_lang_value(settings.get("site_description")),
+        "contact_email": settings.get("contact_email", ""),
+        "phone": settings.get("phone", ""),
+        "address": get_lang_value(settings.get("address")),
+        "social_facebook": settings.get("social_facebook", ""),
+        "social_instagram": settings.get("social_instagram", ""),
+        "social_twitter": settings.get("social_twitter", ""),
+        "footer_text": get_lang_value(settings.get("footer_text"))
+    }
+
 @router.get("/public/menu-categories")
 async def get_public_menu_categories(lang: str = "it"):
     """Get menu categories for frontend (public)"""
