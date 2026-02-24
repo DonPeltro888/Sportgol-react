@@ -186,7 +186,7 @@ const Header = () => {
               data-testid="nav-home"
               className="text-gray-300 hover:text-white font-semibold text-sm transition-all duration-200 relative group/link px-3 py-2"
             >
-              HOME
+              {t('home')}
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 group-hover/link:w-full transition-all duration-300"></span>
             </Link>
 
@@ -202,7 +202,7 @@ const Header = () => {
                 }`}
               >
                 <Flag className="w-4 h-4" />
-                ALL CATEGORIES
+                {t('allCategories')}
                 <ChevronDown className={`w-4 h-4 transition-transform ${desktopMenuOpen ? 'rotate-180' : ''}`} />
               </button>
 
