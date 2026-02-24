@@ -135,9 +135,9 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
   const totalResults = teamResults.length + eventResults.length;
 
   return (
-    <div className="relative py-24 px-4 overflow-hidden">
+    <div className="relative py-24 px-4">
       {/* Animated Background */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900"></div>
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-20 left-20 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
