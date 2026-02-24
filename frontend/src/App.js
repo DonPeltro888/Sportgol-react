@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import './App.css';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import Home from './pages/Home';
 import EventDetail from './pages/EventDetail';
 import TeamPage from './pages/TeamPage';
@@ -9,6 +9,53 @@ import { Toaster } from './components/ui/sonner';
 
 // Language Context
 import { LanguageProvider } from './contexts/LanguageContext';
+
+// Known league slugs for routing
+const LEAGUE_SLUGS = [
+  'serie-a', 'premier-league', 'la-liga', 'bundesliga', 'ligue-1',
+  'champions-league', 'europa-league', 'coppa-italia', 'fa-cup', 'copa-del-rey'
+];
+
+// Dynamic Router component to handle translated URLs
+// REGOLE URL (MEMORIZZATO):
+// - IT: /biglietti-{name} (biglietti PRIMA con trattino)
+// - EN: /{name}-tickets (tickets DOPO con trattino)  
+// - ES: /entradas-{name} (entradas PRIMA con trattino)
+const DynamicRouter = () => {
+  const { dynamicPath } = useParams();
+  
+  if (!dynamicPath) return <Home />;
+  
+  // Check if it's a league or team URL
+  let slug = '';
+  let isLeague = false;
+  
+  // IT: /biglietti-inter or /biglietti-serie-a
+  if (dynamicPath.startsWith('biglietti-')) {
+    slug = dynamicPath.replace('biglietti-', '');
+  }
+  // ES: /entradas-inter or /entradas-serie-a
+  else if (dynamicPath.startsWith('entradas-')) {
+    slug = dynamicPath.replace('entradas-', '');
+  }
+  // EN: /inter-tickets or /serie-a-tickets
+  else if (dynamicPath.endsWith('-tickets')) {
+    slug = dynamicPath.replace(/-tickets$/, '');
+  }
+  else {
+    // Not a translated URL, let fallback handle it
+    return <Home />;
+  }
+  
+  // Determine if it's a league or team based on known slugs
+  isLeague = LEAGUE_SLUGS.includes(slug);
+  
+  if (isLeague) {
+    return <LeaguePage />;
+  } else {
+    return <TeamPage />;
+  }
+};
 
 // Admin imports
 import { AdminAuthProvider, useAdminAuth } from './contexts/AdminAuthContext';
