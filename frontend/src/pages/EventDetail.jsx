@@ -130,6 +130,14 @@ const EventDetail = () => {
   const seoPricing = getMultiLang(event?.seo_pricing);
   const seoVenue = getMultiLang(event?.seo_venue);
   const seoCta = getMultiLang(event?.seo_cta);
+  
+  // Generate SEO title and description with translations
+  const seoTitle = getMultiLang(event?.seo_title) || getSeoTitle('event', eventTitle, lang);
+  const seoDescription = getMultiLang(event?.seo_description) || getSeoDescription('event', eventTitle, lang, { 
+    date: event.date, 
+    location: eventLocation 
+  });
+  const canonicalUrl = `${window.location.origin}/event/${id}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
@@ -137,8 +145,9 @@ const EventDetail = () => {
       
       {/* SEO */}
       <SEOHead 
-        title={getMultiLang(event?.seo_title) || `Biglietti ${eventTitle} | GOLEVENTS`}
-        description={getMultiLang(event?.seo_description) || `Acquista biglietti per ${eventTitle}. ${event.date} - ${eventLocation}.`}
+        title={seoTitle}
+        description={seoDescription}
+        canonicalUrl={canonicalUrl}
         ogImage={event.imageUrl || event.image}
         type="event"
         event={{
@@ -154,16 +163,16 @@ const EventDetail = () => {
       {/* Hero Section */}
       <div className="relative h-80 md:h-96 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-900/50 to-gray-900"></div>
-        <img src={event.imageUrl || event.image} alt={eventTitle} className="w-full h-full object-cover" />
+        <img src={event.imageUrl || event.image} alt={`${t('seoTickets')} ${eventTitle}`} className="w-full h-full object-cover" />
         <div className="absolute inset-0 flex items-end">
           <div className="container mx-auto px-4 pb-8">
             <button onClick={() => navigate('/')} className="text-white hover:text-blue-400 flex items-center gap-2 mb-4 transition-colors">
               <ArrowLeft className="w-5 h-5" />
-              <span className="text-sm">Torna agli eventi</span>
+              <span className="text-sm">{t('home')}</span>
             </button>
             {/* H1 from SEO or default */}
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-white mb-3">
-              {getMultiLang(event?.seo_h1) || `Biglietti ${eventTitle}`}
+              {getMultiLang(event?.seo_h1) || (lang === 'en' ? `${eventTitle} ${t('seoTickets')}` : `${t('seoTickets')} ${eventTitle}`)}
             </h1>
             <div className="flex flex-wrap gap-2">
               {event.categories?.map((cat, idx) => (
