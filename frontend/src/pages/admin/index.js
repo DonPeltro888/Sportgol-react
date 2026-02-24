@@ -1,0 +1,7 @@
+export { default as AdminLogin } from './AdminLogin';
+export { default as AdminDashboard } from './AdminDashboard';
+export { default as AdminEvents } from './AdminEvents';
+export { default as AdminCategories } from './AdminCategories';
+export { default as AdminPages } from './AdminPages';
+export { default as AdminTranslations } from './AdminTranslations';
+export { default as AdminSettings } from './AdminSettings';
