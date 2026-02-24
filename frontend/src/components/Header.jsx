@@ -231,7 +231,7 @@ const Header = () => {
                                 className="flex-1 text-left px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors flex items-center gap-2"
                               >
                                 <span className="text-lg">{league.flag}</span>
-                                <span className="font-medium">{league.label}</span>
+                                <span className="font-medium">{t(league.labelKey)}</span>
                               </button>
                               <button
                                 onClick={() => toggleDesktopCategory(league.slug)}
@@ -278,8 +278,8 @@ const Header = () => {
                           >
                             <span className="text-lg">{cup.flag}</span>
                             <div>
-                              <div className="font-medium">{cup.label}</div>
-                              <div className="text-xs text-gray-500">{cup.country}</div>
+                              <div className="font-medium">{t(cup.labelKey)}</div>
+                              <div className="text-xs text-gray-500">{t(cup.countryKey)}</div>
                             </div>
                           </button>
                         ))}
