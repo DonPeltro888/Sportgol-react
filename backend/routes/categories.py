@@ -34,10 +34,10 @@ async def get_category_with_events(slug: str):
         category["_id"] = str(category["_id"])
         category["id"] = str(category["_id"])
         
-        # Find events with this category
+        # Find events with this category, sorted by date descending
         events = await db.events.find(
             {"categories": {"$regex": category["name"], "$options": "i"}}
-        ).to_list(length=100)
+        ).sort([("date", -1)]).to_list(length=100)
         
         for event in events:
             event["_id"] = str(event["_id"])
