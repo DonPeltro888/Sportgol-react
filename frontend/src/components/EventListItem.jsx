@@ -2,6 +2,30 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, MapPin } from 'lucide-react';
 
+// Format cup event title: replace (1st Leg), (Quarter Final), etc. with "- Cup Name"
+const formatCupTitle = (title, league) => {
+  if (!title || !league) return title;
+  
+  // Check if it's a cup competition
+  const cupLeagues = ['COPPA ITALIA', 'CHAMPIONS LEAGUE', 'EUROPA LEAGUE', 'FA CUP', 'DFB POKAL', 'COPA DEL REY'];
+  const isCup = cupLeagues.some(cup => league.toUpperCase().includes(cup));
+  
+  if (!isCup) return title;
+  
+  // Remove round info like (1st Leg), (Quarter Final), (Semi Final - 1st Leg), etc.
+  const cleanTitle = title
+    .replace(/\s*\([^)]*(?:Leg|Final|Round)[^)]*\)\s*/gi, '')
+    .trim();
+  
+  // Format league name nicely
+  const cupName = league
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+  
+  return `${cleanTitle} - ${cupName}`;
+};
+
 const EventListItem = ({ event }) => {
   // Parse date to get day, month, year, day of week
   const parseDate = (dateStr) => {
