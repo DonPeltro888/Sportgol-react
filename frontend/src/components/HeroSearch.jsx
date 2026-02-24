@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Search, TrendingUp, Zap } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getTranslation } from '../translations';
 
 const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
   const [localQuery, setLocalQuery] = useState(searchQuery || '');
+  const { lang } = useLanguage();
+  const t = (key) => getTranslation(lang, key);
 
   useEffect(() => {
     setLocalQuery(searchQuery || '');
@@ -41,18 +45,18 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white text-sm font-semibold mb-6 animate-fade-in-up">
           <Zap className="w-4 h-4 text-yellow-400" />
-          Live Events • Best Prices • Instant Booking
+          {t('liveEvents')} • {t('bestPrices')} • {t('instantBooking')}
         </div>
 
         <h1 className="text-5xl md:text-7xl font-black mb-6 animate-fade-in-up" style={{animationDelay: '0.1s'}}>
-          <span className="text-white">Find Your </span>
-          <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Perfect</span>
+          <span className="text-white">{t('findYour')} </span>
+          <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">{t('perfect')}</span>
           <br />
-          <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Sport Event</span>
+          <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">{t('sportEvent')}</span>
         </h1>
         
         <p className="text-gray-300 text-lg md:text-xl mb-10 max-w-2xl mx-auto animate-fade-in-up" style={{animationDelay: '0.2s'}}>
-          Discover and book tickets for the biggest sporting events worldwide. From Serie A to Champions League.
+          {t('heroSubtitle')}
         </p>
         
         <form onSubmit={handleSubmit} className="relative animate-fade-in-up" style={{animationDelay: '0.3s'}}>
@@ -60,7 +64,7 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
             <Search className="absolute left-6 w-6 h-6 text-gray-400" />
             <input
               type="text"
-              placeholder="Search for teams, leagues, or events..."
+              placeholder={t('searchPlaceholder')}
               value={localQuery}
               onChange={handleInputChange}
               className="flex-1 pl-16 pr-6 py-5 bg-transparent text-white placeholder-gray-400 outline-none text-lg"
@@ -70,13 +74,13 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
               className="relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-10 py-5 font-bold transition-all duration-300 flex items-center gap-3 m-1.5 rounded-xl overflow-hidden group"
             >
               <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
-              <span className="relative">SEARCH</span>
+              <span className="relative">{t('search')}</span>
               <TrendingUp className="relative w-5 h-5" />
             </button>
           </div>
           {localQuery && (
             <div className="mt-3 text-sm text-gray-300 animate-fade-in-up">
-              Searching for: <span className="text-blue-400 font-semibold">{localQuery}</span>
+              {t('searchingFor')} <span className="text-blue-400 font-semibold">{localQuery}</span>
             </div>
           )}
         </form>
@@ -85,15 +89,15 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
         <div className="grid grid-cols-3 gap-6 mt-16 max-w-3xl mx-auto">
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
             <div className="text-3xl font-bold text-white mb-1">500+</div>
-            <div className="text-gray-400 text-sm">Live Events</div>
+            <div className="text-gray-400 text-sm">{t('liveEventsCount')}</div>
           </div>
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
             <div className="text-3xl font-bold text-white mb-1">50k+</div>
-            <div className="text-gray-400 text-sm">Happy Fans</div>
+            <div className="text-gray-400 text-sm">{t('happyFans')}</div>
           </div>
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
             <div className="text-3xl font-bold text-white mb-1">24/7</div>
-            <div className="text-gray-400 text-sm">Support</div>
+            <div className="text-gray-400 text-sm">{t('support')}</div>
           </div>
         </div>
       </div>
