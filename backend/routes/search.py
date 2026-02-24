@@ -20,7 +20,8 @@ async def search_events(q: str = Query(..., min_length=1)):
             ]
         }
         
-        events = await db.events.find(query).limit(50).to_list(length=50)
+        # Sort by date (ascending - earliest first)
+        events = await db.events.find(query).sort([("date", 1), ("created_at", 1)]).limit(50).to_list(length=50)
         
         for event in events:
             event["_id"] = str(event["_id"])
