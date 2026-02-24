@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { eventsAPI } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import EventCard from '../components/EventCard';
+import EventListItem from '../components/EventListItem';
 import SEOHead from '../components/SEOHead';
 import { ArrowLeft, Loader2, Trophy } from 'lucide-react';
 import { toast } from 'sonner';
