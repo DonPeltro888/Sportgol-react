@@ -354,7 +354,9 @@ const AdminEvents = () => {
               {[
                 { id: 'basic', label: 'Info Base' },
                 { id: 'tickets', label: 'Biglietti' },
-                { id: 'seo', label: 'SEO' }
+                { id: 'content', label: 'Contenuti SEO' },
+                { id: 'faq', label: 'FAQ' },
+                { id: 'seo', label: 'Meta SEO' }
               ].map(tab => (
                 <button
                   key={tab.id}
