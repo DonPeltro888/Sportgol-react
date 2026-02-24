@@ -141,6 +141,7 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 - [x] **Filtro squadre per paese** basato sulla lingua
 - [x] **Refactoring tipografico**: dimensioni testi proporzionate in tutte le pagine
 - [x] **Sistema priorità eventi**: squadre principali in evidenza (Milan, Inter, Juventus, Roma, Fiorentina, Lazio, Barcelona, Real Madrid, Sevilla, Valencia, Manchester City, Manchester United, Arsenal, Chelsea, Liverpool)
+- [x] **Formato titoli eventi coppa**: rimosso "(1st Leg)", "(Quarter Final)" etc. e aggiunto "- Nome Coppa"
 
 ## Future Enhancements (Backlog)
 - Sistema di autenticazione utenti
