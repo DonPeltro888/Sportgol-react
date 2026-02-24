@@ -212,7 +212,7 @@ const Header = () => {
               {desktopMenuOpen && (
                 <div 
                   data-testid="desktop-mega-menu"
-                  className="absolute top-full left-0 mt-2 w-[700px] bg-gray-900/98 backdrop-blur-xl border border-gray-700 rounded-2xl shadow-2xl shadow-blue-500/20 overflow-hidden"
+                  className="absolute top-full left-0 mt-2 w-[700px] bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl shadow-blue-500/20 overflow-hidden"
                 >
                   <div className="grid grid-cols-2 gap-0">
                     {/* Leagues Column */}
@@ -229,14 +229,22 @@ const Header = () => {
                             <div className="flex items-center">
                               <button
                                 onClick={() => handleLeagueClick(league.slug)}
-                                className="flex-1 text-left px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors flex items-center gap-2"
+                                className="flex-1 text-left px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800 transition-colors flex items-center gap-2"
                               >
-                                <span className="text-lg">{league.flag}</span>
+                                {getLeagueLogo(league.slug) ? (
+                                  <img 
+                                    src={getLeagueLogo(league.slug)} 
+                                    alt={t(league.labelKey)}
+                                    className="w-6 h-6 object-contain"
+                                  />
+                                ) : (
+                                  <span className="text-lg">{league.flag}</span>
+                                )}
                                 <span className="font-medium">{t(league.labelKey)}</span>
                               </button>
                               <button
                                 onClick={() => toggleDesktopCategory(league.slug)}
-                                className="p-3 text-gray-400 hover:text-blue-400 hover:bg-gray-800/50 transition-colors"
+                                className="p-3 text-gray-400 hover:text-blue-400 hover:bg-gray-800 transition-colors"
                                 data-testid={`expand-${league.slug}`}
                               >
                                 <ChevronRight className={`w-4 h-4 transition-transform ${expandedCategory === league.slug ? 'rotate-90' : ''}`} />
@@ -245,7 +253,7 @@ const Header = () => {
                             
                             {/* Teams Submenu */}
                             {expandedCategory === league.slug && (
-                              <div className="bg-gray-800/30 border-t border-gray-800 py-2 px-2 grid grid-cols-2 gap-1">
+                              <div className="bg-gray-800 border-t border-gray-700 py-2 px-2 grid grid-cols-2 gap-1">
                                 {league.teams.map((team) => (
                                   <button
                                     key={team}
