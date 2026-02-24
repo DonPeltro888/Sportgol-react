@@ -107,8 +107,7 @@ const LeaguePage = () => {
   };
 
   useEffect(() => {
-    const actualSlug = extractLeagueSlug();
-    const leagueData = leagueTeams[actualSlug];
+    const leagueData = leagueTeams[actualLeague];
     if (leagueData) {
       setLeagueName(leagueData.name);
       setIsCup(leagueData.isCup);
@@ -122,8 +121,7 @@ const LeaguePage = () => {
   const fetchCupEvents = async () => {
     try {
       setLoading(true);
-      const actualSlug = extractLeagueSlug();
-      const leagueData = leagueTeams[actualSlug];
+      const leagueData = leagueTeams[actualLeague];
       const data = await eventsAPI.getAll({ league: leagueData.name.toUpperCase() });
       setEvents(data.events || []);
     } catch (error) {
@@ -138,13 +136,12 @@ const LeaguePage = () => {
     return teamName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
   };
 
-  const actualSlug = extractLeagueSlug();
-  const leagueData = leagueTeams[actualSlug];
+  const leagueData = leagueTeams[actualLeague];
   const seoTitle = getSeoTitle('league', leagueName, lang);
   const seoDescription = getSeoDescription('league', leagueName, lang, { 
     teamCount: leagueData?.teams?.length 
   });
-  const canonicalUrl = `${window.location.origin}${getLeagueUrl(actualSlug, lang)}`;
+  const canonicalUrl = `${window.location.origin}${getLeagueUrl(actualLeague, lang)}`;
 
   if (loading) {
     return (
@@ -154,7 +151,7 @@ const LeaguePage = () => {
     );
   }
 
-  if (!leagueTeams[actualSlug]) {
+  if (!leagueTeams[actualLeague]) {
     return (
       <div className="min-h-screen bg-black">
         <Header />
