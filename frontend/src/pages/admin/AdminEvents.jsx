@@ -564,75 +564,110 @@ const AdminEvents = () => {
                 </div>
               )}
 
-              {/* Content SEO Tab */}
+              {/* Content SEO Tab - Following exact prompt structure */}
               {activeTab === 'content' && (
                 <div className="space-y-4">
-                  <p className="text-gray-400 text-sm mb-4">
-                    Contenuti SEO per la pagina dettaglio evento. Questi testi appariranno nella tab "Dettagli".
-                  </p>
+                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-4">
+                    <p className="text-blue-400 text-sm">
+                      <strong>Struttura SEO:</strong> Compila tutti i campi seguendo le linee guida. Testo unico per ogni evento.
+                    </p>
+                  </div>
                   
+                  {/* 4) Intro - 100-130 parole */}
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1">
-                      Introduzione Evento ({activeLang.toUpperCase()}) - 100-130 parole
+                      4) Intro ({activeLang.toUpperCase()}) - 100-130 parole, unica
                     </label>
                     <textarea
                       value={formData.seo_intro?.[activeLang] || ''}
                       onChange={(e) => updateMultiLang('seo_intro', e.target.value)}
                       className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
-                      rows={4}
-                      placeholder="Descrizione introduttiva dell'evento..."
+                      rows={5}
+                      placeholder="Descrizione introduttiva unica dell'evento..."
                     />
                   </div>
 
+                  {/* 5) Informazioni Evento (elenco) */}
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1">
-                      Info Stadio/Venue ({activeLang.toUpperCase()}) - 100-150 parole
+                      5) Informazioni Evento ({activeLang.toUpperCase()}) - Elenco puntato
                     </label>
                     <textarea
-                      value={formData.seo_venue_info?.[activeLang] || ''}
-                      onChange={(e) => updateMultiLang('seo_venue_info', e.target.value)}
+                      value={formData.seo_event_info?.[activeLang] || ''}
+                      onChange={(e) => updateMultiLang('seo_event_info', e.target.value)}
                       className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
                       rows={4}
-                      placeholder="Informazioni sullo stadio e la location..."
+                      placeholder="• Data: 15 Marzo 2026&#10;• Orario: 20:45&#10;• Competizione: Serie A&#10;• Tipo: Derby"
                     />
                   </div>
 
+                  {/* 6) Biglietti disponibili */}
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1">
-                      Settori Consigliati ({activeLang.toUpperCase()}) - HTML supportato
+                      6) Biglietti Disponibili ({activeLang.toUpperCase()})
+                    </label>
+                    <textarea
+                      value={formData.seo_tickets_info?.[activeLang] || ''}
+                      onChange={(e) => updateMultiLang('seo_tickets_info', e.target.value)}
+                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                      rows={3}
+                      placeholder="Descrizione delle tipologie di biglietti disponibili..."
+                    />
+                  </div>
+
+                  {/* 7) Settori consigliati (min 3, motivati) */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      7) Settori Consigliati ({activeLang.toUpperCase()}) - Min 3, motivati - HTML supportato
                     </label>
                     <textarea
                       value={formData.seo_sectors?.[activeLang] || ''}
                       onChange={(e) => updateMultiLang('seo_sectors', e.target.value)}
                       className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
-                      rows={5}
-                      placeholder="<strong>Tribuna Centrale:</strong> Vista perfetta sul campo...<br/><strong>Curva Sud:</strong> Atmosfera calda..."
+                      rows={6}
+                      placeholder="<strong>Tribuna VIP:</strong> Vista panoramica ottimale...&#10;<strong>Primo Anello:</strong> Perfetto per famiglie...&#10;<strong>Curva:</strong> Atmosfera unica..."
                     />
                   </div>
 
+                  {/* 8) Prezzi e domanda */}
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1">
-                      Prezzi e Disponibilità ({activeLang.toUpperCase()})
+                      8) Prezzi e Domanda ({activeLang.toUpperCase()})
                     </label>
                     <textarea
                       value={formData.seo_pricing?.[activeLang] || ''}
                       onChange={(e) => updateMultiLang('seo_pricing', e.target.value)}
                       className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
                       rows={3}
-                      placeholder="Informazioni su prezzi e disponibilità..."
+                      placeholder="Informazioni su prezzi, domanda e disponibilità..."
                     />
                   </div>
 
+                  {/* 9) Venue personalizzata - 100-150 parole */}
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1">
-                      Call to Action Finale ({activeLang.toUpperCase()})
+                      9) Venue/Stadio ({activeLang.toUpperCase()}) - 100-150 parole
+                    </label>
+                    <textarea
+                      value={formData.seo_venue?.[activeLang] || ''}
+                      onChange={(e) => updateMultiLang('seo_venue', e.target.value)}
+                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                      rows={5}
+                      placeholder="Descrizione personalizzata dello stadio..."
+                    />
+                  </div>
+
+                  {/* 11) CTA finale */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      11) CTA Finale ({activeLang.toUpperCase()})
                     </label>
                     <textarea
                       value={formData.seo_cta?.[activeLang] || ''}
                       onChange={(e) => updateMultiLang('seo_cta', e.target.value)}
                       className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
                       rows={2}
-                      placeholder="Non perdere questa partita! Prenota ora i tuoi biglietti..."
+                      placeholder="Non perdere questa partita! Acquista subito i tuoi biglietti..."
                     />
                   </div>
                 </div>
