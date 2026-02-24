@@ -7,6 +7,9 @@ import TeamPage from './pages/TeamPage';
 import LeaguePage from './pages/LeaguePage';
 import { Toaster } from './components/ui/sonner';
 
+// Language Context
+import { LanguageProvider } from './contexts/LanguageContext';
+
 // Admin imports
 import { AdminAuthProvider, useAdminAuth } from './contexts/AdminAuthContext';
 import {
@@ -45,10 +48,11 @@ function App() {
 
   return (
     <Router>
-      <AdminAuthProvider>
-        <div className="App min-h-screen bg-black">
-          <Toaster position="top-right" richColors />
-          <Routes>
+      <LanguageProvider>
+        <AdminAuthProvider>
+          <div className="App min-h-screen bg-black">
+            <Toaster position="top-right" richColors />
+            <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/event/:id" element={<EventDetail />} />
@@ -84,6 +88,7 @@ function App() {
           </Routes>
         </div>
       </AdminAuthProvider>
+    </LanguageProvider>
     </Router>
   );
 }
