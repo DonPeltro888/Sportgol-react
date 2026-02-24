@@ -12,18 +12,28 @@ export const getUrlPrefix = (lang) => {
   return prefixes[lang] || prefixes.it;
 };
 
+// Get league URL prefix based on language
+export const getLeagueUrlPrefix = (lang) => {
+  const prefixes = {
+    it: 'biglietti-campionato',
+    en: 'tickets-league',
+    es: 'entradas-liga'
+  };
+  return prefixes[lang] || prefixes.it;
+};
+
 // Generate team URL with translated prefix
 export const getTeamUrl = (slug, lang) => {
   const prefix = getUrlPrefix(lang);
   const cleanSlug = slug.toLowerCase().replace(/\s+/g, '-');
-  return `/${prefix}-${cleanSlug}`;
+  return `/${prefix}/${cleanSlug}`;
 };
 
 // Generate league URL with translated prefix
 export const getLeagueUrl = (league, lang) => {
-  const prefix = getUrlPrefix(lang);
+  const prefix = getLeagueUrlPrefix(lang);
   const cleanLeague = league.toLowerCase().replace(/\s+/g, '-');
-  return `/${prefix}-${cleanLeague}`;
+  return `/${prefix}/${cleanLeague}`;
 };
 
 // Generate canonical URL
