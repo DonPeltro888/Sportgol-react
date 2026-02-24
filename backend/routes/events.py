@@ -8,25 +8,72 @@ import logging
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/events", tags=["events"])
 
+# Location filters per language
+LANGUAGE_FILTERS = {
+    "it": {
+        # Italy cities + Champions League cities (London, Manchester, Madrid, Barcelona)
+        "locations": ["Milan", "Rome", "Turin", "Naples", "Florence", "Bologna", "Genoa", 
+                     "Bergamo", "Verona", "Udine", "Cagliari", "Lecce", "Parma", "Como",
+                     "Cremona", "Pisa", "Reggio Emilia", "London", "Manchester", "Madrid", "Barcelona"],
+        "include_champions": True
+    },
+    "es": {
+        # Spain cities + London, Manchester, Madrid, Barcelona
+        "locations": ["Madrid", "Barcelona", "Seville", "Valencia", "Bilbao", "Vigo",
+                     "Girona", "Elche", "Oviedo", "Palma", "London", "Manchester"],
+        "include_champions": False
+    },
+    "en": {
+        # UK cities + Madrid, Barcelona, Milan, Rome, Florence (Fiorentina)
+        "locations": ["London", "Manchester", "Liverpool", "Birmingham", "Newcastle",
+                     "Leeds", "Brighton", "Bournemouth", "Wolverhampton", "Burnley",
+                     "Madrid", "Barcelona", "Milan", "Rome", "Florence"],
+        "include_champions": False
+    }
+}
+
 @router.get("", response_model=dict)
 async def get_events(
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
     search: Optional[str] = None,
     league: Optional[str] = None,
-    featured: Optional[bool] = None
+    featured: Optional[bool] = None,
+    lang: Optional[str] = Query(None, description="Language filter: it, es, en")
 ):
     """Get all events with pagination and filtering"""
     try:
         skip = (page - 1) * limit
         query = {}
         
+        # Language-based location filter
+        if lang and lang in LANGUAGE_FILTERS:
+            filter_config = LANGUAGE_FILTERS[lang]
+            locations = filter_config["locations"]
+            
+            location_query = {"location": {"$in": locations}}
+            
+            # For Italian, also include Champions League events
+            if filter_config.get("include_champions"):
+                query["$or"] = [
+                    location_query,
+                    {"categories": {"$regex": "Champions League", "$options": "i"}},
+                    {"title": {"$regex": "Champions League", "$options": "i"}}
+                ]
+            else:
+                query.update(location_query)
+        
         if search:
-            query["$or"] = [
+            search_query = [
                 {"title": {"$regex": search, "$options": "i"}},
                 {"location": {"$regex": search, "$options": "i"}},
                 {"categories": {"$regex": search, "$options": "i"}}
             ]
+            if "$or" in query:
+                # Combine with existing $or using $and
+                query = {"$and": [query, {"$or": search_query}]}
+            else:
+                query["$or"] = search_query
         
         if league:
             query["league"] = league
