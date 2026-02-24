@@ -223,11 +223,11 @@ const LeaguePage = () => {
           {isCup ? (
             // Cup Events View
             <>
-              <h2 className="text-xl md:text-2xl font-bold text-white mb-6">Upcoming Matches</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-white mb-6">{t('upcomingEvents')}</h2>
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-20">
                   <Loader2 className="w-16 h-16 text-blue-500 animate-spin mb-4" />
-                  <p className="text-gray-400 text-lg">Loading matches...</p>
+                  <p className="text-gray-400 text-lg">{t('loadingEvents')}</p>
                 </div>
               ) : events.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -238,20 +238,20 @@ const LeaguePage = () => {
               ) : (
                 <div className="text-center py-20">
                   <div className="text-6xl mb-4">🏆</div>
-                  <div className="text-gray-400 text-xl mb-2">No matches scheduled yet</div>
-                  <p className="text-gray-500">Check back soon for upcoming fixtures</p>
+                  <div className="text-gray-400 text-xl mb-2">{t('noEventsFound')}</div>
+                  <p className="text-gray-500">{t('adjustSearch')}</p>
                 </div>
               )}
             </>
           ) : (
             // Teams Grid View
             <>
-              <h2 className="text-xl md:text-2xl font-bold text-white mb-6">All Teams</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-white mb-6">{t('teamsTitle')}</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {leagueTeams[league]?.teams?.map((team, index) => (
+                {leagueTeams[actualSlug]?.teams?.map((team, index) => (
                   <Link
                     key={index}
-                    to={`/team/${getTeamSlug(team)}`}
+                    to={getTeamUrl(getTeamSlug(team), lang)}
                     className="group bg-gray-800/50 border border-gray-700 hover:border-blue-500 rounded-xl p-6 text-center transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20"
                   >
                     <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
@@ -260,7 +260,7 @@ const LeaguePage = () => {
                       </span>
                     </div>
                     <h3 className="font-bold text-white text-sm group-hover:text-blue-400 transition-colors">
-                      {team}
+                      {lang === 'en' ? `${team} ${t('seoTickets')}` : `${t('seoTickets')} ${team}`}
                     </h3>
                   </Link>
                 ))}
