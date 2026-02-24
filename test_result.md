@@ -215,17 +215,15 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Health check endpoint GET /api/"
-    - "Get all events with pagination GET /api/events"
-    - "Search events by query GET /api/events?search=milan"
-    - "Filter events by league GET /api/events?league=SERIE%20A"
-    - "Get all categories GET /api/categories"
-    - "Global search endpoint GET /api/search?q=roma"
+  current_focus: []
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
   - agent: "testing"
     message: "Created initial test structure for Golevents backend API testing. All endpoints implemented and ready for testing. Using BACKEND_URL: https://golevents-clone.preview.emergentagent.com/api"
+  - agent: "testing"
+    message: "CRITICAL ISSUE FOUND AND FIXED: Circular import error preventing backend startup. Routes were importing 'db' from server.py while server.py was importing routes. Created separate database.py module to resolve this. After fix, all 6 API endpoints are working correctly."
+  - agent: "testing"
+    message: "ALL BACKEND TESTS PASSED: Health check ✅, Events pagination ✅, Search functionality ✅, League filtering ✅, Categories endpoint ✅, Global search ✅. Backend API is fully functional with 15 events and 13 categories in database."
