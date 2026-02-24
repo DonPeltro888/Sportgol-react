@@ -76,6 +76,8 @@ export const translations = {
     eventsCountry: "Eventi Italia",
     eventsInternational: "Eventi Internazionali",
     events: "eventi",
+    eventsFound: "partite trovate",
+    eventFound: "partita trovata",
     noEventsLocal: "Nessun evento locale disponibile",
     noEventsInternational: "Nessun evento internazionale disponibile",
     noEventsFound: "Nessun evento trovato",
