@@ -290,6 +290,8 @@ export const translations = {
     eventsCountry: "UK Events",
     eventsInternational: "International Events",
     events: "events",
+    eventsFound: "matches found",
+    eventFound: "match found",
     noEventsLocal: "No local events available",
     noEventsInternational: "No international events available",
     noEventsFound: "No events found",
