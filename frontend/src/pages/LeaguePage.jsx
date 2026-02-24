@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
 import { getLeagueUrl, getTeamUrl, getSeoTitle, getSeoDescription } from '../utils/seoHelpers';
-import { getTeamLogo } from '../data/teamLogos';
+import { getTeamLogo, getLeagueLogo } from '../data/teamLogos';
 
 const LeaguePage = ({ urlType }) => {
   const { league, '*': wildcardLeague } = useParams();
