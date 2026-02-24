@@ -63,9 +63,9 @@ function App() {
             <Route path="/entradas/:slug" element={<TeamPage />} />
             <Route path="/team/:slug" element={<TeamPage />} /> {/* Fallback */}
             
-            {/* League Routes - IT: /biglietti-campionato/serie-a, EN: /serie-a/tickets, ES: /entradas-liga/serie-a */}
+            {/* League Routes - IT: /biglietti-campionato/serie-a, EN: /league/serie-a/tickets, ES: /entradas-liga/serie-a */}
             <Route path="/biglietti-campionato/:league" element={<LeaguePage />} />
-            <Route path="/:league/tickets" element={<LeaguePage />} />
+            <Route path="/league/:league/tickets" element={<LeaguePage />} />
             <Route path="/entradas-liga/:league" element={<LeaguePage />} />
             <Route path="/league/:league" element={<LeaguePage />} /> {/* Fallback */}
             
