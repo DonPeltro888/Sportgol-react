@@ -394,6 +394,25 @@ const AdminPages = () => {
                       className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
                     />
                   </div>
+                  
+                  {/* Preview Section */}
+                  <div className="border-t border-gray-600 pt-4 mt-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <GoogleSnippetPreview
+                        title={formData.title?.[activeLang] || ''}
+                        description={formData.description?.[activeLang] || ''}
+                        url={formData.page_key}
+                        lang={activeLang}
+                        type="page"
+                      />
+                      <SocialPreview
+                        title={formData.title?.[activeLang] || ''}
+                        description={formData.description?.[activeLang] || ''}
+                        image={formData.og_image}
+                        platform="facebook"
+                      />
+                    </div>
+                  </div>
                 </>
               )}
             </div>
