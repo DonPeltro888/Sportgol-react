@@ -201,9 +201,9 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
             </div>
           </form>
 
-          {/* AJAX Results Dropdown */}
+          {/* AJAX Results Dropdown - Position ABOVE search */}
           {showDropdown && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900/95 backdrop-blur-xl border border-gray-700 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[500px] overflow-y-auto">
+            <div className="absolute bottom-full left-0 right-0 mb-2 bg-gray-900/95 backdrop-blur-xl border border-gray-700 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[400px] overflow-y-auto">
               {loading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
