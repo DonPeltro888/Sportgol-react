@@ -22,6 +22,11 @@ const Header = () => {
     { label: 'LA LIGA', slug: 'la-liga', country: 'Spain' },
     { label: 'BUNDESLIGA', slug: 'bundesliga', country: 'Germany' },
     { label: 'LIGA PORTUGAL', slug: 'liga-portugal', country: 'Portugal' },
+    { label: 'CHAMPIONS LEAGUE', slug: 'champions-league', country: 'Europe' },
+    { label: 'COPPA ITALIA', slug: 'coppa-italia', country: 'Italy' },
+    { label: 'COPA DEL REY', slug: 'copa-del-rey', country: 'Spain' },
+    { label: 'FA CUP', slug: 'fa-cup', country: 'England' },
+    { label: 'DFB POKAL', slug: 'dfb-pokal', country: 'Germany' },
   ];
 
   const handleLeagueClick = (slug) => {
