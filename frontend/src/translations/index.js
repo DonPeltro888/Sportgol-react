@@ -9,6 +9,33 @@ export const translations = {
     cups: "COPPE",
     language: "Lingua",
     
+    // Leagues
+    serieA: "SERIE A",
+    premierLeague: "PREMIER LEAGUE",
+    laLiga: "LA LIGA",
+    bundesliga: "BUNDESLIGA",
+    ligaPortugal: "LIGA PORTUGAL",
+    ligue1: "LIGUE 1",
+    superLig: "SUPER LIG",
+    
+    // Countries
+    italy: "Italia",
+    england: "Inghilterra",
+    spain: "Spagna",
+    germany: "Germania",
+    portugal: "Portogallo",
+    france: "Francia",
+    turkey: "Turchia",
+    europe: "Europa",
+    
+    // Cups
+    championsLeague: "CHAMPIONS LEAGUE",
+    europaLeague: "EUROPA LEAGUE",
+    coppaItalia: "COPPA ITALIA",
+    copaDelRey: "COPA DEL REY",
+    faCup: "FA CUP",
+    dfbPokal: "DFB POKAL",
+    
     // Hero
     liveEvents: "Eventi Live",
     bestPrices: "Migliori Prezzi",
@@ -69,6 +96,33 @@ export const translations = {
     cups: "COPAS",
     language: "Idioma",
     
+    // Leagues
+    serieA: "SERIE A",
+    premierLeague: "PREMIER LEAGUE",
+    laLiga: "LA LIGA",
+    bundesliga: "BUNDESLIGA",
+    ligaPortugal: "LIGA PORTUGAL",
+    ligue1: "LIGUE 1",
+    superLig: "SUPER LIG",
+    
+    // Countries
+    italy: "Italia",
+    england: "Inglaterra",
+    spain: "España",
+    germany: "Alemania",
+    portugal: "Portugal",
+    france: "Francia",
+    turkey: "Turquía",
+    europe: "Europa",
+    
+    // Cups
+    championsLeague: "CHAMPIONS LEAGUE",
+    europaLeague: "EUROPA LEAGUE",
+    coppaItalia: "COPA ITALIA",
+    copaDelRey: "COPA DEL REY",
+    faCup: "FA CUP",
+    dfbPokal: "DFB POKAL",
+    
     // Hero
     liveEvents: "Eventos en Vivo",
     bestPrices: "Mejores Precios",
@@ -128,6 +182,33 @@ export const translations = {
     leagues: "LEAGUES",
     cups: "CUPS",
     language: "Language",
+    
+    // Leagues
+    serieA: "SERIE A",
+    premierLeague: "PREMIER LEAGUE",
+    laLiga: "LA LIGA",
+    bundesliga: "BUNDESLIGA",
+    ligaPortugal: "LIGA PORTUGAL",
+    ligue1: "LIGUE 1",
+    superLig: "SUPER LIG",
+    
+    // Countries
+    italy: "Italy",
+    england: "England",
+    spain: "Spain",
+    germany: "Germany",
+    portugal: "Portugal",
+    france: "France",
+    turkey: "Turkey",
+    europe: "Europe",
+    
+    // Cups
+    championsLeague: "CHAMPIONS LEAGUE",
+    europaLeague: "EUROPA LEAGUE",
+    coppaItalia: "COPPA ITALIA",
+    copaDelRey: "COPA DEL REY",
+    faCup: "FA CUP",
+    dfbPokal: "DFB POKAL",
     
     // Hero
     liveEvents: "Live Events",
