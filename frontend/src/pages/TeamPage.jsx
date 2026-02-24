@@ -24,11 +24,7 @@ const TeamPage = () => {
 
   // Extract slug from various URL formats
   const extractSlug = () => {
-    const path = location.pathname;
-    // Match /biglietti-inter, /tickets-inter, /entradas-inter
-    const match = path.match(/^\/(biglietti|tickets|entradas)-(.+)$/);
-    if (match) return match[2];
-    // Fallback to param
+    // The slug is directly available from useParams since we use /biglietti/:slug
     return slug;
   };
 
@@ -39,7 +35,7 @@ const TeamPage = () => {
   const fetchTeamEvents = async () => {
     try {
       setLoading(true);
-      const actualSlug = extractSlug();
+      const actualSlug = slug;
       // Search for team name from slug
       const formattedName = actualSlug.split('-').map(word => 
         word.charAt(0).toUpperCase() + word.slice(1)
