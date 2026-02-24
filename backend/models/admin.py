@@ -43,6 +43,19 @@ class EventCreate(BaseModel):
     # SEO
     seo_title: MultiLangText = Field(default_factory=MultiLangText)
     seo_description: MultiLangText = Field(default_factory=MultiLangText)
+    # SEO Content (for Details tab)
+    seo_intro: MultiLangText = Field(default_factory=MultiLangText)
+    seo_venue_info: MultiLangText = Field(default_factory=MultiLangText)
+    seo_sectors: MultiLangText = Field(default_factory=MultiLangText)
+    seo_pricing: MultiLangText = Field(default_factory=MultiLangText)
+    seo_cta: MultiLangText = Field(default_factory=MultiLangText)
+    # FAQ (multilingual)
+    faq_1_q: MultiLangText = Field(default_factory=MultiLangText)
+    faq_1_a: MultiLangText = Field(default_factory=MultiLangText)
+    faq_2_q: MultiLangText = Field(default_factory=MultiLangText)
+    faq_2_a: MultiLangText = Field(default_factory=MultiLangText)
+    faq_3_q: MultiLangText = Field(default_factory=MultiLangText)
+    faq_3_a: MultiLangText = Field(default_factory=MultiLangText)
 
 class EventUpdate(BaseModel):
     title: Optional[MultiLangText] = None
