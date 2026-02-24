@@ -203,7 +203,10 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
 
           {/* AJAX Results Dropdown - Position BELOW search, covers other content */}
           {showDropdown && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900 backdrop-blur-xl border border-gray-700 rounded-xl shadow-2xl overflow-hidden z-[9999] max-h-[400px] overflow-y-auto">
+            <div 
+              className="absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl z-[9999]"
+              style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}
+            >
               {loading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
