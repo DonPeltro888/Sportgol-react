@@ -3,6 +3,8 @@ import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import EventDetail from './pages/EventDetail';
+import TeamPage from './pages/TeamPage';
+import LeaguePage from './pages/LeaguePage';
 import { Toaster } from './components/ui/sonner';
 
 function App() {
@@ -17,6 +19,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/event/:id" element={<EventDetail />} />
+          <Route path="/team/:slug" element={<TeamPage />} />
+          <Route path="/league/:league" element={<LeaguePage />} />
         </Routes>
       </div>
     </Router>
