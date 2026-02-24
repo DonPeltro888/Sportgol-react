@@ -529,40 +529,61 @@ const AdminEvents = () => {
               )}
 
               {activeTab === 'seo' && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">SEO Title ({activeLang.toUpperCase()})</label>
-                    <input
-                      type="text"
-                      value={formData.seo_title[activeLang] || ''}
-                      onChange={(e) => updateMultiLang('seo_title', e.target.value)}
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
-                      placeholder="Biglietti Inter vs Milan - Acquista Online"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Max 60 caratteri raccomandati</p>
-                  </div>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Left Column - Fields */}
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-1">SEO Title ({activeLang.toUpperCase()})</label>
+                        <input
+                          type="text"
+                          value={formData.seo_title[activeLang] || ''}
+                          onChange={(e) => updateMultiLang('seo_title', e.target.value)}
+                          className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                          placeholder="Biglietti Inter vs Milan - Acquista Online"
+                        />
+                      </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">SEO Description ({activeLang.toUpperCase()})</label>
-                    <textarea
-                      value={formData.seo_description[activeLang] || ''}
-                      onChange={(e) => updateMultiLang('seo_description', e.target.value)}
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
-                      rows={3}
-                      placeholder="Acquista i biglietti per Inter vs Milan. Prezzi da €50. Consegna garantita."
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Max 160 caratteri raccomandati</p>
-                  </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-1">SEO Description ({activeLang.toUpperCase()})</label>
+                        <textarea
+                          value={formData.seo_description[activeLang] || ''}
+                          onChange={(e) => updateMultiLang('seo_description', e.target.value)}
+                          className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                          rows={3}
+                          placeholder="Acquista i biglietti per Inter vs Milan. Prezzi da €50. Consegna garantita."
+                        />
+                      </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">URL Slug ({activeLang.toUpperCase()})</label>
-                    <input
-                      type="text"
-                      value={formData.slug[activeLang] || ''}
-                      onChange={(e) => updateMultiLang('slug', e.target.value)}
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
-                      placeholder="inter-vs-milan-serie-a"
-                    />
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-1">URL Slug ({activeLang.toUpperCase()})</label>
+                        <input
+                          type="text"
+                          value={formData.slug[activeLang] || ''}
+                          onChange={(e) => updateMultiLang('slug', e.target.value)}
+                          className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                          placeholder="inter-vs-milan-serie-a"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Right Column - Previews */}
+                    <div className="space-y-6">
+                      <GoogleSnippetPreview
+                        title={formData.seo_title[activeLang] || formData.title[activeLang] || ''}
+                        description={formData.seo_description[activeLang] || ''}
+                        url={formData.slug[activeLang] ? `event/${formData.slug[activeLang]}` : ''}
+                        lang={activeLang}
+                        type="event"
+                      />
+                      
+                      <SocialPreview
+                        title={formData.seo_title[activeLang] || formData.title[activeLang] || ''}
+                        description={formData.seo_description[activeLang] || ''}
+                        image={formData.imageUrl}
+                        platform="facebook"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
