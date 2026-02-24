@@ -67,6 +67,17 @@ export const LanguageProvider = ({ children }) => {
     }
   };
 
+  // Listen for language change events from mobile menu
+  useEffect(() => {
+    const handleLangChange = (event) => {
+      if (SUPPORTED_LANGS.includes(event.detail)) {
+        setLang(event.detail);
+      }
+    };
+    window.addEventListener('changeLanguage', handleLangChange);
+    return () => window.removeEventListener('changeLanguage', handleLangChange);
+  }, []);
+
   return (
     <LanguageContext.Provider value={{
       lang,
