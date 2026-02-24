@@ -56,8 +56,18 @@ function App() {
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/event/:id" element={<EventDetail />} />
-            <Route path="/team/:slug" element={<TeamPage />} />
-            <Route path="/league/:league" element={<LeaguePage />} />
+            
+            {/* Team Routes - All languages */}
+            <Route path="/biglietti-:slug" element={<TeamPage />} />
+            <Route path="/tickets-:slug" element={<TeamPage />} />
+            <Route path="/entradas-:slug" element={<TeamPage />} />
+            <Route path="/team/:slug" element={<TeamPage />} /> {/* Fallback */}
+            
+            {/* League Routes - All languages */}
+            <Route path="/biglietti-:league" element={<LeaguePage />} />
+            <Route path="/tickets-:league" element={<LeaguePage />} />
+            <Route path="/entradas-:league" element={<LeaguePage />} />
+            <Route path="/league/:league" element={<LeaguePage />} /> {/* Fallback */}
             
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
