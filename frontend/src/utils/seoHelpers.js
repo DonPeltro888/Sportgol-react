@@ -28,8 +28,8 @@ export const getLeagueUrl = (league, lang) => {
   const cleanLeague = league.toLowerCase().replace(/\s+/g, '-');
   
   if (lang === 'en') {
-    // English: name first -> /serie-a/tickets
-    return `/${cleanLeague}/tickets`;
+    // English: league first, then tickets -> /league/serie-a/tickets
+    return `/league/${cleanLeague}/tickets`;
   } else if (lang === 'es') {
     // Spanish: entradas-liga first -> /entradas-liga/serie-a
     return `/entradas-liga/${cleanLeague}`;
