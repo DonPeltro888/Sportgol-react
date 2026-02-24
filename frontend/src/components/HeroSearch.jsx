@@ -1,13 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, TrendingUp, Zap } from 'lucide-react';
 
-const HeroSearch = ({ onSearch }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
+  const [localQuery, setLocalQuery] = useState(searchQuery || '');
+
+  useEffect(() => {
+    setLocalQuery(searchQuery || '');
+  }, [searchQuery]);
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setLocalQuery(value);
+    if (onSearchChange) {
+      onSearchChange(value);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (onSearch) {
-      onSearch(searchQuery);
+      onSearch(localQuery);
     }
   };
 
@@ -49,8 +61,8 @@ const HeroSearch = ({ onSearch }) => {
             <input
               type="text"
               placeholder="Search for teams, leagues, or events..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={localQuery}
+              onChange={handleInputChange}
               className="flex-1 pl-16 pr-6 py-5 bg-transparent text-white placeholder-gray-400 outline-none text-lg"
             />
             <button
@@ -62,6 +74,11 @@ const HeroSearch = ({ onSearch }) => {
               <TrendingUp className="relative w-5 h-5" />
             </button>
           </div>
+          {localQuery && (
+            <div className="mt-3 text-sm text-gray-300 animate-fade-in-up">
+              Searching for: <span className="text-blue-400 font-semibold">{localQuery}</span>
+            </div>
+          )}
         </form>
 
         {/* Stats */}
