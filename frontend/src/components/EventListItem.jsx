@@ -56,7 +56,8 @@ const EventListItem = ({ event }) => {
 
   const dateInfo = parseDate(event.date || event.sort_date);
   const eventId = event.id || event._id;
-  const title = typeof event.title === 'object' ? (event.title.it || event.title.en || '') : event.title;
+  const rawTitle = typeof event.title === 'object' ? (event.title.it || event.title.en || '') : event.title;
+  const title = formatCupTitle(rawTitle, event.league);
   const location = typeof event.location === 'object' ? (event.location.it || event.location.en || '') : event.location;
   const priceMin = event.price_range?.min || event.ticket_categories?.[0]?.price_min || 45;
 
