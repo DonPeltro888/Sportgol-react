@@ -32,6 +32,39 @@ def get_stadium_image(index):
 
 # Complete match data for all leagues
 events_data = [
+    # === COPPA ITALIA MATCHES ===
+    {"title": "Como vs Inter (1st Leg)", "categories": ["COMO", "INTER"], "date": "March 3, 2026", "location": "Como", "stadium": "Stadio Giuseppe Sinigaglia", "price_range": {"min": 35, "max": 180}, "available_tickets": 7800, "featured": True, "league": "COPPA ITALIA"},
+    {"title": "Lazio vs Atalanta (1st Leg)", "categories": ["LAZIO", "ATALANTA"], "date": "March 4, 2026", "location": "Rome", "stadium": "Stadio Olimpico", "price_range": {"min": 45, "max": 220}, "available_tickets": 14000, "featured": True, "league": "COPPA ITALIA"},
+    {"title": "Inter vs Como (2nd Leg)", "categories": ["INTER", "COMO"], "date": "April 22, 2026", "location": "Milan", "stadium": "San Siro", "price_range": {"min": 55, "max": 300}, "available_tickets": 18000, "featured": True, "league": "COPPA ITALIA"},
+    {"title": "Atalanta vs Lazio (2nd Leg)", "categories": ["ATALANTA", "LAZIO"], "date": "April 23, 2026", "location": "Bergamo", "stadium": "Gewiss Stadium", "price_range": {"min": 48, "max": 240}, "available_tickets": 12000, "featured": True, "league": "COPPA ITALIA"},
+    {"title": "Coppa Italia Final", "categories": ["TBD", "TBD"], "date": "May 13, 2026", "location": "Rome", "stadium": "Stadio Olimpico", "price_range": {"min": 80, "max": 450}, "available_tickets": 20000, "featured": True, "league": "COPPA ITALIA"},
+    
+    # === CHAMPIONS LEAGUE MATCHES ===
+    {"title": "Arsenal vs TBD (Round of 16 - 1st Leg)", "categories": ["ARSENAL", "TBD"], "date": "March 10, 2026", "location": "London", "stadium": "Emirates Stadium", "price_range": {"min": 85, "max": 400}, "available_tickets": 20000, "featured": True, "league": "CHAMPIONS LEAGUE"},
+    {"title": "Bayern Munich vs TBD (Round of 16 - 1st Leg)", "categories": ["BAYERN MUNICH", "TBD"], "date": "March 11, 2026", "location": "Munich", "stadium": "Allianz Arena", "price_range": {"min": 90, "max": 450}, "available_tickets": 24000, "featured": True, "league": "CHAMPIONS LEAGUE"},
+    {"title": "Barcelona vs TBD (Round of 16 - 1st Leg)", "categories": ["BARCELONA", "TBD"], "date": "March 10, 2026", "location": "Barcelona", "stadium": "Spotify Camp Nou", "price_range": {"min": 95, "max": 480}, "available_tickets": 26000, "featured": True, "league": "CHAMPIONS LEAGUE"},
+    {"title": "Manchester City vs TBD (Round of 16 - 1st Leg)", "categories": ["MANCHESTER CITY", "TBD"], "date": "March 11, 2026", "location": "Manchester", "stadium": "Etihad Stadium", "price_range": {"min": 88, "max": 420}, "available_tickets": 21000, "featured": True, "league": "CHAMPIONS LEAGUE"},
+    {"title": "TBD vs Arsenal (Round of 16 - 2nd Leg)", "categories": ["TBD", "ARSENAL"], "date": "March 17, 2026", "location": "TBD", "stadium": "TBD", "price_range": {"min": 70, "max": 350}, "available_tickets": 15000, "featured": True, "league": "CHAMPIONS LEAGUE"},
+    {"title": "TBD vs Bayern Munich (Round of 16 - 2nd Leg)", "categories": ["TBD", "BAYERN MUNICH"], "date": "March 18, 2026", "location": "TBD", "stadium": "TBD", "price_range": {"min": 75, "max": 380}, "available_tickets": 16000, "featured": True, "league": "CHAMPIONS LEAGUE"},
+    
+    # === FA CUP MATCHES ===
+    {"title": "Manchester United vs Liverpool (Quarter Final)", "categories": ["MANCHESTER UNITED", "LIVERPOOL"], "date": "March 8, 2026", "location": "Manchester", "stadium": "Old Trafford", "price_range": {"min": 65, "max": 340}, "available_tickets": 22000, "featured": True, "league": "FA CUP"},
+    {"title": "Arsenal vs Manchester City (Quarter Final)", "categories": ["ARSENAL", "MANCHESTER CITY"], "date": "March 9, 2026", "location": "London", "stadium": "Emirates Stadium", "price_range": {"min": 70, "max": 360}, "available_tickets": 20000, "featured": True, "league": "FA CUP"},
+    {"title": "Chelsea vs Newcastle (Quarter Final)", "categories": ["CHELSEA", "NEWCASTLE UNITED"], "date": "March 8, 2026", "location": "London", "stadium": "Stamford Bridge", "price_range": {"min": 60, "max": 320}, "available_tickets": 16000, "featured": True, "league": "FA CUP"},
+    {"title": "Tottenham vs Aston Villa (Quarter Final)", "categories": ["TOTTENHAM", "ASTON VILLA"], "date": "March 9, 2026", "location": "London", "stadium": "Tottenham Hotspur Stadium", "price_range": {"min": 58, "max": 300}, "available_tickets": 18000, "featured": True, "league": "FA CUP"},
+    
+    # === DFB POKAL (German Cup) ===
+    {"title": "Bayern Munich vs Borussia Dortmund (Semi Final)", "categories": ["BAYERN MUNICH", "BORUSSIA DORTMUND"], "date": "April 1, 2026", "location": "Munich", "stadium": "Allianz Arena", "price_range": {"min": 75, "max": 400}, "available_tickets": 25000, "featured": True, "league": "DFB POKAL"},
+    {"title": "RB Leipzig vs Leverkusen (Semi Final)", "categories": ["RB LEIPZIG", "LEVERKUSEN"], "date": "April 2, 2026", "location": "Leipzig", "stadium": "Red Bull Arena", "price_range": {"min": 60, "max": 320}, "available_tickets": 17000, "featured": True, "league": "DFB POKAL"},
+    {"title": "DFB Pokal Final", "categories": ["TBD", "TBD"], "date": "May 16, 2026", "location": "Berlin", "stadium": "Olympiastadion", "price_range": {"min": 90, "max": 500}, "available_tickets": 22000, "featured": True, "league": "DFB POKAL"},
+    
+    # === COPA DEL REY MATCHES ===
+    {"title": "Barcelona vs Atlético Madrid (Semi Final - 1st Leg)", "categories": ["BARCELONA", "ATLÉTICO MADRID"], "date": "March 3, 2026", "location": "Barcelona", "stadium": "Spotify Camp Nou", "price_range": {"min": 85, "max": 450}, "available_tickets": 26000, "featured": True, "league": "COPA DEL REY"},
+    {"title": "Real Madrid vs Athletic Bilbao (Semi Final - 1st Leg)", "categories": ["REAL MADRID", "ATHLETIC BILBAO"], "date": "March 4, 2026", "location": "Madrid", "stadium": "Santiago Bernabéu", "price_range": {"min": 90, "max": 480}, "available_tickets": 28000, "featured": True, "league": "COPA DEL REY"},
+    {"title": "Atlético Madrid vs Barcelona (Semi Final - 2nd Leg)", "categories": ["ATLÉTICO MADRID", "BARCELONA"], "date": "April 7, 2026", "location": "Madrid", "stadium": "Metropolitano", "price_range": {"min": 80, "max": 420}, "available_tickets": 17000, "featured": True, "league": "COPA DEL REY"},
+    {"title": "Athletic Bilbao vs Real Madrid (Semi Final - 2nd Leg)", "categories": ["ATHLETIC BILBAO", "REAL MADRID"], "date": "April 8, 2026", "location": "Bilbao", "stadium": "San Mamés", "price_range": {"min": 75, "max": 400}, "available_tickets": 14000, "featured": True, "league": "COPA DEL REY"},
+    {"title": "Copa del Rey Final", "categories": ["TBD", "TBD"], "date": "May 9, 2026", "location": "Seville", "stadium": "La Cartuja", "price_range": {"min": 95, "max": 550}, "available_tickets": 20000, "featured": True, "league": "COPA DEL REY"},
+
     # === SERIE A MATCHES ===
     # February-March
     {"title": "Parma vs Cagliari", "categories": ["PARMA", "CAGLIARI"], "date": "February 27, 2026", "location": "Parma", "stadium": "Stadio Ennio Tardini", "price_range": {"min": 25, "max": 120}, "available_tickets": 8000, "featured": True, "league": "SERIE A"},
