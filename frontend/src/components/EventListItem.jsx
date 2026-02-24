@@ -88,8 +88,18 @@ const formatCupTitle = (title, league) => {
 const EventListItem = ({ event }) => {
   const { lang } = useLanguage();
   
+  // Get locale for date formatting
+  const getLocale = () => {
+    switch(lang) {
+      case 'it': return 'it-IT';
+      case 'es': return 'es-ES';
+      default: return 'en-GB';
+    }
+  };
+  
   // Parse date to get day, month, year, day of week
   const parseDate = (dateStr) => {
+    const locale = getLocale();
     try {
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) {
@@ -97,17 +107,17 @@ const EventListItem = ({ event }) => {
         const parsed = new Date(Date.parse(dateStr));
         if (!isNaN(parsed.getTime())) {
           return {
-            dayOfWeek: parsed.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase(),
+            dayOfWeek: parsed.toLocaleDateString(locale, { weekday: 'short' }).toUpperCase(),
             day: parsed.getDate(),
-            month: parsed.toLocaleDateString('en-US', { month: 'short' }),
+            month: parsed.toLocaleDateString(locale, { month: 'short' }),
             year: parsed.getFullYear()
           };
         }
       }
       return {
-        dayOfWeek: date.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase(),
+        dayOfWeek: date.toLocaleDateString(locale, { weekday: 'short' }).toUpperCase(),
         day: date.getDate(),
-        month: date.toLocaleDateString('en-US', { month: 'short' }),
+        month: date.toLocaleDateString(locale, { month: 'short' }),
         year: date.getFullYear()
       };
     } catch {
