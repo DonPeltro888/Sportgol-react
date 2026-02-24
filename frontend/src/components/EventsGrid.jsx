@@ -31,8 +31,8 @@ const EventsGrid = ({ events, loading }) => {
   );
 
   return (
-    <section className="py-12 px-4 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden">
-      <div className="container mx-auto relative z-10">
+    <section className="py-12 px-4 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden z-0">
+      <div className="container mx-auto relative">
         {/* Section Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-400 text-sm font-semibold mb-4">
