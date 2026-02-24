@@ -167,7 +167,7 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
         </p>
         
         {/* Search with AJAX dropdown */}
-        <div ref={searchRef} className="relative animate-fade-in-up" style={{animationDelay: '0.3s'}}>
+        <div ref={searchRef} className="relative z-[100] animate-fade-in-up" style={{animationDelay: '0.3s'}}>
           <form onSubmit={handleSubmit}>
             <div className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl flex items-center overflow-hidden group hover:shadow-blue-500/20 transition-all duration-300">
               <Search className="absolute left-6 w-6 h-6 text-gray-400" />
