@@ -57,16 +57,16 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/event/:id" element={<EventDetail />} />
             
-            {/* Team Routes - All languages */}
-            <Route path="/biglietti-:slug" element={<TeamPage />} />
-            <Route path="/tickets-:slug" element={<TeamPage />} />
-            <Route path="/entradas-:slug" element={<TeamPage />} />
+            {/* Team Routes - Language prefixed */}
+            <Route path="/biglietti/:slug" element={<TeamPage />} />
+            <Route path="/tickets/:slug" element={<TeamPage />} />
+            <Route path="/entradas/:slug" element={<TeamPage />} />
             <Route path="/team/:slug" element={<TeamPage />} /> {/* Fallback */}
             
-            {/* League Routes - All languages */}
-            <Route path="/biglietti-:league" element={<LeaguePage />} />
-            <Route path="/tickets-:league" element={<LeaguePage />} />
-            <Route path="/entradas-:league" element={<LeaguePage />} />
+            {/* League Routes - Language prefixed */}
+            <Route path="/biglietti-campionato/:league" element={<LeaguePage />} />
+            <Route path="/tickets-league/:league" element={<LeaguePage />} />
+            <Route path="/entradas-liga/:league" element={<LeaguePage />} />
             <Route path="/league/:league" element={<LeaguePage />} /> {/* Fallback */}
             
             {/* Admin Routes */}
