@@ -39,9 +39,9 @@ const Header = () => {
 
   const leagues = [
     {
-      label: 'SERIE A',
+      labelKey: 'serieA',
       slug: 'serie-a',
-      country: 'Italy',
+      countryKey: 'italy',
       flag: '🇮🇹',
       teams: [
         'Atalanta', 'Bologna', 'Cagliari', 'Como', 'Cremonese', 'Fiorentina',
@@ -50,9 +50,9 @@ const Header = () => {
       ]
     },
     {
-      label: 'PREMIER LEAGUE',
+      labelKey: 'premierLeague',
       slug: 'premier-league',
-      country: 'England',
+      countryKey: 'england',
       flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
       teams: [
         'Arsenal', 'Aston Villa', 'Bournemouth', 'Brentford', 'Brighton', 'Burnley',
@@ -62,9 +62,9 @@ const Header = () => {
       ]
     },
     {
-      label: 'LA LIGA',
+      labelKey: 'laLiga',
       slug: 'la-liga',
-      country: 'Spain',
+      countryKey: 'spain',
       flag: '🇪🇸',
       teams: [
         'Alavés', 'Athletic Bilbao', 'Atlético Madrid', 'Barcelona', 'Betis', 'Celta Vigo',
@@ -74,9 +74,9 @@ const Header = () => {
       ]
     },
     {
-      label: 'BUNDESLIGA',
+      labelKey: 'bundesliga',
       slug: 'bundesliga',
-      country: 'Germany',
+      countryKey: 'germany',
       flag: '🇩🇪',
       teams: [
         'Augsburg', 'Bayern Munich', 'Borussia Dortmund', 'Borussia Mönchengladbach',
@@ -86,9 +86,9 @@ const Header = () => {
       ]
     },
     {
-      label: 'LIGA PORTUGAL',
+      labelKey: 'ligaPortugal',
       slug: 'liga-portugal',
-      country: 'Portugal',
+      countryKey: 'portugal',
       flag: '🇵🇹',
       teams: [
         'Arouca', 'AVS', 'Benfica', 'Boavista', 'Braga', 'Casa Pia',
@@ -97,18 +97,18 @@ const Header = () => {
       ]
     },
     {
-      label: 'LIGUE 1',
+      labelKey: 'ligue1',
       slug: 'ligue-1',
-      country: 'France',
+      countryKey: 'france',
       flag: '🇫🇷',
       teams: [
         'PSG', 'Monaco', 'Marseille', 'Lyon', 'Angers', 'Le Havre'
       ]
     },
     {
-      label: 'SUPER LIG',
+      labelKey: 'superLig',
       slug: 'super-lig',
-      country: 'Turkey',
+      countryKey: 'turkey',
       flag: '🇹🇷',
       teams: [
         'Galatasaray', 'Fenerbahçe', 'Beşiktaş', 'Trabzonspor', 'Alanyaspor', 'Antalyaspor', 'Kocaelispor'
@@ -117,12 +117,13 @@ const Header = () => {
   ];
 
   const cups = [
-    { label: 'CHAMPIONS LEAGUE', slug: 'champions-league', country: 'Europe', flag: '🏆' },
-    { label: 'EUROPA LEAGUE', slug: 'europa-league', country: 'Europe', flag: '🏆' },
-    { label: 'COPPA ITALIA', slug: 'coppa-italia', country: 'Italy', flag: '🇮🇹' },
-    { label: 'COPA DEL REY', slug: 'copa-del-rey', country: 'Spain', flag: '🇪🇸' },
-    { label: 'FA CUP', slug: 'fa-cup', country: 'England', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
-    { label: 'DFB POKAL', slug: 'dfb-pokal', country: 'Germany', flag: '🇩🇪' }
+    { labelKey: 'championsLeague', slug: 'champions-league', countryKey: 'europe', flag: '🏆' },
+    { labelKey: 'europaLeague', slug: 'europa-league', countryKey: 'europe', flag: '🏆' },
+    { labelKey: 'coppaItalia', slug: 'coppa-italia', countryKey: 'italy', flag: '🇮🇹' },
+    { labelKey: 'copaDelRey', slug: 'copa-del-rey', countryKey: 'spain', flag: '🇪🇸' },
+    { labelKey: 'faCup', slug: 'fa-cup', countryKey: 'england', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
+    { labelKey: 'dfbPokal', slug: 'dfb-pokal', countryKey: 'germany', flag: '🇩🇪' }
+  ];
   ];
 
   const getTeamSlug = (teamName) => {
