@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, ChevronDown, ChevronRight, Trophy, Flag } from 'lucide-react';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -292,14 +294,7 @@ const Header = () => {
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 group-hover/link:w-full transition-all duration-300"></span>
             </Link>
 
-            <button className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors px-3 py-2">
-              <img
-                src="https://flagcdn.com/w20/gb.png"
-                alt="English"
-                className="w-5 h-4 rounded"
-              />
-              <ChevronDown className="w-4 h-4" />
-            </button>
+            <LanguageSwitcher />
           </nav>
 
           {/* Mobile menu button */}
