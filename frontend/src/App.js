@@ -62,16 +62,17 @@ function App() {
               - IT: /biglietti-{name} (biglietti PRIMA con trattino)
               - EN: /{name}-tickets (tickets DOPO con trattino)  
               - ES: /entradas-{name} (entradas PRIMA con trattino)
+              
+              React Router non supporta pattern con trattino come /:slug-tickets
+              Usiamo catch-all routes e estraiamo lo slug nel componente
             */}
             
-            {/* Team Routes - using wildcard for flexible matching */}
-            <Route path="/biglietti-*" element={<TeamPage urlType="it" />} />
-            <Route path="/*-tickets" element={<TeamPage urlType="en" />} />
-            <Route path="/entradas-*" element={<TeamPage urlType="es" />} />
-            <Route path="/team/:slug" element={<TeamPage />} /> {/* Fallback */}
+            {/* Catch-all route for team/league pages with translated URLs */}
+            <Route path="/:dynamicPath" element={<DynamicRouter />} />
             
-            {/* League Routes - need specific patterns to avoid conflicts */}
-            <Route path="/league/:league" element={<LeaguePage />} /> {/* Fallback */}
+            {/* Fallback routes */}
+            <Route path="/team/:slug" element={<TeamPage />} />
+            <Route path="/league/:league" element={<LeaguePage />} />
             
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
