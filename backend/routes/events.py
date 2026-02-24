@@ -64,9 +64,9 @@ async def get_events(
                 query.update(location_query)
         
         if search:
+            # Search only in title, not in location (to avoid city/team name confusion)
             search_query = [
                 {"title": {"$regex": search, "$options": "i"}},
-                {"location": {"$regex": search, "$options": "i"}},
                 {"categories": {"$regex": search, "$options": "i"}}
             ]
             if "$or" in query:
