@@ -114,6 +114,19 @@ export const translations = {
     cups: "COPAS",
     language: "Idioma",
     
+    // URL prefix
+    urlPrefix: "entradas",
+    
+    // SEO
+    seoTickets: "Entradas",
+    seoBuy: "Compra entradas para",
+    seoAllMatches: "Todos los partidos",
+    seoHomeAway: "Local y Visitante",
+    seoTeamEvents: "eventos del equipo",
+    seoLeagueTeams: "equipos de la liga",
+    seoSiteTitle: "GOLEVENTS - Entradas Eventos Deportivos",
+    seoSiteDescription: "Compra entradas para los mejores eventos deportivos. La Liga, Champions League, Europa League y mucho más.",
+    
     // Leagues
     serieA: "SERIE A",
     premierLeague: "PREMIER LEAGUE",
