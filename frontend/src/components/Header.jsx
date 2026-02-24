@@ -131,7 +131,7 @@ const Header = () => {
   };
 
   const handleLeagueClick = (slug) => {
-    navigate(`/league/${slug}`);
+    navigate(getLeagueUrl(slug, lang));
     setDesktopMenuOpen(false);
     setExpandedCategory(null);
     setMobileMenuOpen(false);
@@ -139,7 +139,7 @@ const Header = () => {
   };
 
   const handleTeamClick = (teamName) => {
-    navigate(`/team/${getTeamSlug(teamName)}`);
+    navigate(getTeamUrl(getTeamSlug(teamName), lang));
     setDesktopMenuOpen(false);
     setExpandedCategory(null);
     setMobileMenuOpen(false);
