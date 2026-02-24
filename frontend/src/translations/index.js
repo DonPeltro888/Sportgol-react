@@ -219,6 +219,19 @@ export const translations = {
     cups: "CUPS",
     language: "Language",
     
+    // URL prefix
+    urlPrefix: "tickets",
+    
+    // SEO
+    seoTickets: "Tickets",
+    seoBuy: "Buy tickets for",
+    seoAllMatches: "All matches",
+    seoHomeAway: "Home and Away",
+    seoTeamEvents: "team events",
+    seoLeagueTeams: "league teams",
+    seoSiteTitle: "GOLEVENTS - Sports Event Tickets",
+    seoSiteDescription: "Buy tickets for the best sports events. Premier League, Champions League, Europa League and more.",
+    
     // Leagues
     serieA: "SERIE A",
     premierLeague: "PREMIER LEAGUE",
