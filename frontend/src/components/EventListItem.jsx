@@ -1,6 +1,65 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, MapPin } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+
+// City name translations
+const CITY_TRANSLATIONS = {
+  // Italian cities
+  "Milan": { it: "Milano", es: "Milán", en: "Milan" },
+  "Rome": { it: "Roma", es: "Roma", en: "Rome" },
+  "Turin": { it: "Torino", es: "Turín", en: "Turin" },
+  "Naples": { it: "Napoli", es: "Nápoles", en: "Naples" },
+  "Florence": { it: "Firenze", es: "Florencia", en: "Florence" },
+  "Genoa": { it: "Genova", es: "Génova", en: "Genoa" },
+  "Venice": { it: "Venezia", es: "Venecia", en: "Venice" },
+  
+  // Spanish cities
+  "Barcelona": { it: "Barcellona", es: "Barcelona", en: "Barcelona" },
+  "Madrid": { it: "Madrid", es: "Madrid", en: "Madrid" },
+  "Seville": { it: "Siviglia", es: "Sevilla", en: "Seville" },
+  "Valencia": { it: "Valencia", es: "Valencia", en: "Valencia" },
+  "Bilbao": { it: "Bilbao", es: "Bilbao", en: "Bilbao" },
+  
+  // English cities
+  "London": { it: "Londra", es: "Londres", en: "London" },
+  "Manchester": { it: "Manchester", es: "Mánchester", en: "Manchester" },
+  "Liverpool": { it: "Liverpool", es: "Liverpool", en: "Liverpool" },
+  "Birmingham": { it: "Birmingham", es: "Birmingham", en: "Birmingham" },
+  "Newcastle": { it: "Newcastle", es: "Newcastle", en: "Newcastle" },
+  "Leeds": { it: "Leeds", es: "Leeds", en: "Leeds" },
+  
+  // German cities
+  "Munich": { it: "Monaco", es: "Múnich", en: "Munich" },
+  "Berlin": { it: "Berlino", es: "Berlín", en: "Berlin" },
+  "Frankfurt": { it: "Francoforte", es: "Fráncfort", en: "Frankfurt" },
+  "Dortmund": { it: "Dortmund", es: "Dortmund", en: "Dortmund" },
+  "Leipzig": { it: "Lipsia", es: "Leipzig", en: "Leipzig" },
+  "Cologne": { it: "Colonia", es: "Colonia", en: "Cologne" },
+  
+  // Portuguese cities
+  "Lisbon": { it: "Lisbona", es: "Lisboa", en: "Lisbon" },
+  "Porto": { it: "Porto", es: "Oporto", en: "Porto" },
+  "Braga": { it: "Braga", es: "Braga", en: "Braga" },
+  
+  // French cities
+  "Paris": { it: "Parigi", es: "París", en: "Paris" },
+  "Lyon": { it: "Lione", es: "Lyon", en: "Lyon" },
+  "Marseille": { it: "Marsiglia", es: "Marsella", en: "Marseille" },
+  
+  // Turkish cities
+  "Istanbul": { it: "Istanbul", es: "Estambul", en: "Istanbul" }
+};
+
+// Translate city name based on language
+const translateCity = (city, lang) => {
+  if (!city) return city;
+  const translation = CITY_TRANSLATIONS[city];
+  if (translation) {
+    return translation[lang] || city;
+  }
+  return city;
+};
 
 // Format cup event title: replace (1st Leg), (Quarter Final), etc. with "- Cup Name"
 const formatCupTitle = (title, league) => {
