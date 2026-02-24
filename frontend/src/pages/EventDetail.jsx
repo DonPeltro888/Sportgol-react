@@ -108,7 +108,7 @@ const EventDetail = () => {
               <span className="text-sm">Back to Events</span>
             </button>
             <h1 className="text-5xl md:text-6xl font-black text-white mb-4">
-              {event.title}
+              Biglietti {event.title}
             </h1>
             <div className="flex flex-wrap gap-2">
               {event.categories.map((cat, idx) => (
