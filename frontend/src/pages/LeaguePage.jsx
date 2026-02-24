@@ -240,7 +240,7 @@ const LeaguePage = () => {
             <>
               <h2 className="text-xl md:text-2xl font-bold text-white mb-6">{t('teamsTitle')}</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {leagueTeams[actualSlug]?.teams?.map((team, index) => (
+                {leagueTeams[actualLeague]?.teams?.map((team, index) => (
                   <Link
                     key={index}
                     to={getTeamUrl(getTeamSlug(team), lang)}
