@@ -6,7 +6,7 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 ## Core Features (Completed)
 
 ### Public Website
-1. **Homepage** con griglia eventi e ricerca in tempo reale
+1. **Homepage** con **lista eventi** (stile golevents originale) e ricerca in tempo reale
 2. **Pagine di dettaglio** per ogni evento con Schema.org markup
 3. **Pagine per campionati/coppe** che elencano squadre o eventi
 4. **Pagine per squadre** con tutti gli eventi della squadra
