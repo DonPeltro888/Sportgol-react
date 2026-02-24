@@ -127,8 +127,34 @@ const TEAM_LOGOS = {
   'Kocaelispor': 'https://media.api-sports.io/football/teams/3575.png'
 };
 
+// League and Cup logos
+const LEAGUE_LOGOS = {
+  // Leagues
+  'serie-a': 'https://media.api-sports.io/football/leagues/135.png',
+  'premier-league': 'https://media.api-sports.io/football/leagues/39.png',
+  'la-liga': 'https://media.api-sports.io/football/leagues/140.png',
+  'bundesliga': 'https://media.api-sports.io/football/leagues/78.png',
+  'ligue-1': 'https://media.api-sports.io/football/leagues/61.png',
+  'liga-portugal': 'https://media.api-sports.io/football/leagues/94.png',
+  'super-lig': 'https://media.api-sports.io/football/leagues/203.png',
+  
+  // Cups
+  'champions-league': 'https://media.api-sports.io/football/leagues/2.png',
+  'europa-league': 'https://media.api-sports.io/football/leagues/3.png',
+  'coppa-italia': 'https://media.api-sports.io/football/leagues/137.png',
+  'fa-cup': 'https://media.api-sports.io/football/leagues/45.png',
+  'copa-del-rey': 'https://media.api-sports.io/football/leagues/143.png',
+  'dfb-pokal': 'https://media.api-sports.io/football/leagues/81.png',
+  'coupe-de-france': 'https://media.api-sports.io/football/leagues/66.png',
+  'conference-league': 'https://media.api-sports.io/football/leagues/848.png'
+};
+
 export const getTeamLogo = (teamName) => {
   return TEAM_LOGOS[teamName] || null;
+};
+
+export const getLeagueLogo = (leagueSlug) => {
+  return LEAGUE_LOGOS[leagueSlug] || null;
 };
 
 export default TEAM_LOGOS;
