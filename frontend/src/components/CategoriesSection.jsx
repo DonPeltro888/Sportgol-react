@@ -33,7 +33,7 @@ const CategoriesSection = ({ categories }) => {
               
               <div className="relative">
                 <h3 className="font-bold text-white text-sm mb-2 group-hover:text-blue-400 transition-colors">
-                  {category.name} {t('tickets')}
+                  {lang === 'en' ? `${category.name} ${t('tickets')}` : `${t('tickets')} ${category.name}`}
                 </h3>
                 <div className="flex items-center justify-center gap-1 text-blue-400 text-xs font-semibold">
                   <span>{t('viewEvents')}</span>
