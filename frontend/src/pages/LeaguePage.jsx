@@ -172,34 +172,66 @@ const LeaguePage = () => {
             </div>
             <div>
               <h1 className="text-5xl md:text-6xl font-black text-white">{leagueName}</h1>
-              <p className="text-gray-300 text-lg mt-2">{leagueTeams[league].country} • {teams.length} Teams</p>
+              <p className="text-gray-300 text-lg mt-2">
+                {leagueTeams[league]?.country} 
+                {!isCup && ` • ${leagueTeams[league]?.teams?.length} Teams`}
+                {isCup && ' • Cup Competition'}
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Teams Grid */}
+      {/* Content Section */}
       <div className="py-16 px-4 bg-gradient-to-b from-gray-900 to-black">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-white mb-8">All Teams</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {teams.map((team, index) => (
-              <Link
-                key={index}
-                to={`/team/${getTeamSlug(team)}`}
-                className="group bg-gray-800/50 border border-gray-700 hover:border-blue-500 rounded-xl p-6 text-center transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20"
-              >
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                  <span className="text-2xl font-bold text-white">
-                    {team.charAt(0)}
-                  </span>
+          {isCup ? (
+            // Cup Events View
+            <>
+              <h2 className="text-3xl font-bold text-white mb-8">Upcoming Matches</h2>
+              {loading ? (
+                <div className="flex flex-col items-center justify-center py-20">
+                  <Loader2 className="w-16 h-16 text-blue-500 animate-spin mb-4" />
+                  <p className="text-gray-400 text-lg">Loading matches...</p>
                 </div>
-                <h3 className="font-bold text-white text-sm group-hover:text-blue-400 transition-colors">
-                  {team}
-                </h3>
-              </Link>
-            ))}
-          </div>
+              ) : events.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                  {events.map((event) => (
+                    <EventCard key={event.id || event._id} event={event} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-20">
+                  <div className="text-6xl mb-4">🏆</div>
+                  <div className="text-gray-400 text-xl mb-2">No matches scheduled yet</div>
+                  <p className="text-gray-500">Check back soon for upcoming fixtures</p>
+                </div>
+              )}
+            </>
+          ) : (
+            // Teams Grid View
+            <>
+              <h2 className="text-3xl font-bold text-white mb-8">All Teams</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {leagueTeams[league]?.teams?.map((team, index) => (
+                  <Link
+                    key={index}
+                    to={`/team/${getTeamSlug(team)}`}
+                    className="group bg-gray-800/50 border border-gray-700 hover:border-blue-500 rounded-xl p-6 text-center transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20"
+                  >
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                      <span className="text-2xl font-bold text-white">
+                        {team.charAt(0)}
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-white text-sm group-hover:text-blue-400 transition-colors">
+                      {team}
+                    </h3>
+                  </Link>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
