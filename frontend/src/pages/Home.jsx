@@ -18,6 +18,19 @@ const Home = () => {
     fetchCategories();
   }, []);
 
+  // Debounced search effect
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchQuery.trim()) {
+        handleSearch(searchQuery);
+      } else {
+        fetchEvents();
+      }
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
   const fetchEvents = async (params = {}) => {
     try {
       setLoading(true);
@@ -41,8 +54,6 @@ const Home = () => {
   };
 
   const handleSearch = async (query) => {
-    setSearchQuery(query);
-    
     if (!query.trim()) {
       fetchEvents();
       return;
@@ -66,10 +77,18 @@ const Home = () => {
     }
   };
 
+  const handleSearchChange = (query) => {
+    setSearchQuery(query);
+  };
+
   return (
     <>
       <Header />
-      <HeroSearch onSearch={handleSearch} />
+      <HeroSearch 
+        onSearch={handleSearch} 
+        onSearchChange={handleSearchChange}
+        searchQuery={searchQuery}
+      />
       <EventsGrid events={events} loading={loading} />
       <CategoriesSection categories={categories} />
       <Footer />
