@@ -4,6 +4,7 @@ import { useAdminAuth } from '../../contexts/AdminAuthContext';
 import { Plus, Pencil, Trash2, Search, X, Save, Globe, FileText } from 'lucide-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import GoogleSnippetPreview, { SocialPreview } from '../../components/admin/GoogleSnippetPreview';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
