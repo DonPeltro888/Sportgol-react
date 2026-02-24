@@ -1,141 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, TrendingUp, Zap, Calendar, MapPin, Loader2, X, Users, Trophy } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Zap } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
-import { eventsAPI, categoriesAPI } from '../services/api';
-import { getTeamLogo } from '../data/teamLogos';
 
-const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
-  const [localQuery, setLocalQuery] = useState(searchQuery || '');
-  const [eventResults, setEventResults] = useState([]);
-  const [teamResults, setTeamResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
+const HeroSearch = () => {
   const { lang } = useLanguage();
   const t = (key) => getTranslation(lang, key);
-  const navigate = useNavigate();
-  const searchRef = useRef(null);
-  const debounceRef = useRef(null);
-  const [allTeams, setAllTeams] = useState([]);
-
-  // Load all teams on mount
-  useEffect(() => {
-    const loadTeams = async () => {
-      try {
-        const teams = await categoriesAPI.getAll({});
-        setAllTeams(teams || []);
-      } catch (error) {
-        console.error('Error loading teams:', error);
-      }
-    };
-    loadTeams();
-  }, []);
-
-  useEffect(() => {
-    setLocalQuery(searchQuery || '');
-  }, [searchQuery]);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
-        setShowDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // AJAX search with debounce
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setLocalQuery(value);
-    
-    // Clear previous debounce
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
-    if (value.trim().length >= 2) {
-      setLoading(true);
-      setShowDropdown(true);
-      
-      // Debounce API call
-      debounceRef.current = setTimeout(async () => {
-        try {
-          // Search events
-          const eventsData = await eventsAPI.getAll({ search: value, lang, limit: 4 });
-          setEventResults(eventsData.events || []);
-          
-          // Search teams locally
-          const searchLower = value.toLowerCase();
-          const matchingTeams = allTeams.filter(team => 
-            team.name.toLowerCase().includes(searchLower)
-          ).slice(0, 3);
-          setTeamResults(matchingTeams);
-        } catch (error) {
-          console.error('Search error:', error);
-          setEventResults([]);
-          setTeamResults([]);
-        } finally {
-          setLoading(false);
-        }
-      }, 300);
-    } else {
-      setEventResults([]);
-      setTeamResults([]);
-      setShowDropdown(false);
-      setLoading(false);
-    }
-
-    if (onSearchChange) {
-      onSearchChange(value);
-    }
-  };
-
-  const handleEventClick = (event) => {
-    setShowDropdown(false);
-    setLocalQuery('');
-    navigate(`/event/${event.id || event._id}`);
-  };
-
-  const handleTeamClick = (team) => {
-    setShowDropdown(false);
-    setLocalQuery('');
-    navigate(`/team/${team.slug}`);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setShowDropdown(false);
-    if (onSearch) {
-      onSearch(localQuery);
-    }
-  };
-
-  const clearSearch = () => {
-    setLocalQuery('');
-    setEventResults([]);
-    setTeamResults([]);
-    setShowDropdown(false);
-    if (onSearchChange) {
-      onSearchChange('');
-    }
-  };
-
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString(lang === 'it' ? 'it-IT' : lang === 'es' ? 'es-ES' : 'en-GB', {
-      day: 'numeric',
-      month: 'short'
-    });
-  };
-
-  const totalResults = teamResults.length + eventResults.length;
 
   return (
-    <div className="relative py-24 px-4">
+    <div className="relative py-16 px-4">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900"></div>
@@ -144,8 +17,6 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
           <div className="absolute top-40 right-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{animationDelay: '1s'}}></div>
           <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
         </div>
-        {/* Grid pattern */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMC41IiBvcGFjaXR5PSIwLjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-20"></div>
       </div>
       
       <div className="relative container mx-auto max-w-5xl text-center">
@@ -155,175 +26,30 @@ const HeroSearch = ({ onSearch, onSearchChange, searchQuery }) => {
           {t('liveEvents')} • {t('bestPrices')} • {t('instantBooking')}
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-black mb-6 animate-fade-in-up" style={{animationDelay: '0.1s'}}>
+        <h1 className="text-4xl md:text-6xl font-black mb-4 animate-fade-in-up" style={{animationDelay: '0.1s'}}>
           <span className="text-white">{t('findYour')} </span>
           <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">{t('perfect')}</span>
           <br />
           <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">{t('sportEvent')}</span>
         </h1>
         
-        <p className="text-gray-300 text-lg md:text-xl mb-10 max-w-2xl mx-auto animate-fade-in-up" style={{animationDelay: '0.2s'}}>
+        <p className="text-gray-300 text-base md:text-lg mb-8 max-w-2xl mx-auto animate-fade-in-up" style={{animationDelay: '0.2s'}}>
           {t('heroSubtitle')}
         </p>
-        
-        {/* Search with AJAX dropdown */}
-        <div ref={searchRef} className="relative z-[100] animate-fade-in-up" style={{animationDelay: '0.3s'}}>
-          <form onSubmit={handleSubmit}>
-            <div className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl flex items-center overflow-hidden group hover:shadow-blue-500/20 transition-all duration-300">
-              <Search className="absolute left-6 w-6 h-6 text-gray-400" />
-              <input
-                type="text"
-                placeholder={t('searchPlaceholder')}
-                value={localQuery}
-                onChange={handleInputChange}
-                onFocus={() => localQuery.length >= 2 && setShowDropdown(true)}
-                className="flex-1 pl-16 pr-12 py-5 bg-transparent text-white placeholder-gray-400 outline-none text-lg"
-                data-testid="search-input"
-              />
-              {localQuery && (
-                <button
-                  type="button"
-                  onClick={clearSearch}
-                  className="absolute right-36 p-2 text-gray-400 hover:text-white transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              )}
-              <button
-                type="submit"
-                className="relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-10 py-5 font-bold transition-all duration-300 flex items-center gap-3 m-1.5 rounded-xl overflow-hidden group"
-                data-testid="search-btn"
-              >
-                <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
-                <span className="relative">{t('search')}</span>
-                <TrendingUp className="relative w-5 h-5" />
-              </button>
-            </div>
-          </form>
-
-          {/* AJAX Results Dropdown */}
-          {showDropdown && (
-            <div 
-              className="absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl overflow-y-auto"
-              style={{ zIndex: 99999, maxHeight: '250px' }}
-            >
-              {loading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
-                  <span className="ml-3 text-gray-400">{t('loadingEvents')}</span>
-                </div>
-              ) : totalResults > 0 ? (
-                <div>
-                  {/* Header with total results */}
-                  <div className="px-4 py-2 bg-gray-800/50 border-b border-gray-700">
-                    <span className="text-xs text-gray-400 font-medium">
-                      {totalResults} {t('resultsFound')}
-                    </span>
-                  </div>
-
-                  {/* Teams Section */}
-                  {teamResults.length > 0 && (
-                    <div>
-                      <div className="px-4 py-2 bg-blue-600/20 border-b border-gray-700 flex items-center gap-2">
-                        <Users className="w-4 h-4 text-blue-400" />
-                        <span className="text-sm font-semibold text-blue-400">{t('teams')}</span>
-                        <span className="text-xs text-gray-500">({teamResults.length})</span>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 p-2">
-                        {teamResults.map((team) => {
-                          const logo = getTeamLogo(team.name);
-                          return (
-                            <button
-                              key={team.slug}
-                              onClick={() => handleTeamClick(team)}
-                              className="flex items-center gap-3 px-3 py-2 hover:bg-blue-600/20 rounded-lg transition-colors text-left"
-                              data-testid={`search-team-${team.slug}`}
-                            >
-                              {logo ? (
-                                <img 
-                                  src={logo} 
-                                  alt={team.name}
-                                  className="w-8 h-8 object-contain"
-                                  onError={(e) => e.target.style.display = 'none'}
-                                />
-                              ) : (
-                                <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
-                                  <Users className="w-4 h-4 text-gray-400" />
-                                </div>
-                              )}
-                              <span className="font-medium text-white">{team.name}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Events Section */}
-                  {eventResults.length > 0 && (
-                    <div>
-                      <div className="px-4 py-2 bg-purple-600/20 border-b border-gray-700 flex items-center gap-2">
-                        <Trophy className="w-4 h-4 text-purple-400" />
-                        <span className="text-sm font-semibold text-purple-400">{t('eventsLabel')}</span>
-                        <span className="text-xs text-gray-500">({eventResults.length})</span>
-                      </div>
-                      {eventResults.map((event) => (
-                        <button
-                          key={event.id || event._id}
-                          onClick={() => handleEventClick(event)}
-                          className="w-full px-3 py-2 flex items-center gap-3 hover:bg-purple-600/20 transition-colors text-left border-b border-gray-800 last:border-b-0"
-                          data-testid={`search-event-${event.id || event._id}`}
-                        >
-                          {/* Date */}
-                          <div className="flex-shrink-0 w-12 text-center">
-                            <div className="text-sm font-bold text-purple-400">
-                              {formatDate(event.date)}
-                            </div>
-                          </div>
-                          
-                          {/* Event Info */}
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-white text-sm truncate">
-                              {event.title}
-                            </div>
-                            <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
-                              <span className="flex items-center gap-1">
-                                <MapPin className="w-3 h-3" />
-                                {event.location}
-                              </span>
-                              {event.stadium && (
-                                <span className="truncate">- {event.stadium}</span>
-                              )}
-                            </div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : localQuery.length >= 2 ? (
-                <div className="py-8 text-center text-gray-400">
-                  <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p>{t('noEventsFound')}</p>
-                </div>
-              ) : null}
-            </div>
-          )}
-        </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-6 mt-16 max-w-3xl mx-auto">
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
-            <div className="text-3xl font-bold text-white mb-1">500+</div>
-            <div className="text-gray-400 text-sm">{t('liveEventsCount')}</div>
+        <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-3">
+            <div className="text-2xl font-bold text-white mb-1">500+</div>
+            <div className="text-gray-400 text-xs">{t('liveEventsCount')}</div>
           </div>
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
-            <div className="text-3xl font-bold text-white mb-1">50k+</div>
-            <div className="text-gray-400 text-sm">{t('happyFans')}</div>
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-3">
+            <div className="text-2xl font-bold text-white mb-1">50k+</div>
+            <div className="text-gray-400 text-xs">{t('happyFans')}</div>
           </div>
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
-            <div className="text-3xl font-bold text-white mb-1">24/7</div>
-            <div className="text-gray-400 text-sm">{t('support')}</div>
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-3">
+            <div className="text-2xl font-bold text-white mb-1">24/7</div>
+            <div className="text-gray-400 text-xs">{t('support')}</div>
           </div>
         </div>
       </div>
