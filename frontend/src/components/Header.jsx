@@ -124,7 +124,6 @@ const Header = () => {
     { labelKey: 'faCup', slug: 'fa-cup', countryKey: 'england', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
     { labelKey: 'dfbPokal', slug: 'dfb-pokal', countryKey: 'germany', flag: '🇩🇪' }
   ];
-  ];
 
   const getTeamSlug = (teamName) => {
     return teamName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
