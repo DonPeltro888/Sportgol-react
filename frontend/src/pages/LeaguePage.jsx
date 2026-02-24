@@ -9,14 +9,16 @@ import { toast } from 'sonner';
 const LeaguePage = () => {
   const { league } = useParams();
   const navigate = useNavigate();
-  const [teams, setTeams] = useState([]);
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [leagueName, setLeagueName] = useState('');
+  const [isCup, setIsCup] = useState(false);
 
   const leagueTeams = {
     'serie-a': {
       name: 'Serie A',
       country: 'Italy',
+      isCup: false,
       teams: [
         'Atalanta', 'Bologna', 'Cagliari', 'Como', 'Cremonese', 'Fiorentina',
         'Genoa', 'Hellas Verona', 'Inter', 'Juventus', 'Lazio', 'Lecce',
@@ -26,6 +28,7 @@ const LeaguePage = () => {
     'premier-league': {
       name: 'Premier League',
       country: 'England',
+      isCup: false,
       teams: [
         'Arsenal', 'Aston Villa', 'Bournemouth', 'Brentford', 'Brighton', 'Burnley',
         'Chelsea', 'Crystal Palace', 'Everton', 'Fulham', 'Leeds United', 'Liverpool',
@@ -36,6 +39,7 @@ const LeaguePage = () => {
     'la-liga': {
       name: 'La Liga',
       country: 'Spain',
+      isCup: false,
       teams: [
         'Alavés', 'Athletic Bilbao', 'Atlético Madrid', 'Barcelona', 'Betis', 'Celta Vigo',
         'Elche', 'Espanyol', 'Getafe', 'Girona', 'Levante', 'Mallorca',
@@ -46,6 +50,7 @@ const LeaguePage = () => {
     'bundesliga': {
       name: 'Bundesliga',
       country: 'Germany',
+      isCup: false,
       teams: [
         'Augsburg', 'Bayern Munich', 'Borussia Dortmund', 'Borussia Mönchengladbach',
         'Eintracht Frankfurt', 'FC Köln', 'Freiburg', 'Hamburger SV', 'Heidenheim',
@@ -56,11 +61,37 @@ const LeaguePage = () => {
     'liga-portugal': {
       name: 'Liga Portugal',
       country: 'Portugal',
+      isCup: false,
       teams: [
         'Arouca', 'AVS', 'Benfica', 'Boavista', 'Braga', 'Casa Pia',
         'Estoril', 'Farense', 'Famalicão', 'Gil Vicente', 'Moreirense', 'Nacional',
         'Porto', 'Rio Ave', 'Santa Clara', 'Sporting CP', 'Estrela', 'Vitória Guimarães'
       ]
+    },
+    'champions-league': {
+      name: 'Champions League',
+      country: 'Europe',
+      isCup: true
+    },
+    'coppa-italia': {
+      name: 'Coppa Italia',
+      country: 'Italy',
+      isCup: true
+    },
+    'copa-del-rey': {
+      name: 'Copa del Rey',
+      country: 'Spain',
+      isCup: true
+    },
+    'fa-cup': {
+      name: 'FA Cup',
+      country: 'England',
+      isCup: true
+    },
+    'dfb-pokal': {
+      name: 'DFB Pokal',
+      country: 'Germany',
+      isCup: true
     }
   };
 
@@ -68,10 +99,27 @@ const LeaguePage = () => {
     const leagueData = leagueTeams[league];
     if (leagueData) {
       setLeagueName(leagueData.name);
-      setTeams(leagueData.teams);
+      setIsCup(leagueData.isCup);
+      if (leagueData.isCup) {
+        fetchCupEvents();
+      }
     }
     setLoading(false);
   }, [league]);
+
+  const fetchCupEvents = async () => {
+    try {
+      setLoading(true);
+      const leagueData = leagueTeams[league];
+      const data = await eventsAPI.getAll({ league: leagueData.name.toUpperCase() });
+      setEvents(data.events || []);
+    } catch (error) {
+      console.error('Error fetching cup events:', error);
+      toast.error('Failed to load cup events');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getTeamSlug = (teamName) => {
     return teamName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
