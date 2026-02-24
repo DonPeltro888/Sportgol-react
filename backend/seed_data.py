@@ -203,6 +203,36 @@ events_data = [
     {"title": "Köln vs Borussia Mönchengladbach", "categories": ["KÖLN", "BORUSSIA MÖNCHENGLADBACH"], "date": "March 21, 2026", "location": "Cologne", "stadium": "RheinEnergieStadion", "price_range": {"min": 40, "max": 200}, "available_tickets": 15000, "featured": False, "league": "BUNDESLIGA"},
     {"title": "Borussia Dortmund vs Hamburger SV", "categories": ["BORUSSIA DORTMUND", "HAMBURGER SV"], "date": "March 21, 2026", "location": "Dortmund", "stadium": "Signal Iduna Park", "price_range": {"min": 55, "max": 300}, "available_tickets": 21000, "featured": True, "league": "BUNDESLIGA"},
     {"title": "Mainz vs Eintracht Frankfurt", "categories": ["MAINZ", "EINTRACHT FRANKFURT"], "date": "March 22, 2026", "location": "Mainz", "stadium": "MEWA Arena", "price_range": {"min": 35, "max": 170}, "available_tickets": 12000, "featured": False, "league": "BUNDESLIGA"},
+    
+    # === LIGA PORTUGAL MATCHES ===
+    # February-March
+    {"title": "Porto vs Arouca", "categories": ["PORTO", "AROUCA"], "date": "February 27, 2026", "location": "Porto", "stadium": "Estádio do Dragão", "price_range": {"min": 35, "max": 180}, "available_tickets": 15000, "featured": True, "league": "LIGA PORTUGAL"},
+    {"title": "Sporting CP vs Estoril", "categories": ["SPORTING CP", "ESTORIL"], "date": "February 27, 2026", "location": "Lisbon", "stadium": "José Alvalade", "price_range": {"min": 40, "max": 200}, "available_tickets": 16000, "featured": True, "league": "LIGA PORTUGAL"},
+    {"title": "Nacional vs Braga", "categories": ["NACIONAL", "BRAGA"], "date": "February 28, 2026", "location": "Funchal", "stadium": "Estádio da Madeira", "price_range": {"min": 28, "max": 130}, "available_tickets": 8000, "featured": False, "league": "LIGA PORTUGAL"},
+    {"title": "Vitória Guimarães vs AVS", "categories": ["VITÓRIA GUIMARÃES", "AVS"], "date": "February 28, 2026", "location": "Guimarães", "stadium": "Estádio D. Afonso Henriques", "price_range": {"min": 30, "max": 140}, "available_tickets": 10000, "featured": False, "league": "LIGA PORTUGAL"},
+    {"title": "Casa Pia vs Moreirense", "categories": ["CASA PIA", "MOREIRENSE"], "date": "March 1, 2026", "location": "Lisbon", "stadium": "Estádio Pina Manique", "price_range": {"min": 25, "max": 110}, "available_tickets": 7500, "featured": False, "league": "LIGA PORTUGAL"},
+    {"title": "Rio Ave vs Famalicão", "categories": ["RIO AVE", "FAMALICÃO"], "date": "March 1, 2026", "location": "Vila do Conde", "stadium": "Estádio dos Arcos", "price_range": {"min": 28, "max": 120}, "available_tickets": 8500, "featured": False, "league": "LIGA PORTUGAL"},
+    {"title": "Gil Vicente vs Benfica", "categories": ["GIL VICENTE", "BENFICA"], "date": "March 2, 2026", "location": "Barcelos", "stadium": "Estádio Cidade de Barcelos", "price_range": {"min": 35, "max": 170}, "available_tickets": 9000, "featured": True, "league": "LIGA PORTUGAL"},
+    
+    # March 8
+    {"title": "Benfica vs Porto", "categories": ["BENFICA", "PORTO"], "date": "March 8, 2026", "location": "Lisbon", "stadium": "Estádio da Luz", "price_range": {"min": 55, "max": 300}, "available_tickets": 20000, "featured": True, "league": "LIGA PORTUGAL"},
+    {"title": "Braga vs Sporting CP", "categories": ["BRAGA", "SPORTING CP"], "date": "March 8, 2026", "location": "Braga", "stadium": "Estádio Municipal de Braga", "price_range": {"min": 40, "max": 200}, "available_tickets": 12000, "featured": True, "league": "LIGA PORTUGAL"},
+    {"title": "Boavista vs Farense", "categories": ["BOAVISTA", "FARENSE"], "date": "March 8, 2026", "location": "Porto", "stadium": "Estádio do Bessa", "price_range": {"min": 28, "max": 130}, "available_tickets": 9000, "featured": False, "league": "LIGA PORTUGAL"},
+    
+    # March 15
+    {"title": "Arouca vs Benfica", "categories": ["AROUCA", "BENFICA"], "date": "March 15, 2026", "location": "Arouca", "stadium": "Estádio Municipal de Arouca", "price_range": {"min": 32, "max": 160}, "available_tickets": 7500, "featured": False, "league": "LIGA PORTUGAL"},
+    {"title": "Porto vs Braga", "categories": ["PORTO", "BRAGA"], "date": "March 15, 2026", "location": "Porto", "stadium": "Estádio do Dragão", "price_range": {"min": 45, "max": 220}, "available_tickets": 16000, "featured": True, "league": "LIGA PORTUGAL"},
+    {"title": "Sporting CP vs Vitória Guimarães", "categories": ["SPORTING CP", "VITÓRIA GUIMARÃES"], "date": "March 15, 2026", "location": "Lisbon", "stadium": "José Alvalade", "price_range": {"min": 42, "max": 210}, "available_tickets": 15000, "featured": True, "league": "LIGA PORTUGAL"},
+    
+    # March 22
+    {"title": "Benfica vs Vitória Guimarães", "categories": ["BENFICA", "VITÓRIA GUIMARÃES"], "date": "March 22, 2026", "location": "Lisbon", "stadium": "Estádio da Luz", "price_range": {"min": 48, "max": 240}, "available_tickets": 19000, "featured": True, "league": "LIGA PORTUGAL"},
+    {"title": "Famalicão vs Porto", "categories": ["FAMALICÃO", "PORTO"], "date": "March 22, 2026", "location": "Vila Nova de Famalicão", "stadium": "Estádio Municipal 22 de Junho", "price_range": {"min": 35, "max": 170}, "available_tickets": 8000, "featured": False, "league": "LIGA PORTUGAL"},
+    
+    # April
+    {"title": "Casa Pia vs Benfica", "categories": ["CASA PIA", "BENFICA"], "date": "April 4, 2026", "location": "Lisbon", "stadium": "Estádio Pina Manique", "price_range": {"min": 38, "max": 190}, "available_tickets": 8000, "featured": False, "league": "LIGA PORTUGAL"},
+    {"title": "Benfica vs Nacional", "categories": ["BENFICA", "NACIONAL"], "date": "April 12, 2026", "location": "Lisbon", "stadium": "Estádio da Luz", "price_range": {"min": 42, "max": 210}, "available_tickets": 18000, "featured": False, "league": "LIGA PORTUGAL"},
+    {"title": "Sporting CP vs Benfica", "categories": ["SPORTING CP", "BENFICA"], "date": "April 19, 2026", "location": "Lisbon", "stadium": "José Alvalade", "price_range": {"min": 60, "max": 320}, "available_tickets": 17000, "featured": True, "league": "LIGA PORTUGAL"},
+    {"title": "Benfica vs Moreirense", "categories": ["BENFICA", "MOREIRENSE"], "date": "April 26, 2026", "location": "Lisbon", "stadium": "Estádio da Luz", "price_range": {"min": 40, "max": 200}, "available_tickets": 17000, "featured": False, "league": "LIGA PORTUGAL"},
 ]
 
 # Add timestamps and images to all events
