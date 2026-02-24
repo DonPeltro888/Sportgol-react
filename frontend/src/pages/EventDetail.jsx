@@ -200,15 +200,15 @@ const EventDetail = () => {
               <div className="space-y-4">
                 {ticketCategories.map((category, idx) => (
                   <div key={idx} className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 hover:border-blue-500 transition-all">
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-3">
                       <div>
-                        <h3 className="text-xl md:text-2xl font-bold text-white mb-1">{category.name}</h3>
-                        {category.description && <p className="text-gray-400">{category.description}</p>}
-                        {category.notes && <p className="text-blue-400 text-sm mt-1">{category.notes}</p>}
+                        <h3 className="text-base md:text-lg font-bold text-white mb-1">{category.name}</h3>
+                        {category.description && <p className="text-gray-400 text-sm">{category.description}</p>}
+                        {category.notes && <p className="text-blue-400 text-xs mt-1">{category.notes}</p>}
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl md:text-3xl font-bold text-green-400">€{Math.round(category.price)}</div>
-                        <div className="text-sm text-gray-500">per biglietto</div>
+                        <div className="text-xl md:text-2xl font-bold text-green-400">€{Math.round(category.price)}</div>
+                        <div className="text-xs text-gray-500">per biglietto</div>
                       </div>
                     </div>
                     <button onClick={handleContactUs}
@@ -365,10 +365,10 @@ const EventDetail = () => {
                 </div>
               </div>
 
-              <div className="mt-6 pt-6 border-t border-gray-700">
+              <div className="mt-5 pt-5 border-t border-gray-700">
                 <button onClick={handleContactUs}
-                  className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 text-lg">
-                  <MessageCircle className="w-6 h-6" /> Contattaci
+                  className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-base">
+                  <MessageCircle className="w-5 h-5" /> Contattaci
                 </button>
               </div>
             </div>

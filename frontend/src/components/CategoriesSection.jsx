@@ -15,11 +15,11 @@ const CategoriesSection = ({ categories }) => {
       <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black"></div>
       
       <div className="container mx-auto relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl md:text-3xl font-black text-white mb-3">
             {t('teamsTitle')} <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{t('teamsCountry')}</span>
           </h2>
-          <p className="text-gray-400 text-lg">{t('teamsSubtitle')}</p>
+          <p className="text-gray-400 text-sm md:text-base">{t('teamsSubtitle')}</p>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">

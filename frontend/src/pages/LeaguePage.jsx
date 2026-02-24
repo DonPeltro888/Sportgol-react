@@ -167,13 +167,13 @@ const LeaguePage = () => {
             <span className="text-sm">Back to Home</span>
           </button>
           
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-              <Trophy className="w-10 h-10 text-white" />
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <Trophy className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-5xl md:text-6xl font-black text-white">{leagueName}</h1>
-              <p className="text-gray-300 text-lg mt-2">
+              <h1 className="text-2xl md:text-3xl font-black text-white">{leagueName}</h1>
+              <p className="text-gray-300 text-sm mt-1">
                 {leagueTeams[league]?.country} 
                 {!isCup && ` • ${leagueTeams[league]?.teams?.length} Teams`}
                 {isCup && ' • Cup Competition'}
@@ -189,7 +189,7 @@ const LeaguePage = () => {
           {isCup ? (
             // Cup Events View
             <>
-              <h2 className="text-3xl font-bold text-white mb-8">Upcoming Matches</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-white mb-6">Upcoming Matches</h2>
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-20">
                   <Loader2 className="w-16 h-16 text-blue-500 animate-spin mb-4" />
