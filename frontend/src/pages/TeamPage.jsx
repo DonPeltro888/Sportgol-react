@@ -40,7 +40,7 @@ const TeamPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
       <Header />
       
       {/* Hero Section */}
@@ -72,34 +72,34 @@ const TeamPage = () => {
       <div className="py-8 px-4">
         <div className="container mx-auto max-w-4xl">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl">
+            <div className="flex flex-col items-center justify-center py-20">
               <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
-              <p className="text-gray-500">Loading {teamName} events...</p>
+              <p className="text-gray-400">Loading {teamName} events...</p>
             </div>
           ) : events.length > 0 ? (
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="bg-gray-800/30 backdrop-blur rounded-xl border border-gray-700/50 overflow-hidden">
               {/* Header */}
-              <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-                <span className="text-sm text-gray-600 font-medium">
+              <div className="px-4 py-3 border-b border-gray-700/50">
+                <span className="text-sm text-gray-400 font-medium">
                   {events.length} Match{events.length > 1 ? 'es' : ''} Found
                 </span>
               </div>
               
               {/* Events List */}
-              <div className="divide-y divide-gray-100">
+              <div>
                 {events.map((event) => (
                   <EventListItem key={event.id || event._id} event={event} />
                 ))}
               </div>
             </div>
           ) : (
-            <div className="text-center py-20 bg-white rounded-xl">
+            <div className="text-center py-20">
               <div className="text-6xl mb-4">⚽</div>
-              <div className="text-gray-600 text-xl mb-2">No matches found for {teamName}</div>
-              <p className="text-gray-400 mb-6">Check back soon for upcoming fixtures</p>
+              <div className="text-gray-300 text-xl mb-2">No matches found for {teamName}</div>
+              <p className="text-gray-500 mb-6">Check back soon for upcoming fixtures</p>
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 text-blue-500 hover:text-blue-600 font-medium"
+                className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-medium"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Browse all events
