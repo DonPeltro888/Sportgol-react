@@ -12,8 +12,8 @@ import { getTranslation } from '../translations';
 import { getTeamUrl, getSeoTitle, getSeoDescription } from '../utils/seoHelpers';
 import { getTeamLogo } from '../data/teamLogos';
 
-const TeamPage = () => {
-  const { slug } = useParams();
+const TeamPage = ({ urlType }) => {
+  const { slug, '*': wildcardSlug } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const [events, setEvents] = useState([]);
@@ -22,20 +22,42 @@ const TeamPage = () => {
   const { lang } = useLanguage();
   const t = (key) => getTranslation(lang, key);
 
-  // Extract slug from various URL formats
-  const extractSlug = () => {
-    // The slug is directly available from useParams since we use /biglietti/:slug
-    return slug;
+  // Extract slug from URL based on pattern
+  // REGOLE URL (MEMORIZZATO):
+  // - IT: /biglietti-inter -> estrai "inter"
+  // - EN: /inter-tickets -> estrai "inter"
+  // - ES: /entradas-inter -> estrai "inter"
+  const extractSlugFromUrl = () => {
+    const path = location.pathname;
+    
+    // IT: /biglietti-inter -> remove "biglietti-" prefix
+    if (path.startsWith('/biglietti-')) {
+      return path.replace('/biglietti-', '');
+    }
+    // ES: /entradas-inter -> remove "entradas-" prefix
+    if (path.startsWith('/entradas-')) {
+      return path.replace('/entradas-', '');
+    }
+    // EN: /inter-tickets -> remove "-tickets" suffix
+    if (path.endsWith('-tickets')) {
+      return path.slice(1).replace(/-tickets$/, '');
+    }
+    // Fallback: /team/inter
+    return slug || wildcardSlug || '';
   };
 
   useEffect(() => {
     fetchTeamEvents();
-  }, [slug, location.pathname]);
+  }, [slug, wildcardSlug, location.pathname]);
 
   const fetchTeamEvents = async () => {
     try {
       setLoading(true);
-      const actualSlug = slug;
+      const actualSlug = extractSlugFromUrl();
+      if (!actualSlug) {
+        setLoading(false);
+        return;
+      }
       // Search for team name from slug
       const formattedName = actualSlug.split('-').map(word => 
         word.charAt(0).toUpperCase() + word.slice(1)
@@ -54,10 +76,11 @@ const TeamPage = () => {
     }
   };
 
+  const actualSlug = extractSlugFromUrl();
   const teamLogo = getTeamLogo(teamName);
   const seoTitle = getSeoTitle('team', teamName, lang);
   const seoDescription = getSeoDescription('team', teamName, lang);
-  const canonicalUrl = `${window.location.origin}${getTeamUrl(slug, lang)}`;
+  const canonicalUrl = `${window.location.origin}${getTeamUrl(actualSlug, lang)}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
