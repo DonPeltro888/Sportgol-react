@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
 from models.event import Event, EventCreate, EventUpdate
-from server import db
+from database import db
 from datetime import datetime
 import logging
 
