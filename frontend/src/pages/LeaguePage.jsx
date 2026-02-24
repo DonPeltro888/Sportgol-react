@@ -14,10 +14,21 @@ import { getLeagueUrl, getTeamUrl, getSeoTitle, getSeoDescription } from '../uti
 const LeaguePage = () => {
   const { league } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [leagueName, setLeagueName] = useState('');
   const [isCup, setIsCup] = useState(false);
+  const { lang } = useLanguage();
+  const t = (key) => getTranslation(lang, key);
+
+  // Extract league slug from various URL formats
+  const extractLeagueSlug = () => {
+    const path = location.pathname;
+    const match = path.match(/^\/(biglietti|tickets|entradas)-(.+)$/);
+    if (match) return match[2];
+    return league;
+  };
 
   const leagueTeams = {
     'serie-a': {
