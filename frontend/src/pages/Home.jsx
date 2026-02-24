@@ -48,7 +48,7 @@ const Home = () => {
 
   const fetchCategories = async () => {
     try {
-      const data = await categoriesAPI.getAll();
+      const data = await categoriesAPI.getAll({ lang });
       setCategories(data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
