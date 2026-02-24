@@ -556,6 +556,170 @@ const AdminEvents = () => {
                 </div>
               )}
 
+              {/* Content SEO Tab */}
+              {activeTab === 'content' && (
+                <div className="space-y-4">
+                  <p className="text-gray-400 text-sm mb-4">
+                    Contenuti SEO per la pagina dettaglio evento. Questi testi appariranno nella tab "Dettagli".
+                  </p>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Introduzione Evento ({activeLang.toUpperCase()}) - 100-130 parole
+                    </label>
+                    <textarea
+                      value={formData.seo_intro?.[activeLang] || ''}
+                      onChange={(e) => updateMultiLang('seo_intro', e.target.value)}
+                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                      rows={4}
+                      placeholder="Descrizione introduttiva dell'evento..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Info Stadio/Venue ({activeLang.toUpperCase()}) - 100-150 parole
+                    </label>
+                    <textarea
+                      value={formData.seo_venue_info?.[activeLang] || ''}
+                      onChange={(e) => updateMultiLang('seo_venue_info', e.target.value)}
+                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                      rows={4}
+                      placeholder="Informazioni sullo stadio e la location..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Settori Consigliati ({activeLang.toUpperCase()}) - HTML supportato
+                    </label>
+                    <textarea
+                      value={formData.seo_sectors?.[activeLang] || ''}
+                      onChange={(e) => updateMultiLang('seo_sectors', e.target.value)}
+                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                      rows={5}
+                      placeholder="<strong>Tribuna Centrale:</strong> Vista perfetta sul campo...<br/><strong>Curva Sud:</strong> Atmosfera calda..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Prezzi e Disponibilità ({activeLang.toUpperCase()})
+                    </label>
+                    <textarea
+                      value={formData.seo_pricing?.[activeLang] || ''}
+                      onChange={(e) => updateMultiLang('seo_pricing', e.target.value)}
+                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                      rows={3}
+                      placeholder="Informazioni su prezzi e disponibilità..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Call to Action Finale ({activeLang.toUpperCase()})
+                    </label>
+                    <textarea
+                      value={formData.seo_cta?.[activeLang] || ''}
+                      onChange={(e) => updateMultiLang('seo_cta', e.target.value)}
+                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                      rows={2}
+                      placeholder="Non perdere questa partita! Prenota ora i tuoi biglietti..."
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* FAQ Tab */}
+              {activeTab === 'faq' && (
+                <div className="space-y-6">
+                  <p className="text-gray-400 text-sm mb-4">
+                    FAQ personalizzate per questo evento. Se vuote, verranno mostrate le FAQ predefinite.
+                  </p>
+                  
+                  {/* FAQ 1 */}
+                  <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600">
+                    <h4 className="text-white font-medium mb-3">FAQ 1</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Domanda ({activeLang.toUpperCase()})</label>
+                        <input
+                          type="text"
+                          value={formData.faq_1_q?.[activeLang] || ''}
+                          onChange={(e) => updateMultiLang('faq_1_q', e.target.value)}
+                          className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white text-sm"
+                          placeholder="Es: Come posso acquistare i biglietti?"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Risposta ({activeLang.toUpperCase()})</label>
+                        <textarea
+                          value={formData.faq_1_a?.[activeLang] || ''}
+                          onChange={(e) => updateMultiLang('faq_1_a', e.target.value)}
+                          className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white text-sm"
+                          rows={3}
+                          placeholder="Risposta dettagliata..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* FAQ 2 */}
+                  <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600">
+                    <h4 className="text-white font-medium mb-3">FAQ 2</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Domanda ({activeLang.toUpperCase()})</label>
+                        <input
+                          type="text"
+                          value={formData.faq_2_q?.[activeLang] || ''}
+                          onChange={(e) => updateMultiLang('faq_2_q', e.target.value)}
+                          className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white text-sm"
+                          placeholder="Es: Quando riceverò i biglietti?"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Risposta ({activeLang.toUpperCase()})</label>
+                        <textarea
+                          value={formData.faq_2_a?.[activeLang] || ''}
+                          onChange={(e) => updateMultiLang('faq_2_a', e.target.value)}
+                          className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white text-sm"
+                          rows={3}
+                          placeholder="Risposta dettagliata..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* FAQ 3 */}
+                  <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600">
+                    <h4 className="text-white font-medium mb-3">FAQ 3</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Domanda ({activeLang.toUpperCase()})</label>
+                        <input
+                          type="text"
+                          value={formData.faq_3_q?.[activeLang] || ''}
+                          onChange={(e) => updateMultiLang('faq_3_q', e.target.value)}
+                          className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white text-sm"
+                          placeholder="Es: Posso cancellare la prenotazione?"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Risposta ({activeLang.toUpperCase()})</label>
+                        <textarea
+                          value={formData.faq_3_a?.[activeLang] || ''}
+                          onChange={(e) => updateMultiLang('faq_3_a', e.target.value)}
+                          className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white text-sm"
+                          rows={3}
+                          placeholder="Risposta dettagliata..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {activeTab === 'seo' && (
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
