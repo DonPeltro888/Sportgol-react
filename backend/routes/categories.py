@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
 from models.category import Category, CategoryCreate
-from server import db
+from database import db
 import logging
 
 logger = logging.getLogger(__name__)
