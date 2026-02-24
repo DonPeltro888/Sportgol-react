@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, ChevronDown, ChevronRight, Trophy, Flag } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getTranslation } from '../translations';
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -12,6 +13,9 @@ const Header = () => {
   const [expandedCategory, setExpandedCategory] = useState(null);
   const desktopMenuRef = useRef(null);
   const navigate = useNavigate();
+  const { lang, setLang } = useLanguage();
+  
+  const t = (key) => getTranslation(lang, key);
 
   useEffect(() => {
     const handleScroll = () => {
