@@ -12,6 +12,16 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+def parse_date_to_sortable(date_str):
+    """Convert date string like 'March 8, 2026' to datetime for sorting"""
+    try:
+        return datetime.strptime(date_str, "%B %d, %Y")
+    except:
+        try:
+            return datetime.strptime(date_str, "%B %d, %Y")
+        except:
+            return datetime.now()
+
 # Stadium images pool
 stadium_images = [
     "https://images.unsplash.com/photo-1705593813682-033ee2991df6",
