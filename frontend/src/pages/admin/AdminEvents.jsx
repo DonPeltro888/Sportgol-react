@@ -94,7 +94,20 @@ const AdminEvents = () => {
       imageUrl: event.imageUrl || '',
       ticket_categories: event.ticket_categories || [],
       seo_title: event.seo_title || { it: '', es: '', en: '' },
-      seo_description: event.seo_description || { it: '', es: '', en: '' }
+      seo_description: event.seo_description || { it: '', es: '', en: '' },
+      // SEO Content
+      seo_intro: event.seo_intro || { it: '', es: '', en: '' },
+      seo_venue_info: event.seo_venue_info || { it: '', es: '', en: '' },
+      seo_sectors: event.seo_sectors || { it: '', es: '', en: '' },
+      seo_pricing: event.seo_pricing || { it: '', es: '', en: '' },
+      seo_cta: event.seo_cta || { it: '', es: '', en: '' },
+      // FAQ
+      faq_1_q: event.faq_1_q || { it: '', es: '', en: '' },
+      faq_1_a: event.faq_1_a || { it: '', es: '', en: '' },
+      faq_2_q: event.faq_2_q || { it: '', es: '', en: '' },
+      faq_2_a: event.faq_2_a || { it: '', es: '', en: '' },
+      faq_3_q: event.faq_3_q || { it: '', es: '', en: '' },
+      faq_3_a: event.faq_3_a || { it: '', es: '', en: '' }
     });
     setActiveTab('basic');
     setShowModal(true);
