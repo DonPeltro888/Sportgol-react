@@ -150,8 +150,12 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
   - Canonical URL su tutte le pagine
   - Hreflang per IT/ES/EN
   - Schema.org per eventi
-  - URL tradotti (/biglietti/inter, /tickets/inter, /entradas/inter)
   - Alt images tradotti
+  
+## REGOLE URL MEMORIZZATE (NON MODIFICARE):
+- **IT**: biglietti PRIMA del nome con trattino → `/biglietti-inter`
+- **EN**: tickets DOPO il nome con trattino → `/inter-tickets`
+- **ES**: entradas PRIMA del nome con trattino → `/entradas-inter`
 
 ## Future Enhancements (Backlog)
 - Sistema di autenticazione utenti
