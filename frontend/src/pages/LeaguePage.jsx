@@ -296,8 +296,9 @@ const LeaguePage = ({ urlType }) => {
                       <h3 className="font-bold text-white text-sm group-hover:text-blue-400 transition-colors">
                         {lang === 'en' ? `${team} ${t('seoTickets')}` : `${t('seoTickets')} ${team}`}
                       </h3>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             </>
           )}
