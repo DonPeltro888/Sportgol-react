@@ -183,6 +183,8 @@ export const translations = {
     eventsCountry: "Eventos España",
     eventsInternational: "Eventos Internacionales",
     events: "eventos",
+    eventsFound: "partidos encontrados",
+    eventFound: "partido encontrado",
     noEventsLocal: "No hay eventos locales disponibles",
     noEventsInternational: "No hay eventos internacionales disponibles",
     noEventsFound: "No se encontraron eventos",
