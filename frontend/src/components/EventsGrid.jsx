@@ -15,19 +15,62 @@ const LOCAL_LOCATIONS = {
        "Leeds", "Brighton", "Bournemouth", "Wolverhampton", "Burnley"]
 };
 
+// Priority teams per language
+const PRIORITY_TEAMS = {
+  it: ["Milan", "Inter", "Juventus", "Roma", "Fiorentina", "Lazio"],
+  es: ["Barcelona", "Real Madrid", "Sevilla", "Valencia"],
+  en: ["Manchester City", "Manchester United", "Arsenal", "Chelsea", "Liverpool"]
+};
+
+// Check if event involves a priority team
+const isPriorityEvent = (event, priorityTeams) => {
+  const title = typeof event.title === 'object' 
+    ? (event.title.it || event.title.en || event.title.es || '') 
+    : (event.title || '');
+  const categories = event.categories || [];
+  
+  return priorityTeams.some(team => 
+    title.toLowerCase().includes(team.toLowerCase()) ||
+    categories.some(cat => cat.toLowerCase().includes(team.toLowerCase()))
+  );
+};
+
+// Sort events: priority teams first, then by date
+const sortEventsByPriority = (events, priorityTeams) => {
+  return [...events].sort((a, b) => {
+    const aIsPriority = isPriorityEvent(a, priorityTeams);
+    const bIsPriority = isPriorityEvent(b, priorityTeams);
+    
+    // Priority events come first
+    if (aIsPriority && !bIsPriority) return -1;
+    if (!aIsPriority && bIsPriority) return 1;
+    
+    // Within same priority, sort by date
+    const dateA = new Date(a.sort_date || a.date);
+    const dateB = new Date(b.sort_date || b.date);
+    return dateA - dateB;
+  });
+};
+
 const EventsGrid = ({ events, loading }) => {
   const { lang } = useLanguage();
   const t = (key) => getTranslation(lang, key);
   
+  // Get priority teams for current language
+  const priorityTeams = PRIORITY_TEAMS[lang] || PRIORITY_TEAMS.it;
+  
   // Split events into local and international
   const localLocations = LOCAL_LOCATIONS[lang] || LOCAL_LOCATIONS.it;
   
-  const localEvents = events.filter(event => 
-    localLocations.includes(event.location)
+  const localEvents = sortEventsByPriority(
+    events.filter(event => localLocations.includes(event.location)),
+    priorityTeams
   );
   
-  const internationalEvents = events.filter(event => 
-    !localLocations.includes(event.location)
+  const internationalEvents = sortEventsByPriority(
+    events.filter(event => !localLocations.includes(event.location)),
+    // For international, use ALL priority teams
+    [...PRIORITY_TEAMS.it, ...PRIORITY_TEAMS.es, ...PRIORITY_TEAMS.en]
   );
 
   return (
