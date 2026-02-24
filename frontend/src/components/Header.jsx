@@ -337,7 +337,7 @@ const Header = () => {
                       className="flex-1 text-left py-3 text-gray-300 hover:text-white font-medium text-sm transition-colors flex items-center gap-2"
                     >
                       <span>{league.flag}</span>
-                      {league.label}
+                      {t(league.labelKey)}
                     </button>
                     <button
                       onClick={(e) => toggleMobileDropdown(league.slug, e)}
@@ -382,7 +382,7 @@ const Header = () => {
                   className="w-full text-left py-3 text-gray-300 hover:text-white font-medium text-sm transition-colors flex items-center gap-2"
                 >
                   <span>{cup.flag}</span>
-                  {cup.label}
+                  {t(cup.labelKey)}
                 </button>
               ))}
             </div>
