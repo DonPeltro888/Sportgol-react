@@ -1,7 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, ArrowRight } from 'lucide-react';
 
 const EventCard = ({ event }) => {
+  const navigate = useNavigate();
+
+  const handleViewDetails = () => {
+    navigate(`/event/${event.id || event._id}`);
+  };
+
   return (
     <div className="group relative bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl overflow-hidden hover:border-blue-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/20 transform hover:-translate-y-2">
       {/* Image Container with Overlay */}
@@ -58,7 +65,10 @@ const EventCard = ({ event }) => {
         </div>
 
         {/* CTA Button */}
-        <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40">
+        <button
+          onClick={handleViewDetails}
+          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40"
+        >
           <span>View Details</span>
           <ArrowRight className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" />
         </button>
