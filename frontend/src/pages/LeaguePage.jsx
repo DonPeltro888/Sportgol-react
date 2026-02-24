@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { eventsAPI } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import EventCard from '../components/EventCard';
+import SEOHead from '../components/SEOHead';
 import { ArrowLeft, Loader2, Trophy } from 'lucide-react';
 import { toast } from 'sonner';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getTranslation } from '../translations';
+import { getLeagueUrl, getTeamUrl, getSeoTitle, getSeoDescription } from '../utils/seoHelpers';
 
 const LeaguePage = () => {
   const { league } = useParams();
