@@ -3,6 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
+import { getTeamLogo } from '../data/teamLogos';
 
 const CategoriesSection = ({ categories }) => {
   const { lang } = useLanguage();
@@ -22,26 +23,44 @@ const CategoriesSection = ({ categories }) => {
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-          {categories.map((category, index) => (
-            <Link
-              to={`/team/${category.slug}`}
-              key={index}
-              className="group relative bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-blue-500 rounded-xl p-6 text-center cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20 overflow-hidden"
-            >
-              {/* Shine effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-              
-              <div className="relative">
-                <h3 className="font-bold text-white text-sm mb-2 group-hover:text-blue-400 transition-colors">
-                  {lang === 'en' ? `${category.name} ${t('tickets')}` : `${t('tickets')} ${category.name}`}
-                </h3>
-                <div className="flex items-center justify-center gap-1 text-blue-400 text-xs font-semibold">
-                  <span>{t('viewEvents')}</span>
-                  <ArrowRight className="w-3 h-3 transform group-hover:translate-x-1 transition-transform" />
+          {categories.map((category, index) => {
+            const logo = getTeamLogo(category.name);
+            
+            return (
+              <Link
+                to={`/team/${category.slug}`}
+                key={index}
+                className="group relative bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-blue-500 rounded-xl p-4 text-center cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20 overflow-hidden"
+              >
+                {/* Shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                
+                <div className="relative flex flex-col items-center">
+                  {/* Team Logo */}
+                  {logo && (
+                    <div className="w-12 h-12 mb-3 flex items-center justify-center">
+                      <img 
+                        src={logo} 
+                        alt={category.name}
+                        className="w-full h-full object-contain filter drop-shadow-lg"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                  
+                  <h3 className="font-bold text-white text-sm mb-2 group-hover:text-blue-400 transition-colors">
+                    {lang === 'en' ? `${category.name} ${t('tickets')}` : `${t('tickets')} ${category.name}`}
+                  </h3>
+                  <div className="flex items-center justify-center gap-1 text-blue-400 text-xs font-semibold">
+                    <span>{t('viewEvents')}</span>
+                    <ArrowRight className="w-3 h-3 transform group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>
