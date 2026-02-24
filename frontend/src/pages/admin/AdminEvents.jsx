@@ -97,13 +97,17 @@ const AdminEvents = () => {
       featured: event.featured || false,
       imageUrl: event.imageUrl || '',
       ticket_categories: event.ticket_categories || [],
+      // SEO Meta
       seo_title: event.seo_title || { it: '', es: '', en: '' },
       seo_description: event.seo_description || { it: '', es: '', en: '' },
+      seo_h1: event.seo_h1 || { it: '', es: '', en: '' },
       // SEO Content
       seo_intro: event.seo_intro || { it: '', es: '', en: '' },
-      seo_venue_info: event.seo_venue_info || { it: '', es: '', en: '' },
+      seo_event_info: event.seo_event_info || { it: '', es: '', en: '' },
+      seo_tickets_info: event.seo_tickets_info || { it: '', es: '', en: '' },
       seo_sectors: event.seo_sectors || { it: '', es: '', en: '' },
       seo_pricing: event.seo_pricing || { it: '', es: '', en: '' },
+      seo_venue: event.seo_venue || { it: '', es: '', en: '' },
       seo_cta: event.seo_cta || { it: '', es: '', en: '' },
       // FAQ
       faq_1_q: event.faq_1_q || { it: '', es: '', en: '' },
