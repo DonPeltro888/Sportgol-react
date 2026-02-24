@@ -405,13 +405,11 @@ const AdminEvents = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">URL Immagine</label>
-                    <input
-                      type="text"
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Immagine</label>
+                    <ImageUploader
                       value={formData.imageUrl}
-                      onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
-                      placeholder="https://..."
+                      onChange={(url) => setFormData({...formData, imageUrl: url})}
+                      token={token}
                     />
                   </div>
 
