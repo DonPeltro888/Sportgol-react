@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { eventsAPI } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import EventCard from '../components/EventCard';
+import EventListItem from '../components/EventListItem';
 import { ArrowLeft, Loader2, Users } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -40,12 +40,12 @@ const TeamPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-gray-100">
       <Header />
       
       {/* Hero Section */}
-      <div className="relative py-20 px-4 bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900">
-        <div className="container mx-auto">
+      <div className="relative py-16 md:py-20 px-4 bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900">
+        <div className="container mx-auto max-w-4xl">
           <button
             onClick={() => navigate('/')}
             className="text-white hover:text-blue-400 flex items-center gap-2 mb-6 transition-colors"
@@ -54,46 +54,54 @@ const TeamPage = () => {
             <span className="text-sm">Back to Home</span>
           </button>
           
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-              <Users className="w-10 h-10 text-white" />
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center">
+              <Users className="w-8 h-8 md:w-10 md:h-10 text-white" />
             </div>
             <div>
-              <h1 className="text-5xl md:text-6xl font-black text-white">Biglietti {teamName}</h1>
-              <p className="text-gray-300 text-lg mt-2">All matches - Home & Away</p>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight">
+                Biglietti<br/>{teamName}
+              </h1>
+              <p className="text-gray-300 text-base md:text-lg mt-2">All matches - Home & Away</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Events Section */}
-      <div className="py-16 px-4 bg-gradient-to-b from-gray-900 to-black">
-        <div className="container mx-auto">
+      {/* Events List Section */}
+      <div className="py-8 px-4">
+        <div className="container mx-auto max-w-4xl">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <Loader2 className="w-16 h-16 text-blue-500 animate-spin mb-4" />
-              <p className="text-gray-400 text-lg">Loading {teamName} events...</p>
+            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl">
+              <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
+              <p className="text-gray-500">Loading {teamName} events...</p>
             </div>
           ) : events.length > 0 ? (
-            <>
-              <h2 className="text-3xl font-bold text-white mb-8">
-                {events.length} Match{events.length > 1 ? 'es' : ''} Found
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              {/* Header */}
+              <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                <span className="text-sm text-gray-600 font-medium">
+                  {events.length} Match{events.length > 1 ? 'es' : ''} Found
+                </span>
+              </div>
+              
+              {/* Events List */}
+              <div className="divide-y divide-gray-100">
                 {events.map((event) => (
-                  <EventCard key={event.id || event._id} event={event} />
+                  <EventListItem key={event.id || event._id} event={event} />
                 ))}
               </div>
-            </>
+            </div>
           ) : (
-            <div className="text-center py-20">
+            <div className="text-center py-20 bg-white rounded-xl">
               <div className="text-6xl mb-4">⚽</div>
-              <div className="text-gray-400 text-xl mb-2">No matches found for {teamName}</div>
-              <p className="text-gray-500 mb-6">Check back soon for upcoming fixtures</p>
+              <div className="text-gray-600 text-xl mb-2">No matches found for {teamName}</div>
+              <p className="text-gray-400 mb-6">Check back soon for upcoming fixtures</p>
               <Link
                 to="/"
-                className="text-blue-400 hover:text-blue-300 underline"
+                className="inline-flex items-center gap-2 text-blue-500 hover:text-blue-600 font-medium"
               >
+                <ArrowLeft className="w-4 h-4" />
                 Browse all events
               </Link>
             </div>
