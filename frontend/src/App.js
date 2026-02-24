@@ -5,52 +5,80 @@ import HeroSearch from './components/HeroSearch';
 import EventsGrid from './components/EventsGrid';
 import CategoriesSection from './components/CategoriesSection';
 import Footer from './components/Footer';
-import { mockEvents, categories } from './data/mockEvents';
+import { eventsAPI, categoriesAPI, searchAPI } from './services/api';
 import { Toaster } from './components/ui/sonner';
-import { toast } from './hooks/use-toast';
+import { toast } from 'sonner';
 
 function App() {
-  const [filteredEvents, setFilteredEvents] = useState(mockEvents);
+  const [events, setEvents] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const handleSearch = (query) => {
+  // Fetch initial data
+  useEffect(() => {
+    fetchEvents();
+    fetchCategories();
+  }, []);
+
+  const fetchEvents = async (params = {}) => {
+    try {
+      setLoading(true);
+      const data = await eventsAPI.getAll(params);
+      setEvents(data.events || []);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      toast.error('Failed to load events. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const data = await categoriesAPI.getAll();
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const handleSearch = async (query) => {
     setSearchQuery(query);
     
     if (!query.trim()) {
-      setFilteredEvents(mockEvents);
+      fetchEvents();
       return;
     }
 
-    const filtered = mockEvents.filter((event) => {
-      const searchLower = query.toLowerCase();
-      return (
-        event.title.toLowerCase().includes(searchLower) ||
-        event.categories.some((cat) => cat.toLowerCase().includes(searchLower)) ||
-        event.location.toLowerCase().includes(searchLower)
-      );
-    });
-
-    setFilteredEvents(filtered);
-    
-    if (filtered.length === 0) {
-      toast({
-        title: "No events found",
-        description: `No events match your search for "${query}".`,
-      });
+    try {
+      setLoading(true);
+      const results = await searchAPI.search(query);
+      setEvents(results || []);
+      
+      if (results.length === 0) {
+        toast.error(`No events found for "${query}"`);
+      } else {
+        toast.success(`Found ${results.length} event(s)`);
+      }
+    } catch (error) {
+      console.error('Error searching:', error);
+      toast.error('Search failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    // Scroll to top on mount
     window.scrollTo(0, 0);
   }, []);
 
   return (
     <div className="App min-h-screen bg-black">
-      <Toaster />
+      <Toaster position="top-right" richColors />
       <Header />
       <HeroSearch onSearch={handleSearch} />
-      <EventsGrid events={filteredEvents} />
+      <EventsGrid events={events} loading={loading} />
       <CategoriesSection categories={categories} />
       <Footer />
     </div>

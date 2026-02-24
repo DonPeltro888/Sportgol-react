@@ -1,8 +1,8 @@
 import React from 'react';
 import EventCard from './EventCard';
-import { Trophy } from 'lucide-react';
+import { Trophy, Loader2 } from 'lucide-react';
 
-const EventsGrid = ({ events }) => {
+const EventsGrid = ({ events, loading }) => {
   return (
     <section className="py-20 px-4 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden">
       {/* Background decorations */}
@@ -27,16 +27,22 @@ const EventsGrid = ({ events }) => {
           </p>
         </div>
         
-        {/* Events Grid */}
-        {events.length > 0 ? (
+        {/* Loading State */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="w-16 h-16 text-blue-500 animate-spin mb-4" />
+            <p className="text-gray-400 text-lg">Loading events...</p>
+          </div>
+        ) : events.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {events.map((event) => (
-              <EventCard key={event.id} event={event} />
+              <EventCard key={event.id || event._id} event={event} />
             ))}
           </div>
         ) : (
           <div className="text-center py-20">
-            <div className="text-gray-400 text-xl mb-4">No events found</div>
+            <div className="text-6xl mb-4">🔍</div>
+            <div className="text-gray-400 text-xl mb-2">No events found</div>
             <p className="text-gray-500">Try adjusting your search criteria</p>
           </div>
         )}
