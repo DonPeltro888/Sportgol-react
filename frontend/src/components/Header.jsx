@@ -218,7 +218,7 @@ const Header = () => {
                       <div className="px-4 py-3 bg-gradient-to-r from-blue-600/20 to-transparent border-b border-gray-700">
                         <h3 className="text-sm font-bold text-blue-400 flex items-center gap-2">
                           <Flag className="w-4 h-4" />
-                          LEAGUES
+                          {t('leagues')}
                         </h3>
                       </div>
                       <div className="max-h-[400px] overflow-y-auto">
