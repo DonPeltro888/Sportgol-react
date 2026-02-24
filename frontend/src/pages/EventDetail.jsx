@@ -91,8 +91,32 @@ const EventDetail = () => {
     );
   }
 
+  const eventTitle = typeof event?.title === 'object' ? getMultiLang(event.title) : event?.title;
+  const eventLocation = typeof event?.location === 'object' ? getMultiLang(event.location) : event?.location;
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
+      {/* SEO */}
+      {event && (
+        <SEOHead 
+          title={`Biglietti ${eventTitle} | GOLEVENTS`}
+          description={`Acquista biglietti per ${eventTitle}. ${event.date} - ${eventLocation}. Prezzi a partire da €${event.price_range?.min || 45}.`}
+          keywords={`biglietti ${eventTitle}, ${event.league}, calcio, tickets`}
+          ogImage={event.imageUrl || event.image}
+          type="event"
+          event={{
+            title: eventTitle,
+            date: event.date,
+            dateISO: event.sort_date,
+            stadium: event.stadium,
+            location: eventLocation,
+            categories: event.categories,
+            ticket_categories: event.ticket_categories || ticketCategories,
+            imageUrl: event.imageUrl || event.image
+          }}
+        />
+      )}
+      
       {/* Hero Section */}
       <div className="relative h-96 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-900/50 to-gray-900"></div>
