@@ -43,44 +43,44 @@ const TeamPage = () => {
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
       <Header />
       
-      {/* Hero Section */}
-      <div className="relative py-16 md:py-20 px-4 bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900">
+      {/* Hero Section - Compact */}
+      <div className="relative py-8 md:py-12 px-4 bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900">
         <div className="container mx-auto max-w-4xl">
           <button
             onClick={() => navigate('/')}
-            className="text-white hover:text-blue-400 flex items-center gap-2 mb-6 transition-colors"
+            className="text-white hover:text-blue-400 flex items-center gap-1 mb-4 transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm">Back to Home</span>
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-xs">Back to Home</span>
           </button>
           
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center">
-              <Users className="w-8 h-8 md:w-10 md:h-10 text-white" />
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+              <Users className="w-6 h-6 md:w-7 md:h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight">
-                Biglietti<br/>{teamName}
+              <h1 className="text-2xl md:text-3xl font-bold text-white leading-tight">
+                Biglietti {teamName}
               </h1>
-              <p className="text-gray-300 text-base md:text-lg mt-2">All matches - Home & Away</p>
+              <p className="text-gray-400 text-xs md:text-sm mt-1">All matches - Home & Away</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Events List Section */}
-      <div className="py-8 px-4">
+      <div className="py-4 px-4">
         <div className="container mx-auto max-w-4xl">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
-              <p className="text-gray-400">Loading {teamName} events...</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-3" />
+              <p className="text-gray-400 text-sm">Loading {teamName} events...</p>
             </div>
           ) : events.length > 0 ? (
             <div className="bg-gray-800/30 backdrop-blur rounded-xl border border-gray-700/50 overflow-hidden">
               {/* Header */}
-              <div className="px-4 py-3 border-b border-gray-700/50">
-                <span className="text-sm text-gray-400 font-medium">
+              <div className="px-3 py-2 border-b border-gray-700/50">
+                <span className="text-xs text-gray-400 font-medium">
                   {events.length} Match{events.length > 1 ? 'es' : ''} Found
                 </span>
               </div>
@@ -93,15 +93,15 @@ const TeamPage = () => {
               </div>
             </div>
           ) : (
-            <div className="text-center py-20">
-              <div className="text-6xl mb-4">⚽</div>
-              <div className="text-gray-300 text-xl mb-2">No matches found for {teamName}</div>
-              <p className="text-gray-500 mb-6">Check back soon for upcoming fixtures</p>
+            <div className="text-center py-12">
+              <div className="text-4xl mb-3">⚽</div>
+              <div className="text-gray-300 text-base mb-2">No matches found for {teamName}</div>
+              <p className="text-gray-500 text-sm mb-4">Check back soon for upcoming fixtures</p>
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-medium"
+                className="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 text-sm font-medium"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-3 h-3" />
                 Browse all events
               </Link>
             </div>
