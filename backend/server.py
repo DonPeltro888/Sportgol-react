@@ -10,6 +10,8 @@ from typing import List
 import uuid
 from datetime import datetime, timezone
 
+# Import route modules
+from routes import events, categories, search
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -20,7 +22,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Create the main app without a prefix
-app = FastAPI()
+app = FastAPI(title="Golevents API", version="1.0.0")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
@@ -40,7 +42,7 @@ class StatusCheckCreate(BaseModel):
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Golevents API v1.0", "status": "active"}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
@@ -69,6 +71,11 @@ async def get_status_checks():
 # Include the router in the main app
 app.include_router(api_router)
 
+# Include new feature routes
+app.include_router(events.router)
+app.include_router(categories.router)
+app.include_router(search.router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -84,6 +91,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Starting Golevents API...")
+    logger.info(f"Connected to MongoDB: {os.environ['DB_NAME']}")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+    logger.info("MongoDB connection closed")
