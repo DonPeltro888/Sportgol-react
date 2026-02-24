@@ -7,12 +7,13 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 
 ### Public Website
 1. **Homepage** con griglia eventi e ricerca in tempo reale
-2. **Pagine di dettaglio** per ogni evento
+2. **Pagine di dettaglio** per ogni evento con Schema.org markup
 3. **Pagine per campionati/coppe** che elencano squadre o eventi
 4. **Pagine per squadre** con tutti gli eventi della squadra
 5. **Menu di navigazione** con tutte le categorie espandibili
 6. **Ordinamento eventi** per data (dal più prossimo)
-7. **Tag cliccabili** sugli eventi per navigare alle squadre
+7. **Multilingua** (IT, ES, EN) con language switcher
+8. **SEO completo**: meta tags, hreflang, Schema.org, sitemap.xml, robots.txt
 
 ### Admin Panel (`/admin`)
 1. **Autenticazione** semplice (admin/golevents2024)
@@ -20,6 +21,7 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 3. **Gestione Eventi** con:
    - Supporto multilingua (IT, ES, EN)
    - Categorie biglietti con prezzi e note
+   - **Upload immagini diretto** (drag & drop)
    - Impostazioni SEO per ogni evento
 4. **Gestione Categorie Menu** (campionati, coppe, squadre)
 5. **Gestione Pagine & Testi** con editor rich text (React Quill)
@@ -34,12 +36,16 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 /app/frontend/src/
 ├── components/
 │   ├── admin/
-│   │   └── AdminLayout.jsx
+│   │   ├── AdminLayout.jsx
+│   │   └── ImageUploader.jsx    # Upload immagini drag & drop
 │   ├── Header.jsx
 │   ├── Footer.jsx
+│   ├── SEOHead.jsx              # Meta tags e Schema.org
+│   ├── LanguageSwitcher.jsx     # Cambio lingua
 │   └── ui/
 ├── contexts/
-│   └── AdminAuthContext.jsx
+│   ├── AdminAuthContext.jsx
+│   └── LanguageContext.jsx      # Gestione lingua e traduzioni
 ├── pages/
 │   ├── admin/
 │   │   ├── AdminLogin.jsx
@@ -50,7 +56,7 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 │   │   ├── AdminTranslations.jsx
 │   │   └── AdminSettings.jsx
 │   ├── Home.jsx
-│   ├── EventDetail.jsx
+│   ├── EventDetail.jsx          # Con Schema.org SportsEvent
 │   ├── LeaguePage.jsx
 │   └── TeamPage.jsx
 └── services/
@@ -65,9 +71,12 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 │   ├── categories.py
 │   ├── search.py
 │   ├── admin_auth.py
-│   └── admin_content.py
+│   ├── admin_content.py
+│   ├── upload.py                # Upload immagini
+│   └── seo.py                   # Sitemap e robots.txt
 ├── models/
 │   └── admin.py
+├── uploads/                     # Storage immagini
 ├── database.py
 ├── seed_data.py
 └── server.py
@@ -81,6 +90,7 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 - **seo_settings**: Impostazioni SEO per pagina
 - **translations**: Traduzioni generali
 - **site_settings**: Configurazioni sito
+- **media**: File caricati (immagini)
 - **admin_logs**: Log azioni admin
 
 ## Key API Endpoints
@@ -93,6 +103,9 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 - `GET /api/admin/public/content/:page` - Contenuti pagina
 - `GET /api/admin/public/seo/:page` - SEO pagina
 - `GET /api/admin/public/translations` - Traduzioni
+- `GET /api/admin/public/settings` - Impostazioni sito
+- `GET /api/sitemap.xml` - Sitemap dinamica
+- `GET /api/robots.txt` - Robots.txt
 
 ### Admin (richiede token)
 - `POST /api/admin/login` - Login
@@ -103,11 +116,22 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 - `CRUD /api/admin/seo` - SEO
 - `CRUD /api/admin/translations` - Traduzioni
 - `PUT /api/admin/settings` - Impostazioni
+- `POST /api/upload` - Upload immagini
+- `GET /api/upload/files/:filename` - Serve immagini
+- `GET /api/upload/list` - Lista media
 
 ## Admin Credentials
 - **URL**: `/admin/login`
 - **Username**: `admin`
 - **Password**: `golevents2024`
+
+## SEO Features
+- **Meta tags**: title, description, keywords, og:*, twitter:*
+- **Schema.org**: SportsEvent markup per ogni evento
+- **Hreflang**: tag per IT, ES, EN
+- **Sitemap.xml**: generata dinamicamente con tutti eventi e categorie
+- **Robots.txt**: con disallow per /admin/
+- **Canonical URLs**: supporto per URL canoniche
 
 ## Data Content
 - **7 Campionati**: Serie A, Premier League, La Liga, Bundesliga, Liga Portugal, Ligue 1, Super Lig
@@ -118,20 +142,16 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 ## Session Completed (Dec 2025)
 - [x] Pannello admin completo con autenticazione
 - [x] Gestione eventi multilingua (IT/ES/EN)
-- [x] Categorie biglietti con prezzi e note
-- [x] Editor rich text per contenuti
-- [x] Gestione SEO (title, description, keywords, og:image)
-- [x] Sistema traduzioni
-- [x] Impostazioni sito globali
+- [x] Upload immagini diretto (drag & drop)
+- [x] Language switcher nel frontend
+- [x] SEOHead component con Schema.org
+- [x] Sitemap.xml dinamica
+- [x] Robots.txt
+- [x] Traduzioni pubbliche API
 
-## Known Issues / TODO
-- [ ] Integrare contenuti multilingua nel frontend pubblico
-- [ ] Sitemap XML automatica
-- [ ] Schema.org markup per eventi
-- [ ] Upload immagini (attualmente solo URL)
-
-## Future Enhancements
+## Future Enhancements (Backlog)
 - Sistema di autenticazione utenti
 - Carrello e checkout
 - Integrazione pagamenti (Stripe)
 - Notifiche email
+- Analytics dashboard
