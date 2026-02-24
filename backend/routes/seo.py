@@ -4,7 +4,7 @@ from database import db
 from datetime import datetime
 import os
 
-router = APIRouter(tags=["seo"])
+router = APIRouter(prefix="/api", tags=["seo"])
 
 BASE_URL = os.environ.get("BASE_URL", "https://ticket-hub-eu.preview.emergentagent.com")
 
