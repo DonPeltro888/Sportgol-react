@@ -159,17 +159,17 @@ const LeaguePage = () => {
     );
   }
 
-  if (!leagueTeams[league]) {
+  if (!leagueTeams[actualSlug]) {
     return (
       <div className="min-h-screen bg-black">
         <Header />
         <div className="flex flex-col items-center justify-center py-20">
-          <p className="text-gray-400 text-xl mb-4">League not found</p>
+          <p className="text-gray-400 text-xl mb-4">{t('noEventsFound')}</p>
           <button
             onClick={() => navigate('/')}
             className="text-blue-400 hover:text-blue-300"
           >
-            Back to Home
+            {t('home')}
           </button>
         </div>
         <Footer />
@@ -179,6 +179,13 @@ const LeaguePage = () => {
 
   return (
     <div className="min-h-screen bg-black">
+      <SEOHead 
+        title={seoTitle}
+        description={seoDescription}
+        canonicalUrl={canonicalUrl}
+        ogImage="https://images.unsplash.com/photo-1574629810360-7efbbe195018"
+      />
+      
       <Header />
       
       {/* Hero Section */}
@@ -189,7 +196,7 @@ const LeaguePage = () => {
             className="text-white hover:text-blue-400 flex items-center gap-2 mb-6 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm">Back to Home</span>
+            <span className="text-sm">{t('home')}</span>
           </button>
           
           <div className="flex items-center gap-3 mb-4">
@@ -197,7 +204,9 @@ const LeaguePage = () => {
               <Trophy className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-black text-white">{leagueName}</h1>
+              <h1 className="text-2xl md:text-3xl font-black text-white">
+                {lang === 'en' ? `${leagueName} ${t('seoTickets')}` : `${t('seoTickets')} ${leagueName}`}
+              </h1>
               <p className="text-gray-300 text-sm mt-1">
                 {leagueTeams[league]?.country} 
                 {!isCup && ` • ${leagueTeams[league]?.teams?.length} Teams`}
