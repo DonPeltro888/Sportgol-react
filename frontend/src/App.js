@@ -57,16 +57,23 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/event/:id" element={<EventDetail />} />
             
-            {/* Team Routes - IT: /biglietti/inter, EN: /inter/tickets, ES: /entradas/inter */}
-            <Route path="/biglietti/:slug" element={<TeamPage />} />
-            <Route path="/:slug/tickets" element={<TeamPage />} />
-            <Route path="/entradas/:slug" element={<TeamPage />} />
+            {/* 
+              URL STRUCTURE (MEMORIZZATO):
+              - IT: /biglietti-{name}/ (biglietti PRIMA con trattino)
+              - EN: /{name}-tickets/ (tickets DOPO con trattino)  
+              - ES: /entradas-{name}/ (entradas PRIMA con trattino)
+            */}
+            
+            {/* Team Routes */}
+            <Route path="/biglietti-:slug" element={<TeamPage />} />
+            <Route path="/:slug-tickets" element={<TeamPage />} />
+            <Route path="/entradas-:slug" element={<TeamPage />} />
             <Route path="/team/:slug" element={<TeamPage />} /> {/* Fallback */}
             
-            {/* League Routes - IT: /biglietti-campionato/serie-a, EN: /league/serie-a/tickets, ES: /entradas-liga/serie-a */}
-            <Route path="/biglietti-campionato/:league" element={<LeaguePage />} />
-            <Route path="/league/:league/tickets" element={<LeaguePage />} />
-            <Route path="/entradas-liga/:league" element={<LeaguePage />} />
+            {/* League Routes */}
+            <Route path="/biglietti-:league" element={<LeaguePage />} />
+            <Route path="/:league-tickets" element={<LeaguePage />} />
+            <Route path="/entradas-:league" element={<LeaguePage />} />
             <Route path="/league/:league" element={<LeaguePage />} /> {/* Fallback */}
             
             {/* Admin Routes */}
