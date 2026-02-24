@@ -3,10 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { eventsAPI } from '../services/api';
 import { Calendar, MapPin, ArrowLeft, Ticket, Info, MessageCircle, ChevronDown, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import SEOHead from '../components/SEOHead';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const EventDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { lang, getMultiLang, t } = useLanguage();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('tickets');
