@@ -234,28 +234,37 @@ const LeaguePage = ({ urlType }) => {
       </div>
 
       {/* Content Section */}
-      <div className="py-16 px-4 bg-gradient-to-b from-gray-900 to-black">
-        <div className="container mx-auto">
+      <div className="py-8 px-4 bg-gradient-to-b from-gray-900 to-black">
+        <div className="container mx-auto max-w-4xl">
           {isCup ? (
-            // Cup Events View
+            // Cup Events View - Same style as TeamPage
             <>
-              <h2 className="text-xl md:text-2xl font-bold text-white mb-6">{t('upcomingEvents')}</h2>
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-20">
-                  <Loader2 className="w-16 h-16 text-blue-500 animate-spin mb-4" />
-                  <p className="text-gray-400 text-lg">{t('loadingEvents')}</p>
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-3" />
+                  <p className="text-gray-400 text-sm">{t('loadingEvents')}</p>
                 </div>
               ) : events.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                  {events.map((event) => (
-                    <EventCard key={event.id || event._id} event={event} />
-                  ))}
+                <div className="bg-gray-800/30 backdrop-blur rounded-xl border border-gray-700/50 overflow-hidden">
+                  {/* Header */}
+                  <div className="px-3 py-2 border-b border-gray-700/50">
+                    <span className="text-xs text-gray-400 font-medium">
+                      {events.length} {events.length > 1 ? t('eventsFound') : t('eventFound')}
+                    </span>
+                  </div>
+                  
+                  {/* Events List */}
+                  <div>
+                    {events.map((event) => (
+                      <EventListItem key={event.id || event._id} event={event} />
+                    ))}
+                  </div>
                 </div>
               ) : (
-                <div className="text-center py-20">
-                  <div className="text-6xl mb-4">🏆</div>
-                  <div className="text-gray-400 text-xl mb-2">{t('noEventsFound')}</div>
-                  <p className="text-gray-500">{t('adjustSearch')}</p>
+                <div className="text-center py-12">
+                  <div className="text-4xl mb-3">🏆</div>
+                  <div className="text-gray-300 text-base mb-2">{t('noEventsFound')}</div>
+                  <p className="text-gray-500 text-sm">{t('adjustSearch')}</p>
                 </div>
               )}
             </>
