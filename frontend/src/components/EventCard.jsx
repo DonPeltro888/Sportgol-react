@@ -9,6 +9,25 @@ const EventCard = ({ event }) => {
     navigate(`/event/${event.id || event._id}`);
   };
 
+  // Extract only team names (not FOOTBALL, SERIE A, etc.)
+  const getTeamTags = () => {
+    const excludeTerms = ['FOOTBALL', 'SERIE A', 'PREMIER LEAGUE', 'LA LIGA', 'BUNDESLIGA', 'LIGA PORTUGAL', 'CHAMPIONS LEAGUE'];
+    return event.categories.filter(cat => 
+      !excludeTerms.some(term => cat.toUpperCase().includes(term))
+    ).slice(0, 2); // Only first 2 teams
+  };
+
+  const getTeamSlug = (teamName) => {
+    return teamName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  };
+
+  const handleTeamClick = (teamName, e) => {
+    e.stopPropagation();
+    navigate(`/team/${getTeamSlug(teamName)}`);
+  };
+
+  const teamTags = getTeamTags();
+
   return (
     <div className="group relative bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl overflow-hidden hover:border-blue-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/20 transform hover:-translate-y-2">
       {/* Image Container with Overlay */}
@@ -24,9 +43,11 @@ const EventCard = ({ event }) => {
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
         </div>
         {/* Premium Badge */}
-        <div className="absolute top-4 right-4 z-20 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full">
-          FEATURED
-        </div>
+        {event.featured && (
+          <div className="absolute top-4 right-4 z-20 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full">
+            FEATURED
+          </div>
+        )}
       </div>
       
       {/* Content */}
@@ -35,21 +56,17 @@ const EventCard = ({ event }) => {
           {event.title}
         </h3>
         
-        {/* Categories */}
+        {/* Team Tags - Clickable */}
         <div className="flex flex-wrap gap-2 mb-4">
-          {event.categories.slice(0, 3).map((category, index) => (
-            <span
+          {teamTags.map((team, index) => (
+            <button
               key={index}
+              onClick={(e) => handleTeamClick(team, e)}
               className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:from-blue-500 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 cursor-pointer"
             >
-              {category}
-            </span>
+              {team}
+            </button>
           ))}
-          {event.categories.length > 3 && (
-            <span className="bg-gray-700 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-lg">
-              +{event.categories.length - 3}
-            </span>
-          )}
         </div>
         
         {/* Info */}
