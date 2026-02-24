@@ -1,25 +1,24 @@
 // SEO Helpers for URL generation and meta tags
+// REGOLE URL (DA RICORDARE):
+// - IT: biglietti PRIMA del nome con trattino -> /biglietti-inter/
+// - EN: tickets DOPO il nome con trattino -> /inter-tickets/
+// - ES: entradas PRIMA del nome con trattino -> /entradas-inter/
 
 import { getTranslation } from '../translations';
-
-// Get URL suffix for English (tickets goes after the name)
-// IT: /biglietti/inter (prefix)
-// EN: /inter/tickets (suffix)
-// ES: /entradas/inter (prefix)
 
 // Generate team URL with translated structure
 export const getTeamUrl = (slug, lang) => {
   const cleanSlug = slug.toLowerCase().replace(/\s+/g, '-');
   
   if (lang === 'en') {
-    // English: name first, then tickets -> /inter/tickets
-    return `/${cleanSlug}/tickets`;
+    // English: name-tickets -> /inter-tickets/
+    return `/${cleanSlug}-tickets`;
   } else if (lang === 'es') {
-    // Spanish: entradas first -> /entradas/inter
-    return `/entradas/${cleanSlug}`;
+    // Spanish: entradas-name -> /entradas-inter/
+    return `/entradas-${cleanSlug}`;
   } else {
-    // Italian: biglietti first -> /biglietti/inter
-    return `/biglietti/${cleanSlug}`;
+    // Italian: biglietti-name -> /biglietti-inter/
+    return `/biglietti-${cleanSlug}`;
   }
 };
 
@@ -28,14 +27,14 @@ export const getLeagueUrl = (league, lang) => {
   const cleanLeague = league.toLowerCase().replace(/\s+/g, '-');
   
   if (lang === 'en') {
-    // English: league first, then tickets -> /league/serie-a/tickets
-    return `/league/${cleanLeague}/tickets`;
+    // English: name-tickets -> /serie-a-tickets/
+    return `/${cleanLeague}-tickets`;
   } else if (lang === 'es') {
-    // Spanish: entradas-liga first -> /entradas-liga/serie-a
-    return `/entradas-liga/${cleanLeague}`;
+    // Spanish: entradas-name -> /entradas-serie-a/
+    return `/entradas-${cleanLeague}`;
   } else {
-    // Italian: biglietti-campionato first -> /biglietti-campionato/serie-a
-    return `/biglietti-campionato/${cleanLeague}`;
+    // Italian: biglietti-name -> /biglietti-serie-a/
+    return `/biglietti-${cleanLeague}`;
   }
 };
 
