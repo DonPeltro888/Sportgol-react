@@ -134,6 +134,12 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 - [x] **Google Snippet Preview** in tempo reale
 - [x] **Social Preview** (Facebook/Twitter)
 - [x] Contatori caratteri SEO
+- [x] **Layout Homepage** a due colonne (Nazionali/Internazionali)
+- [x] **Ricerca AJAX Sticky** sotto header con risultati categorizzati
+- [x] **Internazionalizzazione completa** (i18n) per tutta la UI
+- [x] **Loghi squadre** con CDN
+- [x] **Filtro squadre per paese** basato sulla lingua
+- [x] **Refactoring tipografico**: dimensioni testi proporzionate in tutte le pagine
 
 ## Future Enhancements (Backlog)
 - Sistema di autenticazione utenti
