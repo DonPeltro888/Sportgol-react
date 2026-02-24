@@ -5,7 +5,7 @@ import { Trophy, Loader2 } from 'lucide-react';
 const EventsGrid = ({ events, loading }) => {
   return (
     <section className="py-12 px-4 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden">
-      <div className="container mx-auto relative z-10 max-w-4xl">
+      <div className="container mx-auto relative z-10">
         {/* Section Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-400 text-sm font-semibold mb-4">
@@ -28,20 +28,12 @@ const EventsGrid = ({ events, loading }) => {
             <p className="text-gray-400">Loading events...</p>
           </div>
         ) : events.length > 0 ? (
-          <div className="bg-gray-800/30 backdrop-blur rounded-xl border border-gray-700/50 overflow-hidden">
-            {/* Header */}
-            <div className="px-4 py-3 border-b border-gray-700/50">
-              <span className="text-sm text-gray-400 font-medium">
-                {events.length} Event{events.length > 1 ? 's' : ''} Available
-              </span>
-            </div>
-            
-            {/* Events List */}
-            <div>
-              {events.map((event) => (
-                <EventListItem key={event.id || event._id} event={event} />
-              ))}
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {events.map((event) => (
+              <div key={event.id || event._id} className="bg-gray-800/30 backdrop-blur rounded-xl border border-gray-700/50 overflow-hidden">
+                <EventListItem event={event} />
+              </div>
+            ))}
           </div>
         ) : (
           <div className="text-center py-20">
