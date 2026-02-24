@@ -5,6 +5,7 @@ import { Plus, Pencil, Trash2, Search, X, Save, ChevronDown, Ticket } from 'luci
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import ImageUploader from '../../components/admin/ImageUploader';
+import GoogleSnippetPreview, { SocialPreview } from '../../components/admin/GoogleSnippetPreview';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
