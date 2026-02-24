@@ -6,8 +6,10 @@ import EventsGrid from '../components/EventsGrid';
 import CategoriesSection from '../components/CategoriesSection';
 import Footer from '../components/Footer';
 import { toast } from 'sonner';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Home = () => {
+  const { lang } = useLanguage();
   const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +18,7 @@ const Home = () => {
   useEffect(() => {
     fetchEvents();
     fetchCategories();
-  }, []);
+  }, [lang]); // Re-fetch when language changes
 
   // Debounced search effect
   useEffect(() => {
@@ -34,7 +36,7 @@ const Home = () => {
   const fetchEvents = async (params = {}) => {
     try {
       setLoading(true);
-      const data = await eventsAPI.getAll(params);
+      const data = await eventsAPI.getAll({ ...params, lang, limit: 50 });
       setEvents(data.events || []);
     } catch (error) {
       console.error('Error fetching events:', error);
