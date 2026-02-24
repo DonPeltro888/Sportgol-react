@@ -399,25 +399,31 @@ for team_name, description in team_descriptions.items():
     })
 
 async def seed_database():
-    print("🌱 Starting comprehensive database seeding...")
-    print(f"📊 Preparing to insert {len(events_data)} matches")
-    print(f"👥 Preparing to insert {len(categories_data)} teams")
+    print("Starting comprehensive database seeding...")
+    print(f"Preparing to insert {len(events_data)} matches")
+    print(f"Preparing to insert {len(categories_data)} teams")
     
     try:
-        print("\n🗑️  Clearing existing data...")
+        print("\nClearing existing data...")
         await db.events.delete_many({})
         await db.categories.delete_many({})
-        print("✅ Old data cleared")
+        print("Old data cleared")
         
-        print(f"\n📝 Inserting {len(events_data)} matches...")
+        # Add sort_date and image to each event
+        for i, event in enumerate(events_data):
+            event["sort_date"] = parse_date_to_sortable(event["date"])
+            event["imageUrl"] = get_stadium_image(i)
+            event["created_at"] = datetime.utcnow()
+        
+        print(f"\nInserting {len(events_data)} matches...")
         result = await db.events.insert_many(events_data)
-        print(f"✅ Inserted {len(result.inserted_ids)} matches successfully")
+        print(f"Inserted {len(result.inserted_ids)} matches successfully")
         
-        print(f"\n📝 Inserting {len(categories_data)} teams with descriptions...")
+        print(f"\nInserting {len(categories_data)} teams with descriptions...")
         result = await db.categories.insert_many(categories_data)
-        print(f"✅ Inserted {len(result.inserted_ids)} teams successfully")
+        print(f"Inserted {len(result.inserted_ids)} teams successfully")
         
-        print("\n🎉 Database seeding completed successfully!\n")
+        print("\nDatabase seeding completed successfully!\n")
         
         # Print detailed summary
         event_count = await db.events.count_documents({})
@@ -429,23 +435,23 @@ async def seed_database():
         bundesliga_count = await db.events.count_documents({"league": "BUNDESLIGA"})
         
         print("=" * 60)
-        print("📊 DATABASE SUMMARY")
+        print("DATABASE SUMMARY")
         print("=" * 60)
-        print(f"🎯 Total Events: {event_count}")
-        print(f"   🇮🇹 Serie A: {serie_a_count} matches")
-        print(f"   🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League: {premier_count} matches")
-        print(f"   🇪🇸 La Liga: {laliga_count} matches")
-        print(f"   🇩🇪 Bundesliga: {bundesliga_count} matches")
-        print(f"\n👥 Total Teams: {category_count}")
+        print(f"Total Events: {event_count}")
+        print(f"   Serie A: {serie_a_count} matches")
+        print(f"   Premier League: {premier_count} matches")
+        print(f"   La Liga: {laliga_count} matches")
+        print(f"   Bundesliga: {bundesliga_count} matches")
+        print(f"\nTotal Teams: {category_count}")
         print("=" * 60)
         
     except Exception as e:
-        print(f"\n❌ Error seeding database: {str(e)}")
+        print(f"\nError seeding database: {str(e)}")
         import traceback
         traceback.print_exc()
     finally:
         client.close()
-        print("\n✨ Database connection closed. Seeding complete!")
+        print("\nDatabase connection closed. Seeding complete!")
 
 if __name__ == "__main__":
     asyncio.run(seed_database())
