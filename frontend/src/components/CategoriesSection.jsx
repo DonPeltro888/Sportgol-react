@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
 import { getTeamLogo } from '../data/teamLogos';
+import { getTeamUrl } from '../utils/seoHelpers';
 
 const CategoriesSection = ({ categories }) => {
   const { lang } = useLanguage();
@@ -28,7 +29,7 @@ const CategoriesSection = ({ categories }) => {
             
             return (
               <Link
-                to={`/team/${category.slug}`}
+                to={getTeamUrl(category.slug, lang)}
                 key={index}
                 className="group relative bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-blue-500 rounded-xl p-4 text-center cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20 overflow-hidden"
               >
@@ -41,7 +42,7 @@ const CategoriesSection = ({ categories }) => {
                     <div className="w-12 h-12 mb-3 flex items-center justify-center">
                       <img 
                         src={logo} 
-                        alt={category.name}
+                        alt={`${t('seoTickets')} ${category.name}`}
                         className="w-full h-full object-contain filter drop-shadow-lg"
                         onError={(e) => {
                           e.target.style.display = 'none';
