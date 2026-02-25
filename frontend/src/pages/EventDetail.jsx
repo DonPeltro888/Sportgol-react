@@ -237,72 +237,72 @@ const EventDetail = () => {
               <div className="space-y-6">
                 {/* 4) Intro */}
                 {seoIntro && (
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 md:p-8">
-                    <p className="text-gray-300 leading-relaxed text-lg">{seoIntro}</p>
+                  <div className="bg-white border border-gray-200 rounded-2xl p-6 md:p-8">
+                    <p className="text-gray-600 leading-relaxed text-lg">{seoIntro}</p>
                   </div>
                 )}
 
                 {/* 5) Informazioni Evento */}
                 {seoEventInfo && (
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-5 md:p-6">
-                    <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
-                      <Info className="w-5 h-5 text-blue-400" />
+                  <div className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-[#2D3436] mb-3 flex items-center gap-2">
+                      <Info className="w-5 h-5 text-[#0984E3]" />
                       Informazioni Evento
                     </h2>
-                    <div className="text-gray-300 leading-relaxed whitespace-pre-line" dangerouslySetInnerHTML={{ __html: seoEventInfo }} />
+                    <div className="text-gray-600 leading-relaxed whitespace-pre-line" dangerouslySetInnerHTML={{ __html: seoEventInfo }} />
                   </div>
                 )}
 
                 {/* 6) Biglietti Disponibili */}
                 {seoTicketsInfo && (
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-5 md:p-6">
-                    <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
-                      <Ticket className="w-5 h-5 text-green-400" />
+                  <div className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-[#2D3436] mb-3 flex items-center gap-2">
+                      <Ticket className="w-5 h-5 text-[#FF6B35]" />
                       Biglietti Disponibili
                     </h2>
-                    <div className="text-gray-300 leading-relaxed whitespace-pre-line" dangerouslySetInnerHTML={{ __html: seoTicketsInfo }} />
+                    <div className="text-gray-600 leading-relaxed whitespace-pre-line" dangerouslySetInnerHTML={{ __html: seoTicketsInfo }} />
                   </div>
                 )}
 
                 {/* 7) Settori Consigliati */}
                 {seoSectors && (
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-5 md:p-6">
-                    <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
-                      <Star className="w-5 h-5 text-yellow-400" />
+                  <div className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-[#2D3436] mb-3 flex items-center gap-2">
+                      <Star className="w-5 h-5 text-yellow-500" />
                       Settori Consigliati
                     </h2>
-                    <div className="text-gray-300 leading-relaxed whitespace-pre-line" dangerouslySetInnerHTML={{ __html: seoSectors }} />
+                    <div className="text-gray-600 leading-relaxed whitespace-pre-line" dangerouslySetInnerHTML={{ __html: seoSectors }} />
                   </div>
                 )}
 
                 {/* 8) Prezzi e Domanda */}
                 {seoPricing && (
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-5 md:p-6">
-                    <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
-                      <Euro className="w-5 h-5 text-green-400" />
+                  <div className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-[#2D3436] mb-3 flex items-center gap-2">
+                      <Euro className="w-5 h-5 text-[#FF6B35]" />
                       Prezzi e Domanda
                     </h2>
-                    <p className="text-gray-300 leading-relaxed">{seoPricing}</p>
+                    <p className="text-gray-600 leading-relaxed">{seoPricing}</p>
                   </div>
                 )}
 
                 {/* 9) Venue */}
                 {seoVenue && (
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-5 md:p-6">
-                    <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
-                      <MapPin className="w-5 h-5 text-purple-400" />
+                  <div className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-[#2D3436] mb-3 flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-[#0984E3]" />
                       Lo Stadio
                     </h2>
-                    <p className="text-gray-300 leading-relaxed">{seoVenue}</p>
+                    <p className="text-gray-600 leading-relaxed">{seoVenue}</p>
                   </div>
                 )}
 
                 {/* 11) CTA */}
                 {seoCta && (
-                  <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-2xl p-5 md:p-6 text-center">
-                    <p className="text-white text-base mb-3">{seoCta}</p>
+                  <div className="bg-gradient-to-r from-[#0984E3]/10 to-[#FF6B35]/10 border border-[#0984E3]/30 rounded-2xl p-5 md:p-6 text-center">
+                    <p className="text-[#2D3436] text-base mb-3">{seoCta}</p>
                     <button onClick={handleContactUs}
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3 px-8 rounded-xl transition-all inline-flex items-center gap-2">
+                      className="bg-[#FF6B35] hover:bg-[#FF6B35]/90 text-white font-bold py-3 px-8 rounded-xl transition-all inline-flex items-center gap-2">
                       <Ticket className="w-5 h-5" /> Acquista Ora
                     </button>
                   </div>
@@ -310,9 +310,9 @@ const EventDetail = () => {
 
                 {/* If no SEO content, show default message */}
                 {!seoIntro && !seoEventInfo && !seoVenue && (
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-8 text-center">
-                    <Info className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                    <p className="text-gray-400">Dettagli evento in arrivo. Contattaci per maggiori informazioni.</p>
+                  <div className="bg-gray-50 border border-gray-200 rounded-2xl p-8 text-center">
+                    <Info className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">Dettagli evento in arrivo. Contattaci per maggiori informazioni.</p>
                   </div>
                 )}
               </div>
