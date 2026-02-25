@@ -112,7 +112,7 @@ const StickySearch = () => {
   const totalResults = teamResults.length + eventResults.length;
 
   return (
-    <div className="sticky top-[64px] z-[1000] bg-white border-b border-gray-200 py-3 px-4 shadow-sm">
+    <div className="sticky top-[64px] z-40 lg:z-[1000] bg-white border-b border-gray-200 py-3 px-4 shadow-sm">
       <div ref={searchRef} className="container mx-auto max-w-3xl relative">
         {/* Search Input */}
         <div className="relative flex items-center bg-gray-50 border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#0984E3] transition-colors">
