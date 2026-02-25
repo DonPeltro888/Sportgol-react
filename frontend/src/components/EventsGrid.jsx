@@ -74,18 +74,18 @@ const EventsGrid = ({ events, loading }) => {
   );
 
   return (
-    <section className="py-12 px-4 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden z-0">
+    <section className="py-12 px-4 bg-white relative overflow-hidden z-0">
       <div className="container mx-auto relative">
         {/* Section Header */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-400 text-xs font-semibold mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#0984E3]/10 border border-[#0984E3]/30 rounded-full text-[#0984E3] text-xs font-semibold mb-3">
             <Trophy className="w-3 h-3" />
             {t('topEvents')}
           </div>
           <h2 className="text-2xl md:text-3xl font-black mb-2">
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{t('upcomingEvents')}</span>
+            <span className="text-[#2D3436]">{t('upcomingEvents')}</span>
           </h2>
-          <p className="text-gray-400 text-sm max-w-2xl mx-auto">
+          <p className="text-gray-500 text-sm max-w-2xl mx-auto">
             {t('eventsSubtitle')}
           </p>
         </div>
@@ -93,16 +93,16 @@ const EventsGrid = ({ events, loading }) => {
         {/* Loading State */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
-            <p className="text-gray-400">{t('loadingEvents')}</p>
+            <Loader2 className="w-12 h-12 text-[#0984E3] animate-spin mb-4" />
+            <p className="text-gray-500">{t('loadingEvents')}</p>
           </div>
         ) : events.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Local Events Column */}
-            <div className="bg-gray-800/30 backdrop-blur rounded-xl border border-gray-700/50 overflow-hidden">
-              <div className="px-4 py-3 border-b border-gray-700/50 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-green-400" />
-                <span className="text-sm text-white font-semibold">
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+              <div className="px-4 py-3 border-b border-gray-200 flex items-center gap-2 bg-gray-50">
+                <MapPin className="w-4 h-4 text-[#FF6B35]" />
+                <span className="text-sm text-[#2D3436] font-semibold">
                   {t('eventsCountry')}
                 </span>
                 <span className="text-xs text-gray-500 ml-auto">
@@ -123,10 +123,10 @@ const EventsGrid = ({ events, loading }) => {
             </div>
             
             {/* International Events Column */}
-            <div className="bg-gray-800/30 backdrop-blur rounded-xl border border-gray-700/50 overflow-hidden">
-              <div className="px-4 py-3 border-b border-gray-700/50 flex items-center gap-2">
-                <Globe className="w-4 h-4 text-blue-400" />
-                <span className="text-sm text-white font-semibold">
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+              <div className="px-4 py-3 border-b border-gray-200 flex items-center gap-2 bg-gray-50">
+                <Globe className="w-4 h-4 text-[#0984E3]" />
+                <span className="text-sm text-[#2D3436] font-semibold">
                   {t('eventsInternational')}
                 </span>
                 <span className="text-xs text-gray-500 ml-auto">
