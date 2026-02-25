@@ -83,7 +83,7 @@ const TeamPage = ({ urlType }) => {
   const canonicalUrl = `${window.location.origin}${getTeamUrl(actualSlug, lang)}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
+    <div className="min-h-screen bg-white">
       <SEOHead 
         title={seoTitle}
         description={seoDescription}
@@ -94,11 +94,11 @@ const TeamPage = ({ urlType }) => {
       <Header />
       
       {/* Hero Section - Compact */}
-      <div className="relative py-8 md:py-12 px-4 bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900">
+      <div className="relative py-8 md:py-12 px-4 bg-[#2D3436]">
         <div className="container mx-auto max-w-4xl">
           <button
             onClick={() => navigate('/')}
-            className="text-white hover:text-blue-400 flex items-center gap-1 mb-4 transition-colors"
+            className="text-gray-300 hover:text-white flex items-center gap-1 mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="text-xs">{t('home')}</span>
@@ -106,7 +106,7 @@ const TeamPage = ({ urlType }) => {
           
           <div className="flex items-center gap-3">
             {teamLogo ? (
-              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center">
+              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-white rounded-lg p-1">
                 <img 
                   src={teamLogo} 
                   alt={`${t('seoTickets')} ${teamName}`}
@@ -114,7 +114,7 @@ const TeamPage = ({ urlType }) => {
                 />
               </div>
             ) : (
-              <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-[#FF6B35] to-[#0984E3] rounded-xl flex items-center justify-center">
                 <Users className="w-6 h-6 md:w-7 md:h-7 text-white" />
               </div>
             )}
