@@ -217,21 +217,22 @@ const LeaguePage = ({ urlType }) => {
           
           <div className="flex items-center gap-3 mb-4">
             {/* League/Cup Logo */}
-            <div className="w-14 h-14 flex items-center justify-center bg-white rounded-lg p-1">
-              {getLeagueLogo(actualLeague) ? (
+            <div className="w-14 h-14 flex items-center justify-center bg-white rounded-lg p-1 relative">
+              {getLeagueLogo(actualLeague) && (
                 <img 
                   src={getLeagueLogo(actualLeague)} 
                   alt={leagueName}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain absolute inset-0 p-1"
+                  onLoad={(e) => {
+                    const fallback = e.target.parentElement.querySelector('.league-fallback');
+                    if (fallback) fallback.style.display = 'none';
+                  }}
                   onError={(e) => {
                     e.target.style.display = 'none';
-                    if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
                   }}
                 />
-              ) : null}
-              <div 
-                className={`w-14 h-14 bg-gradient-to-br from-[#FF6B35] to-[#0984E3] rounded-full items-center justify-center ${getLeagueLogo(actualLeague) ? 'hidden' : 'flex'}`}
-              >
+              )}
+              <div className="league-fallback w-14 h-14 bg-gradient-to-br from-[#FF6B35] to-[#0984E3] rounded-full flex items-center justify-center">
                 <Trophy className="w-7 h-7 text-white" />
               </div>
             </div>
