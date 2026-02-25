@@ -122,25 +122,25 @@ const TeamPage = ({ urlType }) => {
               <h1 className="text-2xl md:text-3xl font-bold text-white leading-tight">
                 {lang === 'en' ? `${teamName} ${t('seoTickets')}` : `${t('seoTickets')} ${teamName}`}
               </h1>
-              <p className="text-gray-400 text-xs md:text-sm mt-1">{t('seoAllMatches')} - {t('seoHomeAway')}</p>
+              <p className="text-gray-300 text-xs md:text-sm mt-1">{t('seoAllMatches')} - {t('seoHomeAway')}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Events List Section */}
-      <div className="py-4 px-4">
+      <div className="py-6 px-4 bg-gray-50">
         <div className="container mx-auto max-w-4xl">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-3" />
-              <p className="text-gray-400 text-sm">{t('loadingEvents')}</p>
+              <Loader2 className="w-8 h-8 text-[#0984E3] animate-spin mb-3" />
+              <p className="text-gray-500 text-sm">{t('loadingEvents')}</p>
             </div>
           ) : events.length > 0 ? (
-            <div className="bg-gray-800/30 backdrop-blur rounded-xl border border-gray-700/50 overflow-hidden">
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
               {/* Header */}
-              <div className="px-3 py-2 border-b border-gray-700/50">
-                <span className="text-xs text-gray-400 font-medium">
+              <div className="px-3 py-2 border-b border-gray-200 bg-gray-50">
+                <span className="text-xs text-gray-500 font-medium">
                   {events.length} {events.length > 1 ? t('eventsFound') : t('eventFound')}
                 </span>
               </div>
@@ -155,11 +155,11 @@ const TeamPage = ({ urlType }) => {
           ) : (
             <div className="text-center py-12">
               <div className="text-4xl mb-3">⚽</div>
-              <div className="text-gray-300 text-base mb-2">{t('noEventsFound')}</div>
+              <div className="text-[#2D3436] text-base mb-2">{t('noEventsFound')}</div>
               <p className="text-gray-500 text-sm mb-4">{t('adjustSearch')}</p>
               <Link
                 to="/"
-                className="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 text-sm font-medium"
+                className="inline-flex items-center gap-1 text-[#0984E3] hover:text-[#FF6B35] text-sm font-medium"
               >
                 <ArrowLeft className="w-3 h-3" />
                 {t('home')}
