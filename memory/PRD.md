@@ -170,9 +170,17 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 - **ES**: entradas PRIMA del nome con trattino → `/entradas-inter`
 
 ## Future Enhancements (Backlog)
-- Sistema di autenticazione utenti
-- Carrello e checkout
-- Integrazione pagamenti (Stripe)
-- Notifiche email
-- Analytics dashboard
-- A/B testing SEO
+- [ ] **Sistema di scraping automatico** per aggiornare eventi e prezzi (es. GitHub Actions)
+- [ ] **Floating button WhatsApp** per contatto rapido
+- [ ] **Badge Urgency** ("Solo 3 biglietti rimasti!")
+- [ ] **Badge Trust** (loghi pagamenti sicuri)
+- [ ] Ottimizzazione immagini (WebP, lazy loading)
+- [ ] Pagina 404 personalizzata
+- [ ] Alt tag descrittivi su tutte le immagini
+- [ ] Sezione Blog/News per traffico organico
+- [ ] Sistema di autenticazione utenti
+- [ ] Carrello e checkout
+- [ ] Integrazione pagamenti (Stripe)
+- [ ] Notifiche email
+- [ ] Analytics dashboard
+- [ ] A/B testing SEO
