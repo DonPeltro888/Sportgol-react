@@ -323,21 +323,21 @@ const EventDetail = () => {
               <div className="space-y-4">
                 {faqItems.length > 0 ? (
                   faqItems.map((item, idx) => (
-                    <div key={idx} className="bg-gray-800/50 border border-gray-700 rounded-2xl overflow-hidden">
+                    <div key={idx} className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
                       <button onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                        className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-800/80 transition-all">
-                        <span className="text-lg font-semibold text-white">{item.question}</span>
+                        className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-all">
+                        <span className="text-lg font-semibold text-[#2D3436]">{item.question}</span>
                         <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${openFaq === idx ? 'rotate-180' : ''}`} />
                       </button>
                       {openFaq === idx && (
-                        <div className="px-6 pb-4 text-gray-300 whitespace-pre-line">{item.answer}</div>
+                        <div className="px-6 pb-4 text-gray-600 whitespace-pre-line">{item.answer}</div>
                       )}
                     </div>
                   ))
                 ) : (
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-8 text-center">
-                    <MessageCircle className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                    <p className="text-gray-400">Hai domande? Contattaci direttamente via WhatsApp!</p>
+                  <div className="bg-gray-50 border border-gray-200 rounded-2xl p-8 text-center">
+                    <MessageCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">Hai domande? Contattaci direttamente via WhatsApp!</p>
                     <button onClick={handleContactUs}
                       className="mt-4 bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-6 rounded-xl transition-all inline-flex items-center gap-2">
                       <MessageCircle className="w-5 h-5" /> Contattaci
@@ -350,36 +350,36 @@ const EventDetail = () => {
 
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-5 sticky top-24">
-              <h3 className="text-base font-bold text-white mb-4">Dettagli Evento</h3>
+            <div className="bg-white border border-gray-200 rounded-2xl p-5 sticky top-24 shadow-sm">
+              <h3 className="text-base font-bold text-[#2D3436] mb-4">Dettagli Evento</h3>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <Calendar className="w-5 h-5 text-blue-400 mt-1" />
+                  <Calendar className="w-5 h-5 text-[#0984E3] mt-1" />
                   <div>
                     <div className="text-sm text-gray-500 mb-1">Data</div>
-                    <div className="text-white font-semibold">{event.date}</div>
+                    <div className="text-[#2D3436] font-semibold">{event.date}</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-purple-400 mt-1" />
+                  <MapPin className="w-5 h-5 text-[#FF6B35] mt-1" />
                   <div>
                     <div className="text-sm text-gray-500 mb-1">Stadio</div>
-                    <div className="text-white font-semibold">{event.stadium}</div>
-                    <div className="text-sm text-gray-400">{eventLocation}</div>
+                    <div className="text-[#2D3436] font-semibold">{event.stadium}</div>
+                    <div className="text-sm text-gray-500">{eventLocation}</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Euro className="w-5 h-5 text-green-400 mt-1" />
+                  <Euro className="w-5 h-5 text-[#FF6B35] mt-1" />
                   <div>
                     <div className="text-sm text-gray-500 mb-1">Prezzo da</div>
-                    <div className="text-green-400 font-bold text-xl">€{event.price_range?.min || 45}</div>
+                    <div className="text-[#0984E3] font-bold text-xl">€{event.price_range?.min || 45}</div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-5 pt-5 border-t border-gray-700">
+              <div className="mt-5 pt-5 border-t border-gray-200">
                 <button onClick={handleContactUs}
-                  className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-base">
+                  className="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-base">
                   <MessageCircle className="w-5 h-5" /> Contattaci
                 </button>
               </div>
