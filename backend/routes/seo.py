@@ -6,7 +6,7 @@ import os
 
 router = APIRouter(prefix="/api", tags=["seo"])
 
-BASE_URL = os.environ.get("BASE_URL", "https://campionato-demo.preview.emergentagent.com")
+BASE_URL = os.environ.get("BASE_URL", "https://sports-events-2.preview.emergentagent.com")
 
 # Teams by league
 TEAMS = {

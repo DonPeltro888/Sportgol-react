@@ -9,7 +9,7 @@ const GoogleSnippetPreview = ({
   type = 'event' // 'event', 'page', 'team', 'league'
 }) => {
   
-  const baseUrl = 'https://campionato-demo.preview.emergentagent.com';
+  const baseUrl = 'https://sports-events-2.preview.emergentagent.com';
   
   // Truncate title to 60 chars (Google limit)
   const displayTitle = title.length > 60 

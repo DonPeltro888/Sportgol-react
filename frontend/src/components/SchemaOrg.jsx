@@ -19,7 +19,7 @@ function getCountryCode(location) {
 export const EventSchema = ({ event, lang = 'it' }) => {
   if (!event) return null;
   
-  const baseUrl = process.env.REACT_APP_BACKEND_URL || 'https://campionato-demo.preview.emergentagent.com';
+  const baseUrl = process.env.REACT_APP_BACKEND_URL || 'https://sports-events-2.preview.emergentagent.com';
   
   const schema = {
     "@context": "https://schema.org",
@@ -63,7 +63,7 @@ export const EventSchema = ({ event, lang = 'it' }) => {
 
 // Schema.org per Organizzazione (Homepage)
 export const OrganizationSchema = () => {
-  const baseUrl = process.env.REACT_APP_BACKEND_URL || 'https://campionato-demo.preview.emergentagent.com';
+  const baseUrl = process.env.REACT_APP_BACKEND_URL || 'https://sports-events-2.preview.emergentagent.com';
   
   const schema = {
     "@context": "https://schema.org",
@@ -84,7 +84,7 @@ export const OrganizationSchema = () => {
 
 // Schema.org per League Page
 export const LeagueSchema = ({ leagueName, teams, lang = 'it' }) => {
-  const baseUrl = process.env.REACT_APP_BACKEND_URL || 'https://campionato-demo.preview.emergentagent.com';
+  const baseUrl = process.env.REACT_APP_BACKEND_URL || 'https://sports-events-2.preview.emergentagent.com';
   
   const schema = {
     "@context": "https://schema.org",
@@ -109,7 +109,7 @@ export const LeagueSchema = ({ leagueName, teams, lang = 'it' }) => {
 
 // Schema.org per Breadcrumbs
 export const BreadcrumbSchema = ({ items }) => {
-  const baseUrl = process.env.REACT_APP_BACKEND_URL || 'https://campionato-demo.preview.emergentagent.com';
+  const baseUrl = process.env.REACT_APP_BACKEND_URL || 'https://sports-events-2.preview.emergentagent.com';
   
   const schema = {
     "@context": "https://schema.org",
