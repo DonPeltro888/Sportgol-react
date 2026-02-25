@@ -6,6 +6,7 @@ import Footer from '../components/Footer';
 import EventListItem from '../components/EventListItem';
 import SEOHead from '../components/SEOHead';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { LeagueSchema, BreadcrumbSchema } from '../components/SchemaOrg';
 import { ArrowLeft, Loader2, Trophy } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
