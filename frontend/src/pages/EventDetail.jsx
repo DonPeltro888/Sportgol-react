@@ -417,41 +417,18 @@ const EventDetail = () => {
             )}
           </div>
 
-          {/* Sidebar */}
+          {/* Sidebar - Only price and contact */}
           <div className="lg:col-span-1">
             <div className="bg-white border border-gray-200 rounded-2xl p-5 sticky top-24 shadow-sm">
-              <h3 className="text-base font-bold text-[#2D3436] mb-4">Dettagli Evento</h3>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <Calendar className="w-5 h-5 text-[#0984E3] mt-1" />
-                  <div>
-                    <div className="text-sm text-gray-500 mb-1">Data</div>
-                    <div className="text-[#2D3436] font-semibold">{event.date}</div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-[#FF6B35] mt-1" />
-                  <div>
-                    <div className="text-sm text-gray-500 mb-1">Stadio</div>
-                    <div className="text-[#2D3436] font-semibold">{event.stadium}</div>
-                    <div className="text-sm text-gray-500">{eventLocation}</div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Euro className="w-5 h-5 text-[#FF6B35] mt-1" />
-                  <div>
-                    <div className="text-sm text-gray-500 mb-1">Prezzo da</div>
-                    <div className="text-[#0984E3] font-bold text-xl">€{event.price_range?.min || 45}</div>
-                  </div>
-                </div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-sm text-gray-500">Prezzo da</div>
+                <div className="text-[#FF6B35] font-bold text-2xl">€{event.price_range?.min || 45}</div>
               </div>
 
-              <div className="mt-5 pt-5 border-t border-gray-200">
-                <button onClick={handleContactUs}
-                  className="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-base">
-                  <MessageCircle className="w-5 h-5" /> Contattaci
-                </button>
-              </div>
+              <button onClick={handleContactUs}
+                className="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-base">
+                <MessageCircle className="w-5 h-5" /> Contattaci
+              </button>
             </div>
           </div>
         </div>
