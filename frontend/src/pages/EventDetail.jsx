@@ -170,35 +170,37 @@ const EventDetail = () => {
           </button>
           
           {/* Team Logos Display */}
-          <div className="flex items-center justify-center gap-6 md:gap-12 mb-6">
+          <div className="flex items-center justify-center gap-4 md:gap-8 mb-6">
             {event.categories?.slice(0, 2).map((team, idx) => {
               const teamSlug = team.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
               const teamLogo = getTeamLogo(team);
               return (
-                <div key={idx} className="flex flex-col items-center">
-                  <div 
-                    onClick={() => navigate(getTeamUrl(teamSlug, lang))}
-                    className="w-20 h-20 md:w-28 md:h-28 bg-white rounded-2xl p-3 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform shadow-lg"
-                  >
-                    {teamLogo ? (
-                      <img 
-                        src={teamLogo} 
-                        alt={team}
-                        className="w-full h-full object-contain"
-                      />
-                    ) : (
-                      <span className="text-3xl md:text-4xl font-bold text-[#2D3436]">
-                        {team.charAt(0)}
-                      </span>
-                    )}
+                <React.Fragment key={idx}>
+                  {idx === 1 && (
+                    <div className="text-white text-2xl md:text-3xl font-black">VS</div>
+                  )}
+                  <div className="flex flex-col items-center">
+                    <div 
+                      onClick={() => navigate(getTeamUrl(teamSlug, lang))}
+                      className="w-20 h-20 md:w-28 md:h-28 bg-white rounded-2xl p-3 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform shadow-lg"
+                    >
+                      {teamLogo ? (
+                        <img 
+                          src={teamLogo} 
+                          alt={team}
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <span className="text-3xl md:text-4xl font-bold text-[#2D3436]">
+                          {team.charAt(0)}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-white text-sm md:text-base font-semibold mt-2 text-center">{team}</span>
                   </div>
-                  <span className="text-white text-sm md:text-base font-semibold mt-2 text-center">{team}</span>
-                </div>
+                </React.Fragment>
               );
             })}
-            {event.categories?.length >= 2 && (
-              <div className="text-white text-2xl md:text-3xl font-black mx-2">VS</div>
-            )}
           </div>
 
           {/* H1 from SEO or default */}
