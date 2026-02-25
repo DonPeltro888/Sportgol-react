@@ -90,10 +90,10 @@ const EventDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
+      <div className="min-h-screen bg-white">
         <Header />
         <div className="flex items-center justify-center py-40">
-          <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
+          <Loader2 className="w-16 h-16 text-[#0984E3] animate-spin" />
         </div>
         <Footer />
       </div>
@@ -102,12 +102,12 @@ const EventDetail = () => {
 
   if (!event) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
+      <div className="min-h-screen bg-white">
         <Header />
         <div className="flex items-center justify-center py-40">
           <div className="text-center">
-            <p className="text-gray-400 text-xl mb-4">Evento non trovato</p>
-            <button onClick={() => navigate('/')} className="text-blue-400 hover:text-blue-300 flex items-center gap-2 mx-auto">
+            <p className="text-gray-500 text-xl mb-4">Evento non trovato</p>
+            <button onClick={() => navigate('/')} className="text-[#0984E3] hover:text-[#FF6B35] flex items-center gap-2 mx-auto">
               <ArrowLeft className="w-5 h-5" /> Torna agli eventi
             </button>
           </div>
@@ -140,7 +140,7 @@ const EventDetail = () => {
   const canonicalUrl = `${window.location.origin}/event/${id}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
+    <div className="min-h-screen bg-white">
       <Header />
       
       {/* SEO */}
@@ -162,11 +162,11 @@ const EventDetail = () => {
       
       {/* Hero Section */}
       <div className="relative h-80 md:h-96 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-900/50 to-gray-900"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#2D3436]/50 to-[#2D3436]"></div>
         <img src={event.imageUrl || event.image} alt={`${t('seoTickets')} ${eventTitle}`} className="w-full h-full object-cover" />
         <div className="absolute inset-0 flex items-end">
           <div className="container mx-auto px-4 pb-8">
-            <button onClick={() => navigate('/')} className="text-white hover:text-blue-400 flex items-center gap-2 mb-4 transition-colors">
+            <button onClick={() => navigate('/')} className="text-white hover:text-[#FF6B35] flex items-center gap-2 mb-4 transition-colors">
               <ArrowLeft className="w-5 h-5" />
               <span className="text-sm">{t('home')}</span>
             </button>
@@ -177,11 +177,11 @@ const EventDetail = () => {
             <div className="flex flex-wrap gap-2">
               {event.categories?.map((cat, idx) => (
                 <span key={idx} onClick={() => navigate(`/team/${cat.toLowerCase().replace(/\s+/g, '-')}`)} 
-                  className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold px-4 py-2 rounded-lg cursor-pointer transition-colors">
+                  className="bg-[#0984E3] hover:bg-[#0984E3]/80 text-white text-sm font-bold px-4 py-2 rounded-lg cursor-pointer transition-colors">
                   {cat}
                 </span>
               ))}
-              <span className="bg-purple-600 text-white text-sm font-bold px-4 py-2 rounded-lg">{event.league}</span>
+              <span className="bg-[#FF6B35] text-white text-sm font-bold px-4 py-2 rounded-lg">{event.league}</span>
             </div>
           </div>
         </div>
