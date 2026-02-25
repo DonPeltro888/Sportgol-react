@@ -11,16 +11,13 @@ const CategoriesSection = ({ categories }) => {
   const t = (key) => getTranslation(lang, key);
   
   return (
-    <section className="py-20 px-4 bg-black relative overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black"></div>
-      
+    <section className="py-16 px-4 bg-gray-50 relative overflow-hidden">
       <div className="container mx-auto relative z-10">
         <div className="text-center mb-10">
-          <h2 className="text-2xl md:text-3xl font-black text-white mb-3">
-            {t('teamsTitle')} <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{t('teamsCountry')}</span>
+          <h2 className="text-2xl md:text-3xl font-black text-[#2D3436] mb-3">
+            {t('teamsTitle')} <span className="text-[#0984E3]">{t('teamsCountry')}</span>
           </h2>
-          <p className="text-gray-400 text-sm md:text-base">{t('teamsSubtitle')}</p>
+          <p className="text-gray-500 text-sm md:text-base">{t('teamsSubtitle')}</p>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
@@ -31,11 +28,8 @@ const CategoriesSection = ({ categories }) => {
               <Link
                 to={getTeamUrl(category.slug, lang)}
                 key={index}
-                className="group relative bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-blue-500 rounded-xl p-4 text-center cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20 overflow-hidden"
+                className="group relative bg-white border border-gray-200 hover:border-[#0984E3] rounded-xl p-4 text-center cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:shadow-lg overflow-hidden"
               >
-                {/* Shine effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                
                 <div className="relative flex flex-col items-center">
                   {/* Team Logo */}
                   {logo && (
@@ -43,7 +37,7 @@ const CategoriesSection = ({ categories }) => {
                       <img 
                         src={logo} 
                         alt={`${t('seoTickets')} ${category.name}`}
-                        className="w-full h-full object-contain filter drop-shadow-lg"
+                        className="w-full h-full object-contain"
                         onError={(e) => {
                           e.target.style.display = 'none';
                         }}
@@ -51,10 +45,10 @@ const CategoriesSection = ({ categories }) => {
                     </div>
                   )}
                   
-                  <h3 className="font-bold text-white text-sm mb-2 group-hover:text-blue-400 transition-colors">
+                  <h3 className="font-bold text-[#2D3436] text-sm mb-2 group-hover:text-[#0984E3] transition-colors">
                     {lang === 'en' ? `${category.name} ${t('tickets')}` : `${t('tickets')} ${category.name}`}
                   </h3>
-                  <div className="flex items-center justify-center gap-1 text-blue-400 text-xs font-semibold">
+                  <div className="flex items-center justify-center gap-1 text-[#FF6B35] text-xs font-semibold">
                     <span>{t('viewEvents')}</span>
                     <ArrowRight className="w-3 h-3 transform group-hover:translate-x-1 transition-transform" />
                   </div>
