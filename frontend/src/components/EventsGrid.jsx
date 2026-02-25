@@ -100,7 +100,7 @@ const EventsGrid = ({ events, loading }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Local Events Column */}
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-              <div className="sticky top-[120px] z-10 px-4 py-3 border-b border-gray-200 flex items-center gap-2 bg-gray-50">
+              <div className="sticky top-[115px] lg:top-0 lg:relative z-10 px-4 py-3 border-b border-gray-200 flex items-center gap-2 bg-gray-50">
                 <MapPin className="w-4 h-4 text-[#FF6B35]" />
                 <span className="text-sm text-[#2D3436] font-semibold">
                   {t('eventsCountry')}
@@ -124,7 +124,7 @@ const EventsGrid = ({ events, loading }) => {
             
             {/* International Events Column */}
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-              <div className="sticky top-[120px] z-10 px-4 py-3 border-b border-gray-200 flex items-center gap-2 bg-gray-50">
+              <div className="sticky top-[115px] lg:top-0 lg:relative z-10 px-4 py-3 border-b border-gray-200 flex items-center gap-2 bg-gray-50">
                 <Globe className="w-4 h-4 text-[#0984E3]" />
                 <span className="text-sm text-[#2D3436] font-semibold">
                   {t('eventsInternational')}
