@@ -346,14 +346,20 @@ const Header = () => {
                 <Flag className="w-3 h-3" />
                 {t('leagues')}
               </div>
-              {leagues.map((league) => (
+              {leagues.map((league) => {
+                const leagueLogo = getLeagueLogo(league.slug);
+                return (
                 <div key={league.slug}>
                   <div className="flex items-center justify-between">
                     <button
                       onClick={() => handleLeagueClick(league.slug)}
                       className="flex-1 text-left py-3 text-gray-300 hover:text-white font-medium text-sm transition-colors flex items-center gap-2"
                     >
-                      <span>{league.flag}</span>
+                      {leagueLogo ? (
+                        <img src={leagueLogo} alt={t(league.labelKey)} className="w-5 h-5 object-contain" />
+                      ) : (
+                        <span>{league.flag}</span>
+                      )}
                       {t(league.labelKey)}
                     </button>
                     <button
@@ -383,7 +389,8 @@ const Header = () => {
                     </div>
                   )}
                 </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Cups Section */}
@@ -392,16 +399,23 @@ const Header = () => {
                 <Trophy className="w-3 h-3" />
                 {t('cups')}
               </div>
-              {cups.map((cup) => (
+              {cups.map((cup) => {
+                const cupLogo = getLeagueLogo(cup.slug);
+                return (
                 <button
                   key={cup.slug}
                   onClick={() => handleLeagueClick(cup.slug)}
                   className="w-full text-left py-3 text-gray-300 hover:text-white font-medium text-sm transition-colors flex items-center gap-2"
                 >
-                  <span>{cup.flag}</span>
+                  {cupLogo ? (
+                    <img src={cupLogo} alt={t(cup.labelKey)} className="w-5 h-5 object-contain" />
+                  ) : (
+                    <span>{cup.flag}</span>
+                  )}
                   {t(cup.labelKey)}
                 </button>
-              ))}
+                );
+              })}
             </div>
 
             <Link
