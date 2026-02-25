@@ -207,9 +207,25 @@ const EventDetail = () => {
           </div>
 
           {/* H1 from SEO or default */}
-          <h1 className="text-lg md:text-xl lg:text-2xl font-black text-white mb-3 text-center">
+          <h1 className="text-lg md:text-xl lg:text-2xl font-black text-white mb-2 text-center">
             {getMultiLang(event?.seo_h1) || (lang === 'en' ? `${eventTitle} ${t('seoTickets')}` : `${t('seoTickets')} ${eventTitle}`)}
           </h1>
+          
+          {/* Event Info: Date, Stadium, City */}
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-gray-300 text-xs md:text-sm mb-3">
+            <div className="flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-[#FF6B35]" />
+              <span>{event.date}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-[#0984E3]" />
+              <span>{event.stadium}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-gray-400">•</span>
+              <span>{eventLocation}</span>
+            </div>
+          </div>
           
           {/* Clickable Tags - Smaller */}
           <div className="flex flex-wrap justify-center gap-1.5">
