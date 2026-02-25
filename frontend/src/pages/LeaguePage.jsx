@@ -258,13 +258,13 @@ const LeaguePage = ({ urlType }) => {
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-12">
                   <Loader2 className="w-8 h-8 text-[#0984E3] animate-spin mb-3" />
-                  <p className="text-gray-400 text-sm">{t('loadingEvents')}</p>
+                  <p className="text-gray-500 text-sm">{t('loadingEvents')}</p>
                 </div>
               ) : events.length > 0 ? (
-                <div className="bg-gray-800/30 backdrop-blur rounded-xl border border-gray-700/50 overflow-hidden">
+                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                   {/* Header */}
-                  <div className="px-3 py-2 border-b border-gray-700/50">
-                    <span className="text-xs text-gray-400 font-medium">
+                  <div className="px-3 py-2 border-b border-gray-200 bg-gray-50">
+                    <span className="text-xs text-gray-500 font-medium">
                       {events.length} {events.length > 1 ? t('eventsFound') : t('eventFound')}
                     </span>
                   </div>
@@ -279,7 +279,7 @@ const LeaguePage = ({ urlType }) => {
               ) : (
                 <div className="text-center py-12">
                   <div className="text-4xl mb-3">🏆</div>
-                  <div className="text-gray-300 text-base mb-2">{t('noEventsFound')}</div>
+                  <div className="text-[#2D3436] text-base mb-2">{t('noEventsFound')}</div>
                   <p className="text-gray-500 text-sm">{t('adjustSearch')}</p>
                 </div>
               )}
@@ -287,7 +287,7 @@ const LeaguePage = ({ urlType }) => {
           ) : (
             // Teams Grid View
             <>
-              <h2 className="text-xl md:text-2xl font-bold text-white mb-6">{t('teamsTitle')}</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-[#2D3436] mb-6">{t('teamsTitle')}</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {leagueTeams[actualLeague]?.teams?.map((team, index) => {
                   const teamLogo = getTeamLogo(team);
@@ -295,7 +295,7 @@ const LeaguePage = ({ urlType }) => {
                     <Link
                       key={index}
                       to={getTeamUrl(getTeamSlug(team), lang)}
-                      className="group bg-gray-800/50 border border-gray-700 hover:border-blue-500 rounded-xl p-6 text-center transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20"
+                      className="group bg-white border border-gray-200 hover:border-[#0984E3] rounded-xl p-6 text-center transition-all duration-300 transform hover:-translate-y-2 hover:shadow-lg"
                     >
                       {/* Team Logo or Fallback Initial */}
                       <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
@@ -303,7 +303,7 @@ const LeaguePage = ({ urlType }) => {
                           <img 
                             src={teamLogo} 
                             alt={`${t('seoTickets')} ${team}`}
-                            className="w-full h-full object-contain filter drop-shadow-lg"
+                            className="w-full h-full object-contain"
                             onError={(e) => {
                               e.target.style.display = 'none';
                               e.target.nextSibling.style.display = 'flex';
@@ -311,7 +311,7 @@ const LeaguePage = ({ urlType }) => {
                           />
                         ) : null}
                         <div 
-                          className={`w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full items-center justify-center ${teamLogo ? 'hidden' : 'flex'}`}
+                          className={`w-16 h-16 bg-gradient-to-br from-[#FF6B35] to-[#0984E3] rounded-full items-center justify-center ${teamLogo ? 'hidden' : 'flex'}`}
                         >
                           <span className="text-2xl font-bold text-white">
                             {team.charAt(0)}
