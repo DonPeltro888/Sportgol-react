@@ -100,7 +100,7 @@ const EventsGrid = ({ events, loading }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Local Events Column */}
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-              <div className="px-4 py-3 border-b border-gray-200 flex items-center gap-2 bg-gray-50">
+              <div className="sticky top-[120px] z-10 px-4 py-3 border-b border-gray-200 flex items-center gap-2 bg-gray-50">
                 <MapPin className="w-4 h-4 text-[#FF6B35]" />
                 <span className="text-sm text-[#2D3436] font-semibold">
                   {t('eventsCountry')}
@@ -109,7 +109,7 @@ const EventsGrid = ({ events, loading }) => {
                   {localEvents.length} {t('events')}
                 </span>
               </div>
-              <div className="max-h-[600px] overflow-y-auto">
+              <div className="lg:max-h-[600px] lg:overflow-y-auto">
                 {localEvents.length > 0 ? (
                   localEvents.map((event) => (
                     <EventListItem key={event.id || event._id} event={event} />
@@ -124,7 +124,7 @@ const EventsGrid = ({ events, loading }) => {
             
             {/* International Events Column */}
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-              <div className="px-4 py-3 border-b border-gray-200 flex items-center gap-2 bg-gray-50">
+              <div className="sticky top-[120px] z-10 px-4 py-3 border-b border-gray-200 flex items-center gap-2 bg-gray-50">
                 <Globe className="w-4 h-4 text-[#0984E3]" />
                 <span className="text-sm text-[#2D3436] font-semibold">
                   {t('eventsInternational')}
@@ -133,7 +133,7 @@ const EventsGrid = ({ events, loading }) => {
                   {internationalEvents.length} {t('events')}
                 </span>
               </div>
-              <div className="max-h-[600px] overflow-y-auto">
+              <div className="lg:max-h-[600px] lg:overflow-y-auto">
                 {internationalEvents.length > 0 ? (
                   internationalEvents.map((event) => (
                     <EventListItem key={event.id || event._id} event={event} />
