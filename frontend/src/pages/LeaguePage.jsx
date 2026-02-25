@@ -203,21 +203,23 @@ const LeaguePage = ({ urlType }) => {
         canonicalUrl={canonicalUrl}
         ogImage="https://images.unsplash.com/photo-1574629810360-7efbbe195018"
       />
+      <LeagueSchema 
+        leagueName={leagueName} 
+        teams={leagueTeams[actualLeague]?.teams || []} 
+        lang={lang} 
+      />
       
       <Header />
       
       {/* Hero Section - Compatto */}
       <div className="relative py-6 md:py-8 px-4 bg-[#2D3436]">
         <div className="container mx-auto">
-          <button
-            onClick={() => navigate('/')}
-            className="text-gray-400 hover:text-white flex items-center gap-1.5 mb-3 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-xs uppercase tracking-wide">{t('home')}</span>
-          </button>
+          {/* Breadcrumbs */}
+          <Breadcrumbs items={[
+            { name: leagueName, url: null }
+          ]} />
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mt-3">
             {/* League/Cup Logo */}
             <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-white rounded-lg p-1 relative flex-shrink-0">
               {getLeagueLogo(actualLeague) && (
