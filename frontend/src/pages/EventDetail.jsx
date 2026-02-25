@@ -192,17 +192,17 @@ const EventDetail = () => {
           {/* Main Content */}
           <div className="lg:col-span-2">
             {/* Tabs */}
-            <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-2 mb-8 flex gap-2">
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-2 mb-8 flex gap-2">
               <button onClick={() => setActiveTab('tickets')}
-                className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all ${activeTab === 'tickets' ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}>
+                className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all ${activeTab === 'tickets' ? 'bg-[#0984E3] text-white' : 'text-gray-500 hover:text-[#2D3436]'}`}>
                 Biglietti
               </button>
               <button onClick={() => setActiveTab('details')}
-                className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all ${activeTab === 'details' ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}>
+                className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all ${activeTab === 'details' ? 'bg-[#0984E3] text-white' : 'text-gray-500 hover:text-[#2D3436]'}`}>
                 Dettagli
               </button>
               <button onClick={() => setActiveTab('faq')}
-                className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all ${activeTab === 'faq' ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}>
+                className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all ${activeTab === 'faq' ? 'bg-[#0984E3] text-white' : 'text-gray-500 hover:text-[#2D3436]'}`}>
                 FAQ
               </button>
             </div>
@@ -211,20 +211,20 @@ const EventDetail = () => {
             {activeTab === 'tickets' && (
               <div className="space-y-4">
                 {ticketCategories.map((category, idx) => (
-                  <div key={idx} className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 hover:border-blue-500 transition-all">
+                  <div key={idx} className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-[#0984E3] hover:shadow-lg transition-all">
                     <div className="flex items-center justify-between mb-3">
                       <div>
-                        <h3 className="text-base md:text-lg font-bold text-white mb-1">{category.name}</h3>
-                        {category.description && <p className="text-gray-400 text-sm">{category.description}</p>}
-                        {category.notes && <p className="text-blue-400 text-xs mt-1">{category.notes}</p>}
+                        <h3 className="text-base md:text-lg font-bold text-[#2D3436] mb-1">{category.name}</h3>
+                        {category.description && <p className="text-gray-500 text-sm">{category.description}</p>}
+                        {category.notes && <p className="text-[#0984E3] text-xs mt-1">{category.notes}</p>}
                       </div>
                       <div className="text-right">
-                        <div className="text-xl md:text-2xl font-bold text-green-400">€{Math.round(category.price)}</div>
+                        <div className="text-xl md:text-2xl font-bold text-[#FF6B35]">€{Math.round(category.price)}</div>
                         <div className="text-xs text-gray-500">per biglietto</div>
                       </div>
                     </div>
                     <button onClick={handleContactUs}
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+                      className="w-full bg-[#0984E3] hover:bg-[#0984E3]/90 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2">
                       <MessageCircle className="w-5 h-5" /> Contattaci
                     </button>
                   </div>
