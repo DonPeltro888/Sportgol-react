@@ -440,7 +440,8 @@ const Header = () => {
                 })}
               </div>
             </div>
-          </nav>
+            </nav>
+          </div>
         )}
       </div>
     </header>
