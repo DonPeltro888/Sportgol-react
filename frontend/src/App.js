@@ -100,12 +100,9 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   return (
     <Router>
+      <ScrollToTop />
       <LanguageProvider>
         <AdminAuthProvider>
           <div className="App min-h-screen bg-black">
