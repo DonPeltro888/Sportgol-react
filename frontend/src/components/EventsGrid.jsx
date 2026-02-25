@@ -59,11 +59,19 @@ const EventsGrid = ({ events, loading }) => {
   // Get priority teams for current language
   const priorityTeams = PRIORITY_TEAMS[lang] || PRIORITY_TEAMS.it;
   
+  // Filter out past events
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const futureEvents = events.filter(event => {
+    const eventDate = new Date(event.sort_date || event.date);
+    return eventDate >= today;
+  });
+  
   // Split events into local and international
   const localLocations = LOCAL_LOCATIONS[lang] || LOCAL_LOCATIONS.it;
   
   const localEvents = sortEventsByPriority(
-    events.filter(event => localLocations.includes(event.location)),
+    futureEvents.filter(event => localLocations.includes(event.location)),
     priorityTeams
   );
   
