@@ -162,17 +162,19 @@ const EventDetail = () => {
           imageUrl: event.imageUrl || event.image
         }}
       />
+      <EventSchema event={{...event, id: event.id || event._id}} lang={lang} />
       
       {/* Hero Section with Team Logos */}
       <div className="relative bg-[#2D3436] py-6 md:py-10">
         <div className="container mx-auto px-4">
-          <button onClick={() => navigate('/')} className="text-gray-300 hover:text-[#FF6B35] flex items-center gap-2 mb-4 transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-xs">{t('home')}</span>
-          </button>
+          {/* Breadcrumbs */}
+          <Breadcrumbs items={[
+            { name: event.league, url: getLeagueUrl(event.league?.toLowerCase().replace(/\s+/g, '-'), lang) },
+            { name: eventTitle, url: null }
+          ]} />
           
           {/* Team Logos Display - No names under logos */}
-          <div className="flex items-center justify-center gap-3 md:gap-6 mb-4">
+          <div className="flex items-center justify-center gap-3 md:gap-6 mb-4 mt-3">
             {event.categories?.slice(0, 2).map((team, idx) => {
               const teamSlug = team.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
               const teamLogo = getTeamLogo(team);
