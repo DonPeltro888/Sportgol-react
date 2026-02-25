@@ -49,7 +49,7 @@ export const EventSchema = ({ event, lang = 'it' }) => {
   return (
     <Helmet>
       <script type="application/ld+json">
-        {JSON.stringify(schema)}
+        {`${JSON.stringify(schema)}`}
       </script>
     </Helmet>
   );
