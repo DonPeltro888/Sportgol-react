@@ -82,7 +82,7 @@ const EventsGrid = ({ events, loading }) => {
   );
 
   return (
-    <section className="py-12 px-4 bg-white relative overflow-hidden z-0">
+    <section className="py-6 px-4 bg-white relative overflow-hidden z-0">
       <div className="container mx-auto relative">
         {/* Section Header */}
         <div className="text-center mb-6">
