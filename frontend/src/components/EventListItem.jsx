@@ -136,13 +136,13 @@ const EventListItem = ({ event }) => {
   return (
     <Link 
       to={`/event/${eventId}`}
-      className="flex items-stretch bg-gray-800/50 hover:bg-gray-700/50 border-b border-gray-700/50 transition-colors group"
+      className="flex items-stretch bg-white hover:bg-gray-50 border-b border-gray-100 transition-colors group"
     >
       {/* Date Box */}
-      <div className="flex-shrink-0 w-20 md:w-24 py-3 px-2 flex flex-col items-center justify-center border-r border-gray-700/50">
-        <span className="text-[10px] text-gray-400 font-semibold tracking-wide">{dateInfo.dayOfWeek}</span>
-        <span className="text-2xl md:text-3xl font-bold text-white">{dateInfo.day}</span>
-        <span className="text-xs text-gray-400">
+      <div className="flex-shrink-0 w-20 md:w-24 py-3 px-2 flex flex-col items-center justify-center border-r border-gray-100">
+        <span className="text-[10px] text-gray-500 font-semibold tracking-wide">{dateInfo.dayOfWeek}</span>
+        <span className="text-2xl md:text-3xl font-bold text-[#2D3436]">{dateInfo.day}</span>
+        <span className="text-xs text-gray-500">
           {dateInfo.month} {dateInfo.year}
         </span>
       </div>
@@ -150,12 +150,12 @@ const EventListItem = ({ event }) => {
       {/* Event Info */}
       <div className="flex-1 py-3 px-3 min-w-0 flex flex-col justify-center">
         {/* Title */}
-        <h3 className="text-sm md:text-base font-bold text-blue-400 group-hover:text-blue-300 transition-colors leading-tight">
+        <h3 className="text-sm md:text-base font-bold text-[#0984E3] group-hover:text-[#FF6B35] transition-colors leading-tight">
           {title}
         </h3>
         
         {/* Stadium */}
-        <p className="text-gray-400 text-xs mt-1 truncate">
+        <p className="text-gray-500 text-xs mt-1 truncate">
           {event.stadium || 'Stadium TBD'}
         </p>
         
