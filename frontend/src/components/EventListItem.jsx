@@ -161,9 +161,9 @@ const EventListItem = ({ event }) => {
         
         {/* Price & Location */}
         <div className="flex items-center gap-2 mt-1">
-          <span className="text-green-400 font-bold text-sm">€{priceMin}+</span>
-          <span className="text-gray-600">•</span>
-          <span className="text-gray-400 text-xs flex items-center gap-1 truncate">
+          <span className="text-[#FF6B35] font-bold text-sm">€{priceMin}+</span>
+          <span className="text-gray-400">•</span>
+          <span className="text-gray-500 text-xs flex items-center gap-1 truncate">
             <MapPin className="w-3 h-3 flex-shrink-0" />
             {location || 'Location TBD'}
           </span>
@@ -172,7 +172,7 @@ const EventListItem = ({ event }) => {
 
       {/* Arrow */}
       <div className="flex-shrink-0 flex items-center px-2">
-        <ChevronRight className="w-5 h-5 text-blue-400 group-hover:text-blue-300 transition-colors" />
+        <ChevronRight className="w-5 h-5 text-[#0984E3] group-hover:text-[#FF6B35] transition-colors" />
       </div>
     </Link>
   );
