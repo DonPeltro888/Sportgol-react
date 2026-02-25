@@ -298,21 +298,24 @@ const LeaguePage = ({ urlType }) => {
                       className="group bg-white border border-gray-200 hover:border-[#0984E3] rounded-xl p-6 text-center transition-all duration-300 transform hover:-translate-y-2 hover:shadow-lg"
                     >
                       {/* Team Logo or Fallback Initial */}
-                      <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                        {teamLogo ? (
+                      <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform relative">
+                        {teamLogo && (
                           <img 
                             src={teamLogo} 
                             alt={`${t('seoTickets')} ${team}`}
-                            className="w-full h-full object-contain"
+                            className="w-full h-full object-contain absolute inset-0"
+                            onLoad={(e) => {
+                              // Hide fallback when image loads
+                              const fallback = e.target.parentElement.querySelector('.team-fallback');
+                              if (fallback) fallback.style.display = 'none';
+                            }}
                             onError={(e) => {
+                              // Hide broken image
                               e.target.style.display = 'none';
-                              if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
                             }}
                           />
-                        ) : null}
-                        <div 
-                          className={`w-16 h-16 bg-gradient-to-br from-[#FF6B35] to-[#0984E3] rounded-full items-center justify-center ${teamLogo ? 'hidden' : 'flex'}`}
-                        >
+                        )}
+                        <div className={`team-fallback w-16 h-16 bg-gradient-to-br from-[#FF6B35] to-[#0984E3] rounded-full flex items-center justify-center`}>
                           <span className="text-2xl font-bold text-white">
                             {team.charAt(0)}
                           </span>
