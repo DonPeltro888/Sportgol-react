@@ -113,6 +113,9 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/event/:id" element={<EventDetail />} />
             
+            {/* Demo Scraping Page - URL separato */}
+            <Route path="/demo-scraping" element={<DemoScraping />} />
+            
             {/* 
               URL STRUCTURE (MEMORIZZATO):
               - IT: /biglietti-{name} (biglietti PRIMA con trattino)
