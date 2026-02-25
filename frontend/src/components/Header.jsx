@@ -159,7 +159,7 @@ const Header = () => {
   return (
     <header 
       data-testid="header"
-      className={`sticky top-0 z-[1100] transition-all duration-300 ${
+      className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled 
           ? 'bg-[#2D3436] shadow-lg' 
           : 'bg-[#2D3436]'
