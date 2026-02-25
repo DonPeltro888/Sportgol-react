@@ -49,7 +49,7 @@ export const EventSchema = ({ event, lang = 'it' }) => {
   return (
     <Helmet>
       <script type="application/ld+json">
-        {`${JSON.stringify(schema)}`}
+        {`${`${JSON.stringify(schema)}`}`}
       </script>
     </Helmet>
   );
@@ -81,7 +81,7 @@ export const OrganizationSchema = () => {
   return (
     <Helmet>
       <script type="application/ld+json">
-        {`${JSON.stringify(schema)}`}
+        {`${`${JSON.stringify(schema)}`}`}
       </script>
     </Helmet>
   );
@@ -111,7 +111,7 @@ export const TeamSchema = ({ teamName, events, lang = 'it' }) => {
   return (
     <Helmet>
       <script type="application/ld+json">
-        {JSON.stringify(schema)}
+        {`${JSON.stringify(schema)}`}
       </script>
     </Helmet>
   );
@@ -136,7 +136,7 @@ export const LeagueSchema = ({ leagueName, teams, lang = 'it' }) => {
   return (
     <Helmet>
       <script type="application/ld+json">
-        {JSON.stringify(schema)}
+        {`${JSON.stringify(schema)}`}
       </script>
     </Helmet>
   );
@@ -160,7 +160,7 @@ export const BreadcrumbSchema = ({ items }) => {
   return (
     <Helmet>
       <script type="application/ld+json">
-        {JSON.stringify(schema)}
+        {`${JSON.stringify(schema)}`}
       </script>
     </Helmet>
   );
@@ -186,7 +186,7 @@ export const FAQSchema = ({ faqs }) => {
   return (
     <Helmet>
       <script type="application/ld+json">
-        {JSON.stringify(schema)}
+        {`${JSON.stringify(schema)}`}
       </script>
     </Helmet>
   );
