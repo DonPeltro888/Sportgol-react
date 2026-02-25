@@ -82,12 +82,9 @@ const EventsGrid = ({ events, loading }) => {
             <Trophy className="w-3 h-3" />
             {t('topEvents')}
           </div>
-          <h2 className="text-2xl md:text-3xl font-black mb-2">
+          <h2 className="text-2xl md:text-3xl font-black">
             <span className="text-[#2D3436]">{t('upcomingEvents')}</span>
           </h2>
-          <p className="text-gray-500 text-sm max-w-2xl mx-auto">
-            {t('eventsSubtitle')}
-          </p>
         </div>
         
         {/* Loading State */}
