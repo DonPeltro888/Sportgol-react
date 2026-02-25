@@ -299,8 +299,8 @@ export const translations = {
     loadingEvents: "Loading events...",
     
     // Categories/Teams
-    teamsTitle: "UK",
-    teamsCountry: "Teams",
+    teamsTitle: "Teams",
+    teamsCountry: "UK",
     teamsSubtitle: "Explore events from the biggest clubs",
     tickets: "Tickets",
     viewEvents: "View events",
