@@ -194,7 +194,7 @@ const LeaguePage = ({ urlType }) => {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <SEOHead 
         title={seoTitle}
         description={seoDescription}
@@ -205,11 +205,11 @@ const LeaguePage = ({ urlType }) => {
       <Header />
       
       {/* Hero Section */}
-      <div className="relative py-20 px-4 bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900">
+      <div className="relative py-12 px-4 bg-[#2D3436]">
         <div className="container mx-auto">
           <button
             onClick={() => navigate('/')}
-            className="text-white hover:text-blue-400 flex items-center gap-2 mb-6 transition-colors"
+            className="text-gray-300 hover:text-white flex items-center gap-2 mb-6 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="text-sm">{t('home')}</span>
@@ -217,12 +217,12 @@ const LeaguePage = ({ urlType }) => {
           
           <div className="flex items-center gap-3 mb-4">
             {/* League/Cup Logo */}
-            <div className="w-14 h-14 flex items-center justify-center">
+            <div className="w-14 h-14 flex items-center justify-center bg-white rounded-lg p-1">
               {getLeagueLogo(actualLeague) ? (
                 <img 
                   src={getLeagueLogo(actualLeague)} 
                   alt={leagueName}
-                  className="w-full h-full object-contain filter drop-shadow-lg"
+                  className="w-full h-full object-contain"
                   onError={(e) => {
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
@@ -230,7 +230,7 @@ const LeaguePage = ({ urlType }) => {
                 />
               ) : null}
               <div 
-                className={`w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full items-center justify-center ${getLeagueLogo(actualLeague) ? 'hidden' : 'flex'}`}
+                className={`w-14 h-14 bg-gradient-to-br from-[#FF6B35] to-[#0984E3] rounded-full items-center justify-center ${getLeagueLogo(actualLeague) ? 'hidden' : 'flex'}`}
               >
                 <Trophy className="w-7 h-7 text-white" />
               </div>
@@ -250,14 +250,14 @@ const LeaguePage = ({ urlType }) => {
       </div>
 
       {/* Content Section */}
-      <div className="py-8 px-4 bg-gradient-to-b from-gray-900 to-black">
+      <div className="py-8 px-4 bg-gray-50">
         <div className="container mx-auto max-w-4xl">
           {isCup ? (
             // Cup Events View - Same style as TeamPage
             <>
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-3" />
+                  <Loader2 className="w-8 h-8 text-[#0984E3] animate-spin mb-3" />
                   <p className="text-gray-400 text-sm">{t('loadingEvents')}</p>
                 </div>
               ) : events.length > 0 ? (
