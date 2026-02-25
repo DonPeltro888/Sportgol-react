@@ -92,6 +92,11 @@ const TeamPage = ({ urlType }) => {
         canonicalUrl={canonicalUrl}
         ogImage={teamLogo || "https://images.unsplash.com/photo-1574629810360-7efbbe195018"}
       />
+      <TeamSchema teamName={teamName} lang={lang} />
+      <BreadcrumbSchema items={[
+        { name: 'Home', url: '/' },
+        { name: teamName, url: null }
+      ]} />
       
       <Header />
       
