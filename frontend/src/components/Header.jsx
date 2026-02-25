@@ -198,8 +198,8 @@ const Header = () => {
                 data-testid="categories-menu-btn"
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
                   desktopMenuOpen 
-                    ? 'bg-blue-600 text-white' 
-                    : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                    ? 'bg-[#FF6B35] text-white' 
+                    : 'text-gray-300 hover:text-white hover:bg-gray-700'
                 }`}
               >
                 <Flag className="w-4 h-4" />
@@ -211,24 +211,24 @@ const Header = () => {
               {desktopMenuOpen && (
                 <div 
                   data-testid="desktop-mega-menu"
-                  className="absolute top-full left-0 mt-2 w-[700px] bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl shadow-blue-500/20 overflow-hidden"
+                  className="absolute top-full left-0 mt-2 w-[700px] bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden"
                 >
                   <div className="grid grid-cols-2 gap-0">
                     {/* Leagues Column */}
-                    <div className="border-r border-gray-700">
-                      <div className="px-4 py-3 bg-gradient-to-r from-blue-600/20 to-transparent border-b border-gray-700">
-                        <h3 className="text-sm font-bold text-blue-400 flex items-center gap-2">
+                    <div className="border-r border-gray-200">
+                      <div className="px-4 py-3 bg-[#0984E3] border-b border-gray-200">
+                        <h3 className="text-sm font-bold text-white flex items-center gap-2">
                           <Flag className="w-4 h-4" />
                           {t('leagues')}
                         </h3>
                       </div>
                       <div className="max-h-[400px] overflow-y-auto">
                         {leagues.map((league) => (
-                          <div key={league.slug} className="border-b border-gray-800 last:border-b-0">
+                          <div key={league.slug} className="border-b border-gray-100 last:border-b-0">
                             <div className="flex items-center">
                               <button
                                 onClick={() => handleLeagueClick(league.slug)}
-                                className="flex-1 text-left px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800 transition-colors flex items-center gap-2"
+                                className="flex-1 text-left px-4 py-3 text-sm text-gray-700 hover:text-[#FF6B35] hover:bg-gray-50 transition-colors flex items-center gap-2"
                               >
                                 {getLeagueLogo(league.slug) ? (
                                   <img 
@@ -243,7 +243,7 @@ const Header = () => {
                               </button>
                               <button
                                 onClick={() => toggleDesktopCategory(league.slug)}
-                                className="p-3 text-gray-400 hover:text-blue-400 hover:bg-gray-800 transition-colors"
+                                className="p-3 text-gray-400 hover:text-[#0984E3] hover:bg-gray-50 transition-colors"
                                 data-testid={`expand-${league.slug}`}
                               >
                                 <ChevronRight className={`w-4 h-4 transition-transform ${expandedCategory === league.slug ? 'rotate-90' : ''}`} />
@@ -252,7 +252,7 @@ const Header = () => {
                             
                             {/* Teams Submenu */}
                             {expandedCategory === league.slug && (
-                              <div className="bg-gray-800 border-t border-gray-700 py-2 px-2 grid grid-cols-2 gap-1">
+                              <div className="bg-gray-50 border-t border-gray-100 py-2 px-2 grid grid-cols-2 gap-1">
                                 {league.teams.map((team) => (
                                   <button
                                     key={team}
