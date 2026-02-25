@@ -8,7 +8,8 @@ import { toast } from 'sonner';
 import SEOHead from '../components/SEOHead';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
-import { getSeoTitle, getSeoDescription } from '../utils/seoHelpers';
+import { getSeoTitle, getSeoDescription, getTeamUrl, getLeagueUrl } from '../utils/seoHelpers';
+import { getTeamLogo } from '../data/teamLogos';
 
 const EventDetail = () => {
   const { id } = useParams();
