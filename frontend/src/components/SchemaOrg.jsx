@@ -1,5 +1,4 @@
-import React from 'react';
-import { Helmet } from 'react-helmet-async';
+import { useEffect } from 'react';
 
 // Helper function per country code
 function getCountryCode(location) {
@@ -15,13 +14,39 @@ function getCountryCode(location) {
   return countryMap[location] || 'EU';
 }
 
+// Hook to inject JSON-LD into head
+const useJsonLd = (schema, id) => {
+  useEffect(() => {
+    if (!schema) return;
+    
+    // Remove existing script with same id
+    const existingScript = document.getElementById(id);
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    // Create and inject new script
+    const script = document.createElement('script');
+    script.id = id;
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+    
+    // Cleanup on unmount
+    return () => {
+      const scriptToRemove = document.getElementById(id);
+      if (scriptToRemove) {
+        scriptToRemove.remove();
+      }
+    };
+  }, [schema, id]);
+};
+
 // Schema.org JSON-LD per Eventi
 export const EventSchema = ({ event, lang = 'it' }) => {
-  if (!event) return null;
-  
   const baseUrl = process.env.REACT_APP_BACKEND_URL || 'https://sports-events-2.preview.emergentagent.com';
   
-  const schema = {
+  const schema = event ? {
     "@context": "https://schema.org",
     "@type": "SportsEvent",
     "name": event.title,
@@ -50,15 +75,10 @@ export const EventSchema = ({ event, lang = 'it' }) => {
       "@type": "SportsTeam",
       "name": team
     })) || []
-  };
+  } : null;
 
-  const jsonString = JSON.stringify(schema);
-
-  return (
-    <Helmet>
-      <script type="application/ld+json">{jsonString}</script>
-    </Helmet>
-  );
+  useJsonLd(schema, 'schema-event');
+  return null;
 };
 
 // Schema.org per Organizzazione (Homepage)
@@ -73,20 +93,15 @@ export const OrganizationSchema = () => {
     "url": baseUrl
   };
 
-  const jsonString = JSON.stringify(schema);
-
-  return (
-    <Helmet>
-      <script type="application/ld+json">{jsonString}</script>
-    </Helmet>
-  );
+  useJsonLd(schema, 'schema-organization');
+  return null;
 };
 
 // Schema.org per League Page
 export const LeagueSchema = ({ leagueName, teams, lang = 'it' }) => {
   const baseUrl = process.env.REACT_APP_BACKEND_URL || 'https://sports-events-2.preview.emergentagent.com';
   
-  const schema = {
+  const schema = leagueName ? {
     "@context": "https://schema.org",
     "@type": "SportsOrganization",
     "name": leagueName,
@@ -96,15 +111,10 @@ export const LeagueSchema = ({ leagueName, teams, lang = 'it' }) => {
       "@type": "SportsTeam",
       "name": team
     })) || []
-  };
+  } : null;
 
-  const jsonString = JSON.stringify(schema);
-
-  return (
-    <Helmet>
-      <script type="application/ld+json">{jsonString}</script>
-    </Helmet>
-  );
+  useJsonLd(schema, 'schema-league');
+  return null;
 };
 
 // Schema.org per Team Page
@@ -112,28 +122,23 @@ export const TeamSchema = ({ teamName, lang = 'it' }) => {
   const baseUrl = process.env.REACT_APP_BACKEND_URL || 'https://sports-events-2.preview.emergentagent.com';
   const teamSlug = teamName?.toLowerCase().replace(/\s+/g, '-');
   
-  const schema = {
+  const schema = teamName ? {
     "@context": "https://schema.org",
     "@type": "SportsTeam",
     "name": teamName,
     "sport": "Football",
     "url": `${baseUrl}/biglietti-${teamSlug}`
-  };
+  } : null;
 
-  const jsonString = JSON.stringify(schema);
-
-  return (
-    <Helmet>
-      <script type="application/ld+json">{jsonString}</script>
-    </Helmet>
-  );
+  useJsonLd(schema, 'schema-team');
+  return null;
 };
 
 // Schema.org per Breadcrumbs
 export const BreadcrumbSchema = ({ items }) => {
   const baseUrl = process.env.REACT_APP_BACKEND_URL || 'https://sports-events-2.preview.emergentagent.com';
   
-  const schema = {
+  const schema = items ? {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": items.map((item, index) => ({
@@ -142,15 +147,10 @@ export const BreadcrumbSchema = ({ items }) => {
       "name": item.name,
       "item": item.url ? `${baseUrl}${item.url}` : undefined
     }))
-  };
+  } : null;
 
-  const jsonString = JSON.stringify(schema);
-
-  return (
-    <Helmet>
-      <script type="application/ld+json">{jsonString}</script>
-    </Helmet>
-  );
+  useJsonLd(schema, 'schema-breadcrumb');
+  return null;
 };
 
 export default { EventSchema, OrganizationSchema, LeagueSchema, TeamSchema, BreadcrumbSchema };
