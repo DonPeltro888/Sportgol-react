@@ -23,25 +23,9 @@ const HeroSearch = () => {
           <span className="text-[#0984E3]">{t('sportEvent')}</span>
         </h1>
         
-        <p className="text-gray-600 text-sm md:text-base mb-6 max-w-2xl mx-auto animate-fade-in-up" style={{animationDelay: '0.2s'}}>
+        <p className="text-gray-600 text-sm md:text-base max-w-2xl mx-auto animate-fade-in-up" style={{animationDelay: '0.2s'}}>
           {t('heroSubtitle')}
         </p>
-
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 max-w-xl mx-auto">
-          <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
-            <div className="text-xl font-bold text-[#2D3436] mb-1">500+</div>
-            <div className="text-gray-500 text-xs">{t('liveEventsCount')}</div>
-          </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
-            <div className="text-xl font-bold text-[#2D3436] mb-1">50k+</div>
-            <div className="text-gray-500 text-xs">{t('happyFans')}</div>
-          </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
-            <div className="text-xl font-bold text-[#2D3436] mb-1">24/7</div>
-            <div className="text-gray-500 text-xs">{t('support')}</div>
-          </div>
-        </div>
       </div>
     </div>
   );
