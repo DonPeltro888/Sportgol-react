@@ -107,6 +107,28 @@ export const LeagueSchema = ({ leagueName, teams, lang = 'it' }) => {
   );
 };
 
+// Schema.org per Team Page
+export const TeamSchema = ({ teamName, lang = 'it' }) => {
+  const baseUrl = process.env.REACT_APP_BACKEND_URL || 'https://sports-events-2.preview.emergentagent.com';
+  const teamSlug = teamName?.toLowerCase().replace(/\s+/g, '-');
+  
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "SportsTeam",
+    "name": teamName,
+    "sport": "Football",
+    "url": `${baseUrl}/biglietti-${teamSlug}`
+  };
+
+  const jsonString = JSON.stringify(schema);
+
+  return (
+    <Helmet>
+      <script type="application/ld+json">{jsonString}</script>
+    </Helmet>
+  );
+};
+
 // Schema.org per Breadcrumbs
 export const BreadcrumbSchema = ({ items }) => {
   const baseUrl = process.env.REACT_APP_BACKEND_URL || 'https://sports-events-2.preview.emergentagent.com';
