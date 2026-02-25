@@ -99,17 +99,17 @@ const EventsGrid = ({ events, loading }) => {
         ) : events.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Local Events Column */}
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-              <div className="sticky top-[115px] lg:top-0 lg:relative z-10 px-4 py-3 border-b border-gray-200 flex items-center gap-2 bg-gray-50">
-                <MapPin className="w-4 h-4 text-[#FF6B35]" />
-                <span className="text-sm text-[#2D3436] font-semibold">
-                  {t('eventsCountry')}
-                </span>
-                <span className="text-xs text-gray-500 ml-auto">
-                  {localEvents.length} {t('events')}
-                </span>
-              </div>
-              <div className="lg:max-h-[600px] lg:overflow-y-auto">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="max-h-[70vh] lg:max-h-[600px] overflow-y-auto">
+                <div className="sticky top-0 z-10 px-4 py-3 border-b border-gray-200 flex items-center gap-2 bg-gray-50">
+                  <MapPin className="w-4 h-4 text-[#FF6B35]" />
+                  <span className="text-sm text-[#2D3436] font-semibold">
+                    {t('eventsCountry')}
+                  </span>
+                  <span className="text-xs text-gray-500 ml-auto">
+                    {localEvents.length} {t('events')}
+                  </span>
+                </div>
                 {localEvents.length > 0 ? (
                   localEvents.map((event) => (
                     <EventListItem key={event.id || event._id} event={event} />
@@ -123,17 +123,17 @@ const EventsGrid = ({ events, loading }) => {
             </div>
             
             {/* International Events Column */}
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-              <div className="sticky top-[115px] lg:top-0 lg:relative z-10 px-4 py-3 border-b border-gray-200 flex items-center gap-2 bg-gray-50">
-                <Globe className="w-4 h-4 text-[#0984E3]" />
-                <span className="text-sm text-[#2D3436] font-semibold">
-                  {t('eventsInternational')}
-                </span>
-                <span className="text-xs text-gray-500 ml-auto">
-                  {internationalEvents.length} {t('events')}
-                </span>
-              </div>
-              <div className="lg:max-h-[600px] lg:overflow-y-auto">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="max-h-[70vh] lg:max-h-[600px] overflow-y-auto">
+                <div className="sticky top-0 z-10 px-4 py-3 border-b border-gray-200 flex items-center gap-2 bg-gray-50">
+                  <Globe className="w-4 h-4 text-[#0984E3]" />
+                  <span className="text-sm text-[#2D3436] font-semibold">
+                    {t('eventsInternational')}
+                  </span>
+                  <span className="text-xs text-gray-500 ml-auto">
+                    {internationalEvents.length} {t('events')}
+                  </span>
+                </div>
                 {internationalEvents.length > 0 ? (
                   internationalEvents.map((event) => (
                     <EventListItem key={event.id || event._id} event={event} />
