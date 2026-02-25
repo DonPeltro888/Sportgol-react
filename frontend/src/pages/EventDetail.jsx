@@ -161,7 +161,6 @@ const EventDetail = () => {
           imageUrl: event.imageUrl || event.image
         }}
       />
-      <EventSchema event={{...event, id: event.id || event._id}} lang={lang} />
       
       {/* Hero Section with Team Logos */}
       <div className="relative bg-[#2D3436] py-6 md:py-10">
