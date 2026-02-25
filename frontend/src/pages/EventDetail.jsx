@@ -162,6 +162,12 @@ const EventDetail = () => {
           imageUrl: event.imageUrl || event.image
         }}
       />
+      <EventSchema event={event} lang={lang} />
+      <BreadcrumbSchema items={[
+        { name: 'Home', url: '/' },
+        { name: event.league, url: getLeagueUrl(event.league?.toLowerCase().replace(/\s+/g, '-'), lang) },
+        { name: eventTitle, url: null }
+      ]} />
       
       {/* Hero Section with Team Logos */}
       <div className="relative bg-[#2D3436] py-6 md:py-10">
