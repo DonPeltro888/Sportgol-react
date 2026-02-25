@@ -328,9 +328,10 @@ const Header = () => {
           </button>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation - Full screen overlay */}
         {mobileMenuOpen && (
-          <nav data-testid="mobile-menu" className="lg:hidden pb-4 border-t border-gray-800 max-h-[70vh] overflow-y-auto">
+          <div className="lg:hidden fixed inset-0 top-20 bg-[#2D3436] z-[1000] overflow-y-auto">
+            <nav data-testid="mobile-menu" className="pb-4 px-4">
             <Link
               to="/"
               onClick={() => setMobileMenuOpen(false)}
