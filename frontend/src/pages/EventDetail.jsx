@@ -182,19 +182,25 @@ const EventDetail = () => {
                   <div className="flex flex-col items-center">
                     <div 
                       onClick={() => navigate(getTeamUrl(teamSlug, lang))}
-                      className="w-20 h-20 md:w-28 md:h-28 bg-white rounded-2xl p-3 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform shadow-lg"
+                      className="w-20 h-20 md:w-28 md:h-28 bg-white rounded-2xl p-3 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform shadow-lg relative"
                     >
-                      {teamLogo ? (
+                      {teamLogo && (
                         <img 
                           src={teamLogo} 
                           alt={team}
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-contain absolute inset-0 p-3"
+                          onLoad={(e) => {
+                            const fallback = e.target.parentElement.querySelector('.team-fallback');
+                            if (fallback) fallback.style.display = 'none';
+                          }}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
                         />
-                      ) : (
-                        <span className="text-3xl md:text-4xl font-bold text-[#2D3436]">
-                          {team.charAt(0)}
-                        </span>
                       )}
+                      <span className="team-fallback text-3xl md:text-4xl font-bold text-[#2D3436]">
+                        {team.charAt(0)}
+                      </span>
                     </div>
                     <span className="text-white text-sm md:text-base font-semibold mt-2 text-center">{team}</span>
                   </div>
