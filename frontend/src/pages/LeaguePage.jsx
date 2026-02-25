@@ -204,20 +204,20 @@ const LeaguePage = ({ urlType }) => {
       
       <Header />
       
-      {/* Hero Section */}
-      <div className="relative py-12 px-4 bg-[#2D3436]">
+      {/* Hero Section - Compatto */}
+      <div className="relative py-6 md:py-8 px-4 bg-[#2D3436]">
         <div className="container mx-auto">
           <button
             onClick={() => navigate('/')}
-            className="text-gray-300 hover:text-white flex items-center gap-2 mb-6 transition-colors"
+            className="text-gray-400 hover:text-white flex items-center gap-1.5 mb-3 transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm">{t('home')}</span>
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-xs uppercase tracking-wide">{t('home')}</span>
           </button>
           
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3">
             {/* League/Cup Logo */}
-            <div className="w-14 h-14 flex items-center justify-center bg-white rounded-lg p-1 relative">
+            <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-white rounded-lg p-1 relative flex-shrink-0">
               {getLeagueLogo(actualLeague) && (
                 <img 
                   src={getLeagueLogo(actualLeague)} 
@@ -232,15 +232,15 @@ const LeaguePage = ({ urlType }) => {
                   }}
                 />
               )}
-              <div className="league-fallback w-14 h-14 bg-gradient-to-br from-[#FF6B35] to-[#0984E3] rounded-full flex items-center justify-center">
-                <Trophy className="w-7 h-7 text-white" />
+              <div className="league-fallback w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-[#FF6B35] to-[#0984E3] rounded-full flex items-center justify-center">
+                <Trophy className="w-6 h-6 text-white" />
               </div>
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-black text-white">
+              <h1 className="text-lg md:text-xl lg:text-2xl font-black text-white leading-tight">
                 {lang === 'en' ? `${leagueName} ${t('seoTickets')}` : `${t('seoTickets')} ${leagueName}`}
               </h1>
-              <p className="text-gray-300 text-sm mt-1">
+              <p className="text-gray-400 text-xs md:text-sm mt-0.5">
                 {leagueTeams[actualLeague]?.country} 
                 {!isCup && ` • ${leagueTeams[actualLeague]?.teams?.length} Teams`}
                 {isCup && ' • Cup Competition'}
