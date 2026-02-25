@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import './App.css';
-import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import EventDetail from './pages/EventDetail';
 import TeamPage from './pages/TeamPage';
@@ -9,6 +9,17 @@ import { Toaster } from './components/ui/sonner';
 
 // Language Context
 import { LanguageProvider } from './contexts/LanguageContext';
+
+// ScrollToTop component - scrolls to top on route change
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  
+  return null;
+};
 
 // Known league slugs for routing
 const LEAGUE_SLUGS = [
