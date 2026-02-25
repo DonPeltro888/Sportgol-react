@@ -417,14 +417,9 @@ const EventDetail = () => {
             )}
           </div>
 
-          {/* Sidebar - Only price and contact */}
+          {/* Sidebar - Only contact button */}
           <div className="lg:col-span-1">
             <div className="bg-white border border-gray-200 rounded-2xl p-5 sticky top-24 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-sm text-gray-500">Prezzo da</div>
-                <div className="text-[#FF6B35] font-bold text-2xl">€{event.price_range?.min || 45}</div>
-              </div>
-
               <button onClick={handleContactUs}
                 className="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-base">
                 <MessageCircle className="w-5 h-5" /> Contattaci
