@@ -8,10 +8,10 @@ const HeroSearch = () => {
   const t = (key) => getTranslation(lang, key);
 
   return (
-    <div className="relative py-16 px-4 bg-gradient-to-br from-gray-50 to-white">
+    <div className="relative py-16 px-4 bg-gradient-to-br from-[#0984E3]/10 via-white to-[#FF6B35]/10">
       <div className="relative container mx-auto max-w-5xl text-center">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#0984E3]/10 border border-[#0984E3]/20 rounded-full text-[#0984E3] text-sm font-semibold mb-6 animate-fade-in-up">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-[#0984E3] text-sm font-semibold mb-6 shadow-sm animate-fade-in-up">
           <Zap className="w-4 h-4 text-[#FF6B35]" />
           {t('liveEvents')} • {t('bestPrices')} • {t('instantBooking')}
         </div>
