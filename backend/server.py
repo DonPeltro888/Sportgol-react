@@ -76,7 +76,6 @@ app.include_router(admin_auth.router)
 app.include_router(admin_content.router)
 app.include_router(upload.router)
 app.include_router(seo.router)
-app.include_router(sitemap.router)
 
 app.add_middleware(
     CORSMiddleware,
