@@ -161,29 +161,76 @@ const EventDetail = () => {
         }}
       />
       
-      {/* Hero Section */}
-      <div className="relative h-80 md:h-96 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#2D3436]/50 to-[#2D3436]"></div>
-        <img src={event.imageUrl || event.image} alt={`${t('seoTickets')} ${eventTitle}`} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 flex items-end">
-          <div className="container mx-auto px-4 pb-8">
-            <button onClick={() => navigate('/')} className="text-white hover:text-[#FF6B35] flex items-center gap-2 mb-4 transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-              <span className="text-sm">{t('home')}</span>
-            </button>
-            {/* H1 from SEO or default */}
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-white mb-3">
-              {getMultiLang(event?.seo_h1) || (lang === 'en' ? `${eventTitle} ${t('seoTickets')}` : `${t('seoTickets')} ${eventTitle}`)}
-            </h1>
-            <div className="flex flex-wrap gap-2">
-              {event.categories?.map((cat, idx) => (
-                <span key={idx} onClick={() => navigate(`/team/${cat.toLowerCase().replace(/\s+/g, '-')}`)} 
-                  className="bg-[#0984E3] hover:bg-[#0984E3]/80 text-white text-sm font-bold px-4 py-2 rounded-lg cursor-pointer transition-colors">
+      {/* Hero Section with Team Logos */}
+      <div className="relative bg-[#2D3436] py-8 md:py-12">
+        <div className="container mx-auto px-4">
+          <button onClick={() => navigate('/')} className="text-gray-300 hover:text-[#FF6B35] flex items-center gap-2 mb-6 transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm">{t('home')}</span>
+          </button>
+          
+          {/* Team Logos Display */}
+          <div className="flex items-center justify-center gap-6 md:gap-12 mb-6">
+            {event.categories?.slice(0, 2).map((team, idx) => {
+              const teamSlug = team.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+              const teamLogo = getTeamLogo(team);
+              return (
+                <div key={idx} className="flex flex-col items-center">
+                  <div 
+                    onClick={() => navigate(getTeamUrl(teamSlug, lang))}
+                    className="w-20 h-20 md:w-28 md:h-28 bg-white rounded-2xl p-3 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform shadow-lg"
+                  >
+                    {teamLogo ? (
+                      <img 
+                        src={teamLogo} 
+                        alt={team}
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <span className="text-3xl md:text-4xl font-bold text-[#2D3436]">
+                        {team.charAt(0)}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-white text-sm md:text-base font-semibold mt-2 text-center">{team}</span>
+                </div>
+              );
+            })}
+            {event.categories?.length >= 2 && (
+              <div className="text-white text-2xl md:text-3xl font-black mx-2">VS</div>
+            )}
+          </div>
+
+          {/* H1 from SEO or default */}
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-black text-white mb-4 text-center">
+            {getMultiLang(event?.seo_h1) || (lang === 'en' ? `${eventTitle} ${t('seoTickets')}` : `${t('seoTickets')} ${eventTitle}`)}
+          </h1>
+          
+          {/* Clickable Tags */}
+          <div className="flex flex-wrap justify-center gap-2">
+            {event.categories?.map((cat, idx) => {
+              const teamSlug = cat.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+              return (
+                <span 
+                  key={idx} 
+                  onClick={() => navigate(getTeamUrl(teamSlug, lang))} 
+                  className="bg-[#0984E3] hover:bg-[#0984E3]/80 text-white text-sm font-bold px-4 py-2 rounded-lg cursor-pointer transition-colors"
+                >
                   {cat}
                 </span>
-              ))}
-              <span className="bg-[#FF6B35] text-white text-sm font-bold px-4 py-2 rounded-lg">{event.league}</span>
-            </div>
+              );
+            })}
+            {event.league && (
+              <span 
+                onClick={() => {
+                  const leagueSlug = event.league.toLowerCase().replace(/\s+/g, '-');
+                  navigate(getLeagueUrl(leagueSlug, lang));
+                }} 
+                className="bg-[#FF6B35] hover:bg-[#FF6B35]/80 text-white text-sm font-bold px-4 py-2 rounded-lg cursor-pointer transition-colors"
+              >
+                {event.league}
+              </span>
+            )}
           </div>
         </div>
       </div>
