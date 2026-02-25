@@ -149,7 +149,7 @@ const EventsGrid = ({ events, loading }) => {
         ) : (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">🔍</div>
-            <div className="text-gray-400 text-xl mb-2">{t('noEventsFound')}</div>
+            <div className="text-gray-600 text-xl mb-2">{t('noEventsFound')}</div>
             <p className="text-gray-500">{t('adjustSearch')}</p>
           </div>
         )}
