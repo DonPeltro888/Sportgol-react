@@ -76,7 +76,7 @@ const EventsGrid = ({ events, loading }) => {
   );
   
   const internationalEvents = sortEventsByPriority(
-    events.filter(event => !localLocations.includes(event.location)),
+    futureEvents.filter(event => !localLocations.includes(event.location)),
     // For international, use ALL priority teams
     [...PRIORITY_TEAMS.it, ...PRIORITY_TEAMS.es, ...PRIORITY_TEAMS.en]
   );
