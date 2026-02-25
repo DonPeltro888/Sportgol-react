@@ -153,8 +153,28 @@ const LEAGUE_LOGOS = {
   'conference-league': 'https://tmssl.akamaized.net/images/logo/header/uecl.png'
 };
 
+// Helper function to normalize team names for lookup
+const normalizeTeamName = (name) => {
+  if (!name) return '';
+  // Convert to title case for lookup
+  return name.toLowerCase().split(' ').map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1)
+  ).join(' ');
+};
+
 export const getTeamLogo = (teamName) => {
-  return TEAM_LOGOS[teamName] || null;
+  if (!teamName) return null;
+  // Try exact match first
+  if (TEAM_LOGOS[teamName]) return TEAM_LOGOS[teamName];
+  // Try normalized name (handles UPPERCASE from DB)
+  const normalized = normalizeTeamName(teamName);
+  if (TEAM_LOGOS[normalized]) return TEAM_LOGOS[normalized];
+  // Try case-insensitive search
+  const lowerName = teamName.toLowerCase();
+  for (const [key, value] of Object.entries(TEAM_LOGOS)) {
+    if (key.toLowerCase() === lowerName) return value;
+  }
+  return null;
 };
 
 export const getLeagueLogo = (leagueSlug) => {
