@@ -5,6 +5,8 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import EventListItem from '../components/EventListItem';
 import SEOHead from '../components/SEOHead';
+import Breadcrumbs from '../components/Breadcrumbs';
+import { TeamSchema, BreadcrumbSchema } from '../components/SchemaOrg';
 import { ArrowLeft, Loader2, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
