@@ -7,7 +7,6 @@ import EventsGrid from '../components/EventsGrid';
 import CategoriesSection from '../components/CategoriesSection';
 import Footer from '../components/Footer';
 import SEOHead from '../components/SEOHead';
-import { OrganizationSchema } from '../components/SchemaOrg';
 import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
