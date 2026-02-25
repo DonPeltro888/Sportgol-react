@@ -161,8 +161,8 @@ const Header = () => {
       data-testid="header"
       className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled 
-          ? 'bg-gray-900/95 backdrop-blur-lg shadow-lg shadow-blue-500/10' 
-          : 'bg-gray-900/80 backdrop-blur-md'
+          ? 'bg-[#2D3436] shadow-lg' 
+          : 'bg-[#2D3436]'
       }`}
     >
       <div className="container mx-auto px-4">
@@ -170,14 +170,13 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center group cursor-pointer" data-testid="logo-link">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur-md opacity-50 group-hover:opacity-75 transition-opacity"></div>
-              <div className="relative w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform">
+              <div className="relative w-12 h-12 bg-gradient-to-br from-[#FF6B35] to-[#0984E3] rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform">
                 <span className="text-white font-bold text-xl">G</span>
               </div>
             </div>
             <div className="ml-3">
-              <div className="font-bold text-xl bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">GOLEVENTS</div>
-              <div className="text-xs text-gray-400 tracking-widest font-medium">TRAVEL SPORT FUN</div>
+              <div className="font-bold text-xl text-white">GOLEVENTS</div>
+              <div className="text-xs text-gray-300 tracking-widest font-medium">TRAVEL SPORT FUN</div>
             </div>
           </Link>
 
