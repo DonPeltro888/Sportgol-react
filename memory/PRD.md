@@ -151,6 +151,18 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
   - Hreflang per IT/ES/EN
   - Schema.org per eventi
   - Alt images tradotti
+
+## Session Completed (Feb 2026)
+- [x] **Sitemap.xml multilingua**: URL per homepage, leghe, coppe, squadre, eventi con tag hreflang
+- [x] **Robots.txt**: Configurato con link sitemap e disallow /admin/
+- [x] **Schema.org JSON-LD completo**:
+  - OrganizationSchema su Homepage
+  - LeagueSchema + BreadcrumbSchema su pagine lega/coppa
+  - TeamSchema + BreadcrumbSchema su pagine squadra  
+  - EventSchema + BreadcrumbSchema su pagine evento (SportsEvent con location, offers, performer)
+- [x] **Breadcrumbs visivi**: Navigazione a briciole di pane su tutte le pagine interne
+- [x] **Fix Schema.org**: Risolto bug con react-helmet-async usando useEffect per iniezione DOM
+- [x] **Test SEO 100% passati**: Sitemap, robots.txt, Schema.org, breadcrumbs verificati
   
 ## REGOLE URL MEMORIZZATE (NON MODIFICARE):
 - **IT**: biglietti PRIMA del nome con trattino → `/biglietti-inter`
