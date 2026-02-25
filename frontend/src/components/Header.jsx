@@ -257,7 +257,7 @@ const Header = () => {
                                   <button
                                     key={team}
                                     onClick={() => handleTeamClick(team)}
-                                    className="text-left px-3 py-2 text-xs text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-md transition-colors truncate"
+                                    className="text-left px-3 py-2 text-xs text-gray-600 hover:text-[#FF6B35] hover:bg-gray-100 rounded-md transition-colors truncate"
                                   >
                                     {team}
                                   </button>
@@ -271,8 +271,8 @@ const Header = () => {
 
                     {/* Cups Column */}
                     <div>
-                      <div className="px-4 py-3 bg-gradient-to-r from-purple-600/20 to-transparent border-b border-gray-700">
-                        <h3 className="text-sm font-bold text-purple-400 flex items-center gap-2">
+                      <div className="px-4 py-3 bg-[#FF6B35] border-b border-gray-200">
+                        <h3 className="text-sm font-bold text-white flex items-center gap-2">
                           <Trophy className="w-4 h-4" />
                           {t('cups')}
                         </h3>
@@ -282,9 +282,17 @@ const Header = () => {
                           <button
                             key={cup.slug}
                             onClick={() => handleLeagueClick(cup.slug)}
-                            className="w-full text-left px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-lg transition-colors flex items-center gap-3"
+                            className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:text-[#FF6B35] hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-3"
                           >
-                            <span className="text-lg">{cup.flag}</span>
+                            {getLeagueLogo(cup.slug) ? (
+                              <img 
+                                src={getLeagueLogo(cup.slug)} 
+                                alt={t(cup.labelKey)}
+                                className="w-6 h-6 object-contain"
+                              />
+                            ) : (
+                              <span className="text-lg">{cup.flag}</span>
+                            )}
                             <div>
                               <div className="font-medium">{t(cup.labelKey)}</div>
                               <div className="text-xs text-gray-500">{t(cup.countryKey)}</div>
@@ -304,7 +312,7 @@ const Header = () => {
               className="text-gray-300 hover:text-white font-semibold text-sm transition-all duration-200 relative group/link px-3 py-2"
             >
               {t('aboutUs')}
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 group-hover/link:w-full transition-all duration-300"></span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#FF6B35] group-hover/link:w-full transition-all duration-300"></span>
             </Link>
 
             <LanguageSwitcher />
