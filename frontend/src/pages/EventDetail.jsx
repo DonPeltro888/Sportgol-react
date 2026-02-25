@@ -4,6 +4,7 @@ import { eventsAPI } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { EventSchema, BreadcrumbSchema } from '../components/SchemaOrg';
 import { Calendar, MapPin, ArrowLeft, Ticket, Info, MessageCircle, ChevronDown, Loader2, Users, Euro, Clock, Star, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import SEOHead from '../components/SEOHead';
