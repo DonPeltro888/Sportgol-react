@@ -153,4 +153,4 @@ export const BreadcrumbSchema = ({ items }) => {
   );
 };
 
-export default { EventSchema, OrganizationSchema, LeagueSchema, BreadcrumbSchema };
+export default { EventSchema, OrganizationSchema, LeagueSchema, TeamSchema, BreadcrumbSchema };
