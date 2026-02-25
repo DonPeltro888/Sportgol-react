@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import EventDetail from './pages/EventDetail';
 import TeamPage from './pages/TeamPage';
 import LeaguePage from './pages/LeaguePage';
+import DemoScraping from './pages/DemoScraping';
 import { Toaster } from './components/ui/sonner';
 
 // Language Context
