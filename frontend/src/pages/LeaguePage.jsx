@@ -203,6 +203,11 @@ const LeaguePage = ({ urlType }) => {
         canonicalUrl={canonicalUrl}
         ogImage="https://images.unsplash.com/photo-1574629810360-7efbbe195018"
       />
+      <LeagueSchema leagueName={leagueName} teams={leagueData?.teams} lang={lang} />
+      <BreadcrumbSchema items={[
+        { name: 'Home', url: '/' },
+        { name: leagueName, url: null }
+      ]} />
       
       <Header />
       
