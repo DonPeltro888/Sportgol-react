@@ -368,6 +368,22 @@ async def sync_all_competitions(replace_all: bool = False) -> Dict:
     deleted_past = await db.events.delete_many({"sort_date": {"$lt": today_str}})
     stats["total_deleted_past"] = stats.get("total_deleted_past", 0) + deleted_past.deleted_count
 
+    # 4. Auto-populate league logos (solo leghe nuove, mai team)
+    # I team logos sono lenti per via del rate limit TheSportsDB (30/min) -
+    # vanno popolati separatamente via POST /api/admin/sync/logos
+    try:
+        from services.logo_fetcher import populate_league_logos
+        league_logos_stats = await populate_league_logos()
+        stats["league_logos"] = league_logos_stats
+        logger.info(
+            f"sync league logos: updated={league_logos_stats['updated']}, "
+            f"skipped={league_logos_stats['skipped']}, "
+            f"not_found={league_logos_stats['not_found']}"
+        )
+    except Exception as e:
+        logger.exception(f"sync league logos errore: {e}")
+        stats["league_logos_error"] = str(e)
+
     stats["finished_at"] = datetime.now(timezone.utc).isoformat()
     stats["total_in_db"] = await db.events.count_documents({})
 

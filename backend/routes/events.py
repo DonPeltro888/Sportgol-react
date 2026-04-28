@@ -95,10 +95,27 @@ async def get_events(
         # Sort by sort_date (ascending - upcoming events first)
         events = await db.events.find(query).sort([("sort_date", 1), ("created_at", 1)]).skip(skip).limit(limit).to_list(length=limit)
         
-        # Convert ObjectId to string
+        # Enrich events with team logos (single batch query for performance)
+        team_names = set()
+        for ev in events:
+            if ev.get("home_team"): team_names.add(ev["home_team"])
+            if ev.get("away_team"): team_names.add(ev["away_team"])
+        
+        if team_names:
+            teams_cursor = db.teams.find(
+                {"name": {"$in": list(team_names)}, "logo_url": {"$exists": True, "$ne": ""}},
+                {"_id": 0, "name": 1, "logo_url": 1}
+            )
+            team_logo_map = {t["name"]: t["logo_url"] async for t in teams_cursor}
+        else:
+            team_logo_map = {}
+        
+        # Convert ObjectId to string + attach logos
         for event in events:
             event["_id"] = str(event["_id"])
             event["id"] = str(event["_id"])
+            event["home_team_logo"] = team_logo_map.get(event.get("home_team"))
+            event["away_team_logo"] = team_logo_map.get(event.get("away_team"))
         
         return {
             "events": events,
@@ -122,6 +139,17 @@ async def get_event(event_id: str):
         
         event["_id"] = str(event["_id"])
         event["id"] = str(event["_id"])
+        
+        # Enrich with team logos
+        for team_field, logo_field in [("home_team", "home_team_logo"), ("away_team", "away_team_logo")]:
+            team_name = event.get(team_field)
+            if team_name:
+                team_doc = await db.teams.find_one(
+                    {"name": team_name},
+                    {"_id": 0, "logo_url": 1}
+                )
+                event[logo_field] = team_doc.get("logo_url") if team_doc else None
+        
         return event
     except Exception as e:
         logger.error(f"Error fetching event: {str(e)}")

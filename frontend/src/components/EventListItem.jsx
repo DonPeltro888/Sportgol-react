@@ -179,6 +179,33 @@ const EventListItem = ({ event }) => {
         </span>
       </div>
 
+      {/* Team logos (home vs away) */}
+      {(event.home_team_logo || event.away_team_logo) && (
+        <div className="hidden sm:flex flex-shrink-0 items-center gap-1 px-3 border-r border-gray-100">
+          {event.home_team_logo ? (
+            <img
+              src={event.home_team_logo}
+              alt={event.home_team || ''}
+              className="w-7 h-7 object-contain"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-7 h-7 bg-gray-100 rounded-full" />
+          )}
+          <span className="text-[10px] text-gray-400 font-bold">vs</span>
+          {event.away_team_logo ? (
+            <img
+              src={event.away_team_logo}
+              alt={event.away_team || ''}
+              className="w-7 h-7 object-contain"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-7 h-7 bg-gray-100 rounded-full" />
+          )}
+        </div>
+      )}
+
       {/* Event Info */}
       <div className="flex-1 py-3 px-3 min-w-0 flex flex-col justify-center">
         {/* Title */}

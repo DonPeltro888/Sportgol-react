@@ -13,6 +13,8 @@ const AdminSync = () => {
   const [syncing, setSyncing] = useState(false);
   const [replaceAll, setReplaceAll] = useState(false);
 
+  const [logosLoading, setLogosLoading] = useState(false);
+
   useEffect(() => {
     fetchLogs();
   }, []);
@@ -59,6 +61,29 @@ const AdminSync = () => {
       toast.error(`Errore: ${error.message}`);
     } finally {
       setSyncing(false);
+    }
+  };
+
+  const runLogosSync = async () => {
+    if (!confirm('Avvia popolamento loghi? Limit 50 team per chiamata (rate limit TheSportsDB ~30/min).\nLanciare più volte per popolare tutti i ~400 team.')) return;
+    try {
+      setLogosLoading(true);
+      toast.info('Popolamento loghi in corso (~2 min)...');
+      const r = await authFetch(
+        `${API_URL}/api/admin/sync/logos?refresh_existing=false&team_batch=50`,
+        { method: 'POST' }
+      );
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data = await r.json();
+      const ts = data.stats?.teams || {};
+      const ls = data.stats?.leagues || {};
+      toast.success(
+        `Loghi: leghe agg.=${ls.updated}, nuovi team=${ts.created}, agg=${ts.updated_logo}, restanti=${ts.remaining || 0}`
+      );
+    } catch (e) {
+      toast.error(`Errore: ${e.message}`);
+    } finally {
+      setLogosLoading(false);
     }
   };
 
@@ -161,6 +186,28 @@ const AdminSync = () => {
               )}
             </button>
           </div>
+        </div>
+
+        {/* Logos sync */}
+        <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
+          <h2 className="text-white font-bold text-lg mb-2">Sincronizzazione Loghi</h2>
+          <p className="text-gray-400 text-sm mb-4">
+            Recupera automaticamente loghi delle leghe e badge delle squadre da
+            <a href="https://www.thesportsdb.com" target="_blank" rel="noreferrer" className="text-blue-400 hover:underline ml-1">TheSportsDB</a>
+            (gratis, rate limit ~30 req/min).
+          </p>
+          <button
+            onClick={runLogosSync}
+            disabled={logosLoading}
+            data-testid="run-logos-sync-btn"
+            className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 text-white font-bold rounded-lg flex items-center gap-2 transition-all"
+          >
+            {logosLoading ? (
+              <><Loader2 className="w-5 h-5 animate-spin" /> Recupero loghi...</>
+            ) : (
+              <><Globe className="w-5 h-5" /> Popola Loghi (50 team batch)</>
+            )}
+          </button>
         </div>
 
         {/* Logs */}

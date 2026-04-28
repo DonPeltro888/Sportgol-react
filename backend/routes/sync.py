@@ -39,3 +39,30 @@ async def get_sync_logs(limit: int = 10, _=Depends(verify_admin_token)):
         if "log_at" in log and hasattr(log["log_at"], "isoformat"):
             log["log_at"] = log["log_at"].isoformat()
     return {"logs": logs}
+
+
+@router.post("/logos")
+async def manual_logos_sync(
+    refresh_existing: bool = False,
+    team_batch: int = 50,
+    _=Depends(verify_admin_token),
+):
+    """
+    Esegue manualmente il popolamento dei loghi (leghe + squadre) da TheSportsDB.
+
+    Query params:
+    - refresh_existing: se True, sovrascrive anche i logo già presenti.
+    - team_batch: max numero di team da processare per chiamata (default 50).
+                  Limit per evitare timeout (rate limit ThSportsDB = 30 req/min).
+                  Per popolare TUTTI i team (~400+) richiama l'endpoint più volte.
+    """
+    try:
+        from services.logo_fetcher import populate_all_logos
+        stats = await populate_all_logos(
+            refresh_existing=refresh_existing,
+            team_batch=team_batch,
+        )
+        return {"success": True, "stats": stats}
+    except Exception as e:
+        logger.exception("Errore durante logos sync")
+        raise HTTPException(status_code=500, detail=str(e))

@@ -190,9 +190,9 @@ const LeaguePage = ({ urlType }) => {
           
           <div className="flex items-center gap-3 mt-3">
             <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-white rounded-lg p-1 relative flex-shrink-0">
-              {getLeagueLogo(actualLeague) && (
+              {(leagueData?.logo_url || getLeagueLogo(actualLeague)) && (
                 <img 
-                  src={getLeagueLogo(actualLeague)} 
+                  src={leagueData?.logo_url || getLeagueLogo(actualLeague)} 
                   alt={leagueName}
                   className="w-full h-full object-contain absolute inset-0 p-1"
                   onLoad={(e) => {

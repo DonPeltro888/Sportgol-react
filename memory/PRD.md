@@ -287,3 +287,15 @@ Logging completo in stdout backend; errori catturati in `db.sync_logs`.
 - [x] **968 eventi totali** in DB (era 353): MLS 366, J1 League 61,
   Copa Libertadores 64, World Cup 104, Eredivisie 31, Liga Portugal 28, Champions 5
 - [x] **19 leghe NUOVE** create automaticamente al primo sync
+
+## Session Completed (Apr 2026 - Auto Logo Fetcher)
+- [x] **`services/logo_fetcher.py`**: integrazione TheSportsDB API gratuita
+- [x] **Auto-popolamento logo leghe** integrato nel sync matchesio
+- [x] **Endpoint manuale `POST /api/admin/sync/logos?team_batch=50`** per squadre
+- [x] **Risultato**: 142 team con logo + 20/33 leghe con logo
+- [x] **Events enriched**: `home_team_logo` e `away_team_logo` automatici nelle response API
+- [x] **EventListItem**: mostra logo home vs away nelle card homepage
+- [x] **LeaguePage**: usa `leagueData.logo_url` da DB
+- [x] **AdminSync UI**: bottone "Popola Loghi" verde
+- [x] Rate limiting 2.1s + retry su HTTP 429
+- [x] Schema `db.teams` arricchito: `{name, slug, logo_url, league_slug, active, auto_created}`
