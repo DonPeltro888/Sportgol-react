@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
 from models.event import Event, EventCreate, EventUpdate
 from database import db
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 
 logger = logging.getLogger(__name__)
@@ -39,12 +39,22 @@ async def get_events(
     search: Optional[str] = None,
     league: Optional[str] = None,
     featured: Optional[bool] = None,
-    lang: Optional[str] = Query(None, description="Language filter: it, es, en")
+    lang: Optional[str] = Query(None, description="Language filter: it, es, en"),
+    include_past: Optional[bool] = Query(False, description="Include past events")
 ):
     """Get all events with pagination and filtering"""
     try:
         skip = (page - 1) * limit
         query = {}
+        
+        # Filter out past events (event visible until midnight of match day)
+        if not include_past:
+            # Get today's date at midnight (start of day)
+            today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+            today_str = today.strftime("%Y-%m-%d")
+            
+            # Events with sort_date >= today (visible until midnight of match day)
+            query["sort_date"] = {"$gte": today_str}
         
         # Language-based location filter
         if lang and lang in LANGUAGE_FILTERS:
