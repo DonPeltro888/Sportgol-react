@@ -3,248 +3,295 @@ import React, { useState } from 'react';
 const SanSiroMap = ({ sectors = [], onSectorClick, selectedSector }) => {
   const [hoveredSector, setHoveredSector] = useState(null);
 
-  // Map sector names to SVG regions - Viagogo style naming
-  const sectorConfig = {
-    'primo-anello-arancio': { match: ['Cat 1', 'Tribuna', '1° Anello', 'First Ring', 'Orange'], color: '#FF8C00' },
-    'primo-anello-blu': { match: ['Cat 2', 'Short Side', '1° Anello Blu', 'Blue'], color: '#4169E1' },
-    'secondo-anello-arancio': { match: ['Cat 2 Long', '2° Anello', 'Second Ring'], color: '#FFA500' },
-    'secondo-anello-blu': { match: ['Cat 3', '2° Anello Blu'], color: '#1E90FF' },
-    'terzo-anello': { match: ['Cat 3 Short', '3° Anello', 'Third Ring'], color: '#87CEEB' },
-    'tribuna-onore': { match: ['Premium', 'VIP', 'Tribuna Onore', 'Honor'], color: '#FFD700' },
-    'curva-nord': { match: ['Curva Nord', 'North Curve'], color: '#2E8B57' },
-    'curva-sud': { match: ['Curva Sud', 'South Curve'], color: '#32CD32' },
+  // Mappa settori San Siro -> Categorie generali
+  const sectorToCategory = {
+    // Cat 1 Premium
+    'tribuna-onore': { category: 'Cat 1 Premium', label: '1° Anello Arancio Centrale', color: '#FFD700' },
+    // Cat 1  
+    'primo-arancio': { category: 'Cat 1', label: '1° Anello Arancio', color: '#FF8C00' },
+    // Cat 2
+    'primo-blu': { category: 'Cat 2', label: '1° Anello Blu', color: '#1E90FF' },
+    'secondo-arancio': { category: 'Cat 2', label: '2° Anello Arancio', color: '#FFA500' },
+    // Cat 3
+    'secondo-blu': { category: 'Cat 3', label: '2° Anello Blu', color: '#4169E1' },
+    'terzo-rosso': { category: 'Cat 3', label: '3° Anello Rosso', color: '#DC143C' },
+    'terzo-arancio': { category: 'Cat 3', label: '3° Anello Arancio', color: '#FF6347' },
+    // Cat 4
+    'curva-nord': { category: 'Cat 4', label: 'Curva Nord', color: '#228B22' },
+    'curva-sud': { category: 'Cat 4 - Ospiti', label: 'Curva Sud', color: '#32CD32' },
   };
 
-  const findSectorByName = (name) => {
-    return sectors.find(s => {
-      const sectorName = (s.name || '').toLowerCase();
-      return sectorName.includes(name.toLowerCase()) || name.toLowerCase().includes(sectorName.split(' ')[0]?.toLowerCase());
-    });
+  const getCategoryForRegion = (regionId) => {
+    const mapping = sectorToCategory[regionId];
+    if (!mapping) return null;
+    return sectors.find(s => s.name === mapping.category || s.name.includes(mapping.category));
   };
 
-  const getSectorForRegion = (regionId) => {
-    const config = sectorConfig[regionId];
-    if (!config) return null;
+  const getRegionStyle = (regionId) => {
+    const mapping = sectorToCategory[regionId];
+    const sector = getCategoryForRegion(regionId);
+    const isSelected = sector && selectedSector === sector.name;
+    const isHovered = hoveredSector === regionId;
     
-    for (const sector of sectors) {
-      const sectorName = (sector.name || '').toLowerCase();
-      for (const match of config.match) {
-        if (sectorName.includes(match.toLowerCase())) {
-          return sector;
-        }
-      }
-    }
-    return null;
+    if (!sector) return { fill: '#333', opacity: 0.3, cursor: 'default' };
+    if (!sector.available) return { fill: '#444', opacity: 0.4, cursor: 'not-allowed' };
+    
+    return {
+      fill: isSelected || isHovered ? '#00FF7F' : mapping?.color || '#666',
+      opacity: 1,
+      cursor: 'pointer',
+      transition: 'all 0.2s ease'
+    };
   };
 
-  const getRegionColor = (regionId, baseColor) => {
-    const sector = getSectorForRegion(regionId);
-    if (!sector) return '#666';
-    if (!sector.available) return '#444';
-    if (hoveredSector === regionId || selectedSector === sector.name) return '#00ff88';
-    return baseColor;
-  };
-
-  const getRegionOpacity = (regionId) => {
-    const sector = getSectorForRegion(regionId);
-    if (!sector || !sector.available) return 0.4;
-    return 1;
-  };
-
-  const handleRegionClick = (regionId) => {
-    const sector = getSectorForRegion(regionId);
+  const handleClick = (regionId) => {
+    const sector = getCategoryForRegion(regionId);
     if (sector?.available && onSectorClick) {
       onSectorClick(sector);
     }
   };
 
-  const handleRegionHover = (regionId) => {
-    const sector = getSectorForRegion(regionId);
-    if (sector?.available) {
-      setHoveredSector(regionId);
-    }
+  const getHoverInfo = () => {
+    if (!hoveredSector) return null;
+    const mapping = sectorToCategory[hoveredSector];
+    const sector = getCategoryForRegion(hoveredSector);
+    if (!mapping || !sector) return null;
+    return { label: mapping.label, category: sector.name, price: sector.price };
   };
 
-  // Get price for legend
-  const getPriceForRegion = (regionId) => {
-    const sector = getSectorForRegion(regionId);
-    return sector?.price || null;
-  };
+  const hoverInfo = getHoverInfo();
 
   return (
     <div className="w-full">
-      {/* Legend */}
+      {/* Legenda Categorie */}
       <div className="mb-4 flex flex-wrap gap-2 justify-center">
         {sectors.filter(s => s.available).map((sector, i) => (
           <button
             key={i}
             onClick={() => onSectorClick?.(sector)}
-            className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-full transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
               selectedSector === sector.name 
-                ? 'bg-green-500 text-white' 
+                ? 'bg-green-500 text-white ring-2 ring-green-300' 
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
-            <span className="font-bold">€{sector.price}</span>
-            <span className="text-white/70 text-[10px] max-w-[80px] truncate">{sector.name.split('(')[0]}</span>
+            {sector.name} - €{sector.price}
           </button>
         ))}
       </div>
 
-      {/* SVG Stadium Map - Viagogo Style */}
-      <svg viewBox="0 0 500 380" className="w-full h-auto">
+      {/* San Siro Map */}
+      <svg viewBox="0 0 600 450" className="w-full h-auto">
         <defs>
-          <linearGradient id="fieldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#2d7a3d" />
-            <stop offset="100%" stopColor="#1a5a2d" />
+          <linearGradient id="grass" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#2d8a3e" />
+            <stop offset="100%" stopColor="#1a6b2c" />
           </linearGradient>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
         </defs>
         
         {/* Background */}
-        <rect x="0" y="0" width="500" height="380" fill="#0f1419" rx="10" />
+        <rect x="0" y="0" width="600" height="450" fill="#0a0f14" rx="12" />
         
-        {/* 3° Anello (Outer Ring) */}
-        <ellipse 
-          cx="250" cy="190" rx="230" ry="170" 
-          fill={getRegionColor('terzo-anello', '#87CEEB')}
-          opacity={getRegionOpacity('terzo-anello')}
-          stroke="#333" strokeWidth="2"
-          style={{ cursor: getSectorForRegion('terzo-anello')?.available ? 'pointer' : 'default' }}
-          onMouseEnter={() => handleRegionHover('terzo-anello')}
+        {/* === TERZO ANELLO (Esterno) === */}
+        {/* 3° Anello Rosso - Long Side Top */}
+        <path
+          d="M 100 55 Q 300 15 500 55 L 480 95 Q 300 60 120 95 Z"
+          style={getRegionStyle('terzo-rosso')}
+          onMouseEnter={() => setHoveredSector('terzo-rosso')}
           onMouseLeave={() => setHoveredSector(null)}
-          onClick={() => handleRegionClick('terzo-anello')}
+          onClick={() => handleClick('terzo-rosso')}
         />
-        
-        {/* 2° Anello Arancio (Orange Second Ring) */}
-        <ellipse 
-          cx="250" cy="190" rx="190" ry="140" 
-          fill={getRegionColor('secondo-anello-arancio', '#FFA500')}
-          opacity={getRegionOpacity('secondo-anello-arancio')}
-          stroke="#333" strokeWidth="2"
-          style={{ cursor: getSectorForRegion('secondo-anello-arancio')?.available ? 'pointer' : 'default' }}
-          onMouseEnter={() => handleRegionHover('secondo-anello-arancio')}
+        {/* 3° Anello Rosso - Long Side Bottom */}
+        <path
+          d="M 100 395 Q 300 435 500 395 L 480 355 Q 300 390 120 355 Z"
+          style={getRegionStyle('terzo-rosso')}
+          onMouseEnter={() => setHoveredSector('terzo-rosso')}
           onMouseLeave={() => setHoveredSector(null)}
-          onClick={() => handleRegionClick('secondo-anello-arancio')}
+          onClick={() => handleClick('terzo-rosso')}
         />
-        
-        {/* 2° Anello Blu (Blue Second Ring) - Short sides */}
-        <ellipse 
-          cx="250" cy="190" rx="155" ry="110" 
-          fill={getRegionColor('secondo-anello-blu', '#1E90FF')}
-          opacity={getRegionOpacity('secondo-anello-blu')}
-          stroke="#333" strokeWidth="2"
-          style={{ cursor: getSectorForRegion('secondo-anello-blu')?.available ? 'pointer' : 'default' }}
-          onMouseEnter={() => handleRegionHover('secondo-anello-blu')}
+        {/* 3° Anello Arancio - Short Side Left */}
+        <path
+          d="M 55 100 Q 15 225 55 350 L 95 325 Q 60 225 95 125 Z"
+          style={getRegionStyle('terzo-arancio')}
+          onMouseEnter={() => setHoveredSector('terzo-arancio')}
           onMouseLeave={() => setHoveredSector(null)}
-          onClick={() => handleRegionClick('secondo-anello-blu')}
+          onClick={() => handleClick('terzo-arancio')}
         />
-        
-        {/* 1° Anello Arancio (Orange First Ring) */}
-        <ellipse 
-          cx="250" cy="190" rx="125" ry="85" 
-          fill={getRegionColor('primo-anello-arancio', '#FF8C00')}
-          opacity={getRegionOpacity('primo-anello-arancio')}
-          stroke="#333" strokeWidth="2"
-          style={{ cursor: getSectorForRegion('primo-anello-arancio')?.available ? 'pointer' : 'default' }}
-          onMouseEnter={() => handleRegionHover('primo-anello-arancio')}
+        {/* 3° Anello Arancio - Short Side Right */}
+        <path
+          d="M 545 100 Q 585 225 545 350 L 505 325 Q 540 225 505 125 Z"
+          style={getRegionStyle('terzo-arancio')}
+          onMouseEnter={() => setHoveredSector('terzo-arancio')}
           onMouseLeave={() => setHoveredSector(null)}
-          onClick={() => handleRegionClick('primo-anello-arancio')}
+          onClick={() => handleClick('terzo-arancio')}
         />
 
-        {/* Curva Nord (Left) */}
-        <path 
-          d="M 30 190 Q 30 100 125 110 L 125 270 Q 30 280 30 190"
-          fill={getRegionColor('curva-nord', '#2E8B57')}
-          opacity={getRegionOpacity('curva-nord')}
-          stroke="#333" strokeWidth="2"
-          style={{ cursor: getSectorForRegion('curva-nord')?.available ? 'pointer' : 'default' }}
-          onMouseEnter={() => handleRegionHover('curva-nord')}
+        {/* === SECONDO ANELLO === */}
+        {/* 2° Anello Arancio - Long Side Top */}
+        <path
+          d="M 120 95 Q 300 60 480 95 L 460 135 Q 300 105 140 135 Z"
+          style={getRegionStyle('secondo-arancio')}
+          onMouseEnter={() => setHoveredSector('secondo-arancio')}
           onMouseLeave={() => setHoveredSector(null)}
-          onClick={() => handleRegionClick('curva-nord')}
+          onClick={() => handleClick('secondo-arancio')}
         />
-        
-        {/* Curva Sud (Right) */}
-        <path 
-          d="M 470 190 Q 470 100 375 110 L 375 270 Q 470 280 470 190"
-          fill={getRegionColor('curva-sud', '#32CD32')}
-          opacity={getRegionOpacity('curva-sud')}
-          stroke="#333" strokeWidth="2"
-          style={{ cursor: getSectorForRegion('curva-sud')?.available ? 'pointer' : 'default' }}
-          onMouseEnter={() => handleRegionHover('curva-sud')}
+        {/* 2° Anello Arancio - Long Side Bottom */}
+        <path
+          d="M 120 355 Q 300 390 480 355 L 460 315 Q 300 345 140 315 Z"
+          style={getRegionStyle('secondo-arancio')}
+          onMouseEnter={() => setHoveredSector('secondo-arancio')}
           onMouseLeave={() => setHoveredSector(null)}
-          onClick={() => handleRegionClick('curva-sud')}
+          onClick={() => handleClick('secondo-arancio')}
         />
-        
-        {/* Tribuna d'Onore (VIP Central) */}
-        <rect 
-          x="175" y="150" width="150" height="80" rx="5"
-          fill={getRegionColor('tribuna-onore', '#FFD700')}
-          opacity={getRegionOpacity('tribuna-onore')}
-          stroke="#333" strokeWidth="2"
-          filter={selectedSector && getSectorForRegion('tribuna-onore')?.name === selectedSector ? 'url(#glow)' : ''}
-          style={{ cursor: getSectorForRegion('tribuna-onore')?.available ? 'pointer' : 'default' }}
-          onMouseEnter={() => handleRegionHover('tribuna-onore')}
+        {/* 2° Anello Blu - Short Side Left */}
+        <path
+          d="M 95 125 Q 60 225 95 325 L 135 300 Q 105 225 135 150 Z"
+          style={getRegionStyle('secondo-blu')}
+          onMouseEnter={() => setHoveredSector('secondo-blu')}
           onMouseLeave={() => setHoveredSector(null)}
-          onClick={() => handleRegionClick('tribuna-onore')}
+          onClick={() => handleClick('secondo-blu')}
         />
+        {/* 2° Anello Blu - Short Side Right */}
+        <path
+          d="M 505 125 Q 540 225 505 325 L 465 300 Q 495 225 465 150 Z"
+          style={getRegionStyle('secondo-blu')}
+          onMouseEnter={() => setHoveredSector('secondo-blu')}
+          onMouseLeave={() => setHoveredSector(null)}
+          onClick={() => handleClick('secondo-blu')}
+        />
+
+        {/* === PRIMO ANELLO === */}
+        {/* 1° Anello Arancio - Long Side Top */}
+        <path
+          d="M 140 135 Q 300 105 460 135 L 440 175 Q 300 150 160 175 Z"
+          style={getRegionStyle('primo-arancio')}
+          onMouseEnter={() => setHoveredSector('primo-arancio')}
+          onMouseLeave={() => setHoveredSector(null)}
+          onClick={() => handleClick('primo-arancio')}
+        />
+        {/* 1° Anello Arancio - Long Side Bottom */}
+        <path
+          d="M 140 315 Q 300 345 460 315 L 440 275 Q 300 300 160 275 Z"
+          style={getRegionStyle('primo-arancio')}
+          onMouseEnter={() => setHoveredSector('primo-arancio')}
+          onMouseLeave={() => setHoveredSector(null)}
+          onClick={() => handleClick('primo-arancio')}
+        />
+        {/* 1° Anello Blu - Short Side Left */}
+        <path
+          d="M 135 150 Q 105 225 135 300 L 175 275 Q 150 225 175 175 Z"
+          style={getRegionStyle('primo-blu')}
+          onMouseEnter={() => setHoveredSector('primo-blu')}
+          onMouseLeave={() => setHoveredSector(null)}
+          onClick={() => handleClick('primo-blu')}
+        />
+        {/* 1° Anello Blu - Short Side Right */}
+        <path
+          d="M 465 150 Q 495 225 465 300 L 425 275 Q 450 225 425 175 Z"
+          style={getRegionStyle('primo-blu')}
+          onMouseEnter={() => setHoveredSector('primo-blu')}
+          onMouseLeave={() => setHoveredSector(null)}
+          onClick={() => handleClick('primo-blu')}
+        />
+
+        {/* === TRIBUNA D'ONORE (VIP) === */}
+        <rect
+          x="220" y="155" width="160" height="30" rx="4"
+          style={getRegionStyle('tribuna-onore')}
+          onMouseEnter={() => setHoveredSector('tribuna-onore')}
+          onMouseLeave={() => setHoveredSector(null)}
+          onClick={() => handleClick('tribuna-onore')}
+        />
+        <rect
+          x="220" y="265" width="160" height="30" rx="4"
+          style={getRegionStyle('tribuna-onore')}
+          onMouseEnter={() => setHoveredSector('tribuna-onore')}
+          onMouseLeave={() => setHoveredSector(null)}
+          onClick={() => handleClick('tribuna-onore')}
+        />
+
+        {/* === CURVE === */}
+        {/* Curva Nord - Angoli a sinistra */}
+        <path
+          d="M 55 100 L 100 55 L 120 95 L 95 125 Z"
+          style={getRegionStyle('curva-nord')}
+          onMouseEnter={() => setHoveredSector('curva-nord')}
+          onMouseLeave={() => setHoveredSector(null)}
+          onClick={() => handleClick('curva-nord')}
+        />
+        <path
+          d="M 55 350 L 100 395 L 120 355 L 95 325 Z"
+          style={getRegionStyle('curva-nord')}
+          onMouseEnter={() => setHoveredSector('curva-nord')}
+          onMouseLeave={() => setHoveredSector(null)}
+          onClick={() => handleClick('curva-nord')}
+        />
+        {/* Curva Sud - Angoli a destra */}
+        <path
+          d="M 545 100 L 500 55 L 480 95 L 505 125 Z"
+          style={getRegionStyle('curva-sud')}
+          onMouseEnter={() => setHoveredSector('curva-sud')}
+          onMouseLeave={() => setHoveredSector(null)}
+          onClick={() => handleClick('curva-sud')}
+        />
+        <path
+          d="M 545 350 L 500 395 L 480 355 L 505 325 Z"
+          style={getRegionStyle('curva-sud')}
+          onMouseEnter={() => setHoveredSector('curva-sud')}
+          onMouseLeave={() => setHoveredSector(null)}
+          onClick={() => handleClick('curva-sud')}
+        />
+
+        {/* === CAMPO DA GIOCO === */}
+        <rect x="175" y="190" width="250" height="70" rx="3" fill="url(#grass)" stroke="#fff" strokeWidth="2" />
+        <line x1="300" y1="190" x2="300" y2="260" stroke="#fff" strokeWidth="1" opacity="0.6" />
+        <circle cx="300" cy="225" r="18" fill="none" stroke="#fff" strokeWidth="1" opacity="0.6" />
+        <rect x="175" y="200" width="30" height="50" fill="none" stroke="#fff" strokeWidth="1" opacity="0.6" />
+        <rect x="395" y="200" width="30" height="50" fill="none" stroke="#fff" strokeWidth="1" opacity="0.6" />
+
+        {/* === LABELS SETTORI === */}
+        <text x="300" y="42" fill="#DC143C" fontSize="11" fontWeight="bold" textAnchor="middle">3° Anello Rosso</text>
+        <text x="300" y="82" fill="#FFA500" fontSize="10" textAnchor="middle">2° Anello Arancio</text>
+        <text x="300" y="122" fill="#FF8C00" fontSize="10" textAnchor="middle">1° Anello Arancio</text>
+        <text x="300" y="172" fill="#FFD700" fontSize="9" fontWeight="bold" textAnchor="middle">TRIBUNA VIP</text>
         
-        {/* Playing Field */}
-        <rect x="140" y="135" width="220" height="110" rx="3" fill="url(#fieldGradient)" stroke="#fff" strokeWidth="2" />
+        <text x="40" y="225" fill="#228B22" fontSize="9" fontWeight="bold" textAnchor="middle" transform="rotate(-90 40 225)">Curva Nord</text>
+        <text x="560" y="225" fill="#32CD32" fontSize="9" fontWeight="bold" textAnchor="middle" transform="rotate(90 560 225)">Curva Sud</text>
         
-        {/* Field markings */}
-        <line x1="250" y1="135" x2="250" y2="245" stroke="#fff" strokeWidth="1.5" opacity="0.7" />
-        <circle cx="250" cy="190" r="25" fill="none" stroke="#fff" strokeWidth="1.5" opacity="0.7" />
-        <rect x="140" y="165" width="35" height="50" fill="none" stroke="#fff" strokeWidth="1.5" opacity="0.7" />
-        <rect x="325" y="165" width="35" height="50" fill="none" stroke="#fff" strokeWidth="1.5" opacity="0.7" />
-        <circle cx="250" cy="190" r="3" fill="#fff" opacity="0.7" />
+        <text x="115" y="225" fill="#1E90FF" fontSize="8" textAnchor="middle" transform="rotate(-90 115 225)">1° Blu</text>
+        <text x="485" y="225" fill="#1E90FF" fontSize="8" textAnchor="middle" transform="rotate(90 485 225)">1° Blu</text>
         
-        {/* Labels */}
-        <text x="65" y="195" fill="#fff" fontSize="11" fontWeight="bold" textAnchor="middle">CURVA</text>
-        <text x="65" y="208" fill="#fff" fontSize="11" fontWeight="bold" textAnchor="middle">NORD</text>
-        <text x="435" y="195" fill="#fff" fontSize="11" fontWeight="bold" textAnchor="middle">CURVA</text>
-        <text x="435" y="208" fill="#fff" fontSize="11" fontWeight="bold" textAnchor="middle">SUD</text>
-        <text x="250" y="195" fill="#000" fontSize="10" fontWeight="bold" textAnchor="middle" opacity="0.8">VIP</text>
-        
-        {/* Ring Labels */}
-        <text x="250" y="45" fill="#fff" fontSize="9" textAnchor="middle" opacity="0.6">3° ANELLO</text>
-        <text x="250" y="70" fill="#fff" fontSize="9" textAnchor="middle" opacity="0.6">2° ANELLO</text>
-        <text x="250" y="100" fill="#fff" fontSize="9" textAnchor="middle" opacity="0.6">1° ANELLO</text>
-        
-        {/* Price indicators on hover */}
-        {hoveredSector && (
+        <text x="75" y="225" fill="#4169E1" fontSize="8" textAnchor="middle" transform="rotate(-90 75 225)">2° Blu</text>
+        <text x="525" y="225" fill="#4169E1" fontSize="8" textAnchor="middle" transform="rotate(90 525 225)">2° Blu</text>
+
+        <text x="35" y="225" fill="#FF6347" fontSize="8" textAnchor="middle" transform="rotate(-90 35 225)">3° Ar.</text>
+        <text x="565" y="225" fill="#FF6347" fontSize="8" textAnchor="middle" transform="rotate(90 565 225)">3° Ar.</text>
+
+        <text x="300" y="408" fill="#DC143C" fontSize="11" fontWeight="bold" textAnchor="middle">3° Anello Rosso</text>
+
+        {/* === HOVER INFO BOX === */}
+        {hoverInfo && (
           <g>
-            <rect x="200" y="300" width="100" height="35" rx="5" fill="#000" opacity="0.9" />
-            <text x="250" y="320" fill="#00ff88" fontSize="16" fontWeight="bold" textAnchor="middle">
-              €{getSectorForRegion(hoveredSector)?.price || '?'}
-            </text>
-            <text x="250" y="332" fill="#fff" fontSize="8" textAnchor="middle" opacity="0.7">
-              {getSectorForRegion(hoveredSector)?.name?.substring(0, 25) || ''}
-            </text>
+            <rect x="175" y="310" width="250" height="55" rx="8" fill="rgba(0,0,0,0.95)" stroke="#00FF7F" strokeWidth="1" />
+            <text x="300" y="332" fill="#00FF7F" fontSize="20" fontWeight="bold" textAnchor="middle">€{hoverInfo.price}</text>
+            <text x="300" y="350" fill="#fff" fontSize="11" textAnchor="middle">{hoverInfo.label}</text>
+            <text x="300" y="362" fill="#aaa" fontSize="9" textAnchor="middle">({hoverInfo.category})</text>
           </g>
         )}
       </svg>
-      
-      {/* Info Panel */}
-      {(hoveredSector || selectedSector) && (
-        <div className="mt-3 p-3 bg-white/10 rounded-lg text-center">
-          <div className="text-white font-bold">
-            {getSectorForRegion(hoveredSector)?.name || sectors.find(s => s.name === selectedSector)?.name}
-          </div>
-          <div className="text-green-400 text-xl font-bold">
-            €{getSectorForRegion(hoveredSector)?.price || sectors.find(s => s.name === selectedSector)?.price}
-          </div>
-          {(getSectorForRegion(hoveredSector)?.notes || sectors.find(s => s.name === selectedSector)?.notes) && (
-            <div className="text-gray-400 text-xs mt-1">
-              {getSectorForRegion(hoveredSector)?.notes || sectors.find(s => s.name === selectedSector)?.notes}
+
+      {/* Selected Category Info */}
+      {selectedSector && (
+        <div className="mt-4 p-4 bg-green-500/20 border border-green-500/50 rounded-xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-green-400 text-xs font-semibold uppercase tracking-wide">Categoria Selezionata</div>
+              <div className="text-white text-lg font-bold">{selectedSector}</div>
             </div>
-          )}
+            <div className="text-3xl font-bold text-green-400">
+              €{sectors.find(s => s.name === selectedSector)?.price}
+            </div>
+          </div>
         </div>
       )}
     </div>
