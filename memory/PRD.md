@@ -268,3 +268,22 @@ Ogni nuovo evento può avere questi settori preconfigurati:
 ### Cron details
 APScheduler AsyncIOScheduler in `services/scheduler.py` con `CronTrigger(hour="0,6,12,18")`.
 Logging completo in stdout backend; errori catturati in `db.sync_logs`.
+
+## Session Completed (Apr 2026 - Auto-discovery leghe)
+- [x] **COMPETITIONS estesa a 33 leghe** (era 13): aggiunte MLS, Liga MX, J1 League,
+  Eredivisie, Jupiler Pro League, Championship, 2. Bundesliga, Ligue 2,
+  Coupe de France, KNVB Beker, Conference League, Nations League,
+  Club World Cup, EURO, Copa America, AFCON, Asian Cup,
+  Copa Libertadores, AFC Champions League
+- [x] **`ensure_league_in_db()`** - durante ogni sync auto-crea le leghe in `db.leagues`
+  con campo `auto_created: true`. Eventi accessibili immediatamente via URL
+- [x] **GET `/api/leagues/active-slugs`** - endpoint per frontend routing dinamico
+- [x] **Header dinamico** mega menu:
+  - Sezione "+Altre leghe" auto-rilevata (MLS, Liga MX, J1, Eredivisie, ecc.)
+  - Sezione "+Altre coppe" auto-rilevata (Conference League, Nations League,
+    Copa America, ecc.)
+- [x] **LeaguePage**: ora gestisce sia "cup" che "league senza teams" (mostra eventi)
+- [x] **DynamicRouter**: LEAGUE_SLUGS aggiornato con tutti i 32 slug curated
+- [x] **968 eventi totali** in DB (era 353): MLS 366, J1 League 61,
+  Copa Libertadores 64, World Cup 104, Eredivisie 31, Liga Portugal 28, Champions 5
+- [x] **19 leghe NUOVE** create automaticamente al primo sync

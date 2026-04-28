@@ -22,12 +22,24 @@ const ScrollToTop = () => {
   return null;
 };
 
-// Known league slugs for routing
+// Known league slugs for routing - ESTESO con tutti gli slug disponibili
+// (auto-aggiornato dal sync matchesio.com - vedi ensure_league_in_db)
 const LEAGUE_SLUGS = [
+  // Top leagues
   'serie-a', 'premier-league', 'la-liga', 'bundesliga', 'ligue-1',
   'liga-portugal', 'super-lig',
-  'champions-league', 'europa-league', 'coppa-italia', 'fa-cup', 'copa-del-rey',
-  'dfb-pokal', 'fifa-world-cup-2026'
+  // Other European leagues
+  'eredivisie', 'jupiler-pro-league', 'championship', '2-bundesliga', 'ligue-2',
+  // Extra-Europe
+  'mls', 'liga-mx', 'j1-league',
+  // National cups
+  'coppa-italia', 'copa-del-rey', 'fa-cup', 'dfb-pokal', 'coupe-de-france', 'knvb-beker',
+  // European cups
+  'champions-league', 'europa-league', 'conference-league', 'uefa-nations-league',
+  // International
+  'fifa-world-cup-2026', 'fifa-club-world-cup', 'euro-championship',
+  'copa-america', 'africa-cup-of-nations', 'asian-cup',
+  'copa-libertadores', 'afc-champions-league'
 ];
 
 // Dynamic Router component to handle translated URLs

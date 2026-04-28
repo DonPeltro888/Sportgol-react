@@ -30,6 +30,15 @@ class LeagueUpdate(BaseModel):
     order: Optional[int] = None
 
 # Public endpoints
+@router.get("/leagues/active-slugs")
+async def get_active_slugs():
+    """Restituisce solo l'array degli slug attivi - usato dal frontend per routing dinamico."""
+    leagues = await db.leagues.find(
+        {"active": True}, {"_id": 0, "slug": 1}
+    ).to_list(200)
+    return {"slugs": [l["slug"] for l in leagues if l.get("slug")]}
+
+
 @router.get("/leagues")
 async def get_leagues(type: Optional[str] = None, active_only: bool = True):
     """Get all leagues/cups"""

@@ -118,7 +118,8 @@ const Header = () => {
     }
   ];
 
-  const cups = [
+  // Cups list - HARDCODED top + DYNAMIC from DB (auto-discovered via sync)
+  const hardcodedCups = [
     { labelKey: 'fifaWorldCup2026', slug: 'fifa-world-cup-2026', countryKey: 'usa', flag: '🌎' },
     { labelKey: 'championsLeague', slug: 'champions-league', countryKey: 'europe', flag: '🏆' },
     { labelKey: 'europaLeague', slug: 'europa-league', countryKey: 'europe', flag: '🏆' },
@@ -127,6 +128,38 @@ const Header = () => {
     { labelKey: 'faCup', slug: 'fa-cup', countryKey: 'england', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
     { labelKey: 'dfbPokal', slug: 'dfb-pokal', countryKey: 'germany', flag: '🇩🇪' }
   ];
+
+  const [extraCups, setExtraCups] = useState([]);
+  const [extraLeagues, setExtraLeagues] = useState([]);
+
+  // Fetch additional leagues/cups from DB - auto-discovered via /admin/sync
+  useEffect(() => {
+    const fetchExtra = async () => {
+      try {
+        const known = leagues.map(l => l.slug);
+        // Cups
+        const rCups = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/leagues?type=cup&active_only=true`);
+        if (rCups.ok) {
+          const data = await rCups.json();
+          const knownCupSlugs = hardcodedCups.map(c => c.slug);
+          const extras = (data.leagues || []).filter(l => !knownCupSlugs.includes(l.slug));
+          setExtraCups(extras.map(l => ({ label: l.name, slug: l.slug, country: l.country, flag: '⚽' })));
+        }
+        // Leagues
+        const rLeagues = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/leagues?type=league&active_only=true`);
+        if (rLeagues.ok) {
+          const data = await rLeagues.json();
+          const extras = (data.leagues || []).filter(l => !known.includes(l.slug));
+          setExtraLeagues(extras.map(l => ({ label: l.name, slug: l.slug, country: l.country })));
+        }
+      } catch (e) {
+        console.warn('Cannot fetch extra leagues/cups', e);
+      }
+    };
+    fetchExtra();
+  }, []);
+
+  const cups = hardcodedCups;
 
   const getTeamSlug = (teamName) => {
     return teamName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -268,6 +301,27 @@ const Header = () => {
                             )}
                           </div>
                         ))}
+                        {/* Extra leagues auto-discovered via sync */}
+                        {extraLeagues.length > 0 && (
+                          <>
+                            <div className="px-4 py-2 mt-2 text-xs text-gray-400 uppercase tracking-wider border-t border-gray-100 bg-gray-50">
+                              + Altre leghe
+                            </div>
+                            {extraLeagues.map((league) => (
+                              <button
+                                key={league.slug}
+                                onClick={() => handleLeagueClick(league.slug)}
+                                className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:text-[#FF6B35] hover:bg-gray-50 transition-colors flex items-center gap-3 border-b border-gray-100 last:border-b-0"
+                              >
+                                <span className="text-lg">⚽</span>
+                                <div>
+                                  <div className="font-medium">{league.label}</div>
+                                  <div className="text-xs text-gray-500">{league.country}</div>
+                                </div>
+                              </button>
+                            ))}
+                          </>
+                        )}
                       </div>
                     </div>
 
@@ -279,7 +333,7 @@ const Header = () => {
                           {t('cups')}
                         </h3>
                       </div>
-                      <div className="p-2">
+                      <div className="p-2 max-h-[420px] overflow-y-auto">
                         {cups.map((cup) => (
                           <button
                             key={cup.slug}
@@ -301,6 +355,27 @@ const Header = () => {
                             </div>
                           </button>
                         ))}
+                        {/* Extra cups auto-discovered via sync */}
+                        {extraCups.length > 0 && (
+                          <>
+                            <div className="px-4 py-2 mt-2 text-xs text-gray-400 uppercase tracking-wider border-t border-gray-100">
+                              + Altre coppe
+                            </div>
+                            {extraCups.map((cup) => (
+                              <button
+                                key={cup.slug}
+                                onClick={() => handleLeagueClick(cup.slug)}
+                                className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:text-[#FF6B35] hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-3"
+                              >
+                                <span className="text-lg">{cup.flag}</span>
+                                <div>
+                                  <div className="font-medium">{cup.label}</div>
+                                  <div className="text-xs text-gray-500">{cup.country}</div>
+                                </div>
+                              </button>
+                            ))}
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -17,20 +17,51 @@ logger = logging.getLogger(__name__)
 BASE_URL = "https://www.matchesio.com/it/competition"
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 
+# Mapping slug matchesio -> (nome lega DB, country, type, order menu).
+# Lista CURATA: solo competizioni rilevanti per ticket sales.
+# Auto-discovery legge il sitemap matchesio per nuove voci, ma SOLO quelle
+# in WHITELIST_AUTO_DISCOVER vengono effettivamente importate.
 COMPETITIONS = [
-    ("serie-a-it",            "SERIE A",            "Italy",         "league"),
-    ("premier-league-gb-eng", "PREMIER LEAGUE",     "England",       "league"),
-    ("la-liga-es",            "LA LIGA",            "Spain",         "league"),
-    ("bundesliga-de",         "BUNDESLIGA",         "Germany",       "league"),
-    ("ligue-1-fr",            "LIGUE 1",            "France",        "league"),
-    ("primeira-liga-pt",      "LIGA PORTUGAL",      "Portugal",      "league"),
-    ("super-lig-tr",          "SUPER LIG",          "Turkey",        "league"),
-    ("uefa-champions-league", "CHAMPIONS LEAGUE",   "Europe",        "cup"),
-    ("coppa-italia-it",       "COPPA ITALIA",       "Italy",         "cup"),
-    ("copa-del-rey-es",       "COPA DEL REY",       "Spain",         "cup"),
-    ("fa-cup-gb-eng",         "FA CUP",             "England",       "cup"),
-    ("dfb-pokal-de",          "DFB POKAL",          "Germany",       "cup"),
-    ("world-cup",             "FIFA WORLD CUP 2026", "USA / Canada / Mexico", "cup"),
+    # (matchesio_slug, db_slug, nome lega DB, country, type, order)
+    # ===== TOP 7 LEAGUES =====
+    ("serie-a-it",            "serie-a",            "SERIE A",            "Italy",         "league",  1),
+    ("premier-league-gb-eng", "premier-league",     "PREMIER LEAGUE",     "England",       "league",  2),
+    ("la-liga-es",            "la-liga",            "LA LIGA",            "Spain",         "league",  3),
+    ("bundesliga-de",         "bundesliga",         "BUNDESLIGA",         "Germany",       "league",  4),
+    ("ligue-1-fr",            "ligue-1",            "LIGUE 1",            "France",        "league",  5),
+    ("primeira-liga-pt",      "liga-portugal",      "LIGA PORTUGAL",      "Portugal",      "league",  6),
+    ("super-lig-tr",          "super-lig",          "SUPER LIG",          "Turkey",        "league",  7),
+    # ===== ALTRE LEGHE EUROPEE =====
+    ("eredivisie-nl",         "eredivisie",         "EREDIVISIE",         "Netherlands",   "league",  8),
+    ("jupiler-pro-league-be", "jupiler-pro-league", "JUPILER PRO LEAGUE", "Belgium",       "league",  9),
+    ("championship-gb-eng",   "championship",       "CHAMPIONSHIP",       "England",       "league", 20),
+    ("2-bundesliga-de",       "2-bundesliga",       "2. BUNDESLIGA",      "Germany",       "league", 21),
+    ("ligue-2-fr",            "ligue-2",            "LIGUE 2",            "France",        "league", 22),
+    # ===== LEGHE EXTRA-EUROPA =====
+    ("major-league-soccer-us", "mls",               "MLS",                "USA",           "league", 30),
+    ("liga-mx-mx",            "liga-mx",            "LIGA MX",            "Mexico",        "league", 31),
+    ("j1-league",             "j1-league",          "J1 LEAGUE",          "Japan",         "league", 32),
+    # ===== COPPE NAZIONALI =====
+    ("coppa-italia-it",       "coppa-italia",       "COPPA ITALIA",       "Italy",         "cup",    50),
+    ("copa-del-rey-es",       "copa-del-rey",       "COPA DEL REY",       "Spain",         "cup",    51),
+    ("fa-cup-gb-eng",         "fa-cup",             "FA CUP",             "England",       "cup",    52),
+    ("dfb-pokal-de",          "dfb-pokal",          "DFB POKAL",          "Germany",       "cup",    53),
+    ("coupe-de-france-fr",    "coupe-de-france",    "COUPE DE FRANCE",    "France",        "cup",    54),
+    ("knvb-beker-nl",         "knvb-beker",         "KNVB BEKER",         "Netherlands",   "cup",    55),
+    # ===== COPPE EUROPEE =====
+    ("uefa-champions-league",          "champions-league",   "CHAMPIONS LEAGUE",     "Europe", "cup", 70),
+    ("uefa-europa-league",             "europa-league",      "EUROPA LEAGUE",        "Europe", "cup", 71),
+    ("uefa-europa-conference-league",  "conference-league",  "CONFERENCE LEAGUE",    "Europe", "cup", 72),
+    ("uefa-nations-league",            "uefa-nations-league", "UEFA NATIONS LEAGUE", "Europe", "cup", 73),
+    # ===== INTERNAZIONALI =====
+    ("world-cup",             "fifa-world-cup-2026", "FIFA WORLD CUP 2026",  "USA / Canada / Mexico", "cup", 90),
+    ("fifa-club-world-cup",   "fifa-club-world-cup", "FIFA CLUB WORLD CUP",  "International", "cup",  91),
+    ("euro-championship",     "euro-championship",   "EURO CHAMPIONSHIP",    "Europe",        "cup",  92),
+    ("copa-america",          "copa-america",        "COPA AMERICA",         "South America", "cup",  93),
+    ("africa-cup-of-nations", "africa-cup-of-nations", "AFRICA CUP OF NATIONS", "Africa",     "cup",  94),
+    ("asian-cup",             "asian-cup",           "ASIAN CUP",            "Asia",          "cup",  95),
+    ("conmebol-libertadores", "copa-libertadores",   "COPA LIBERTADORES",    "South America", "cup",  96),
+    ("afc-champions-league",  "afc-champions-league", "AFC CHAMPIONS LEAGUE", "Asia",         "cup",  97),
 ]
 
 STANDARD_SECTORS = [
@@ -146,6 +177,44 @@ def fetch_competition_json(slug: str):
         return []
 
 
+async def ensure_league_in_db(db_slug: str, league_name: str, country: str,
+                              league_type: str, order: int) -> dict:
+    """
+    Garantisce che la lega esista in db.leagues.
+    Restituisce un dict con info: {created: bool, slug, name}
+    """
+    existing = await db.leagues.find_one({"slug": db_slug})
+    if existing:
+        # Aggiorna order se cambiato (mantiene altre proprietà admin-edit)
+        await db.leagues.update_one(
+            {"slug": db_slug},
+            {"$set": {
+                "name": existing.get("name") or league_name.title(),
+                "country": existing.get("country") or country,
+                "type": existing.get("type") or league_type,
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            }}
+        )
+        return {"created": False, "slug": db_slug, "name": league_name}
+
+    # Crea nuova lega
+    league_doc = {
+        "name": league_name.title(),
+        "slug": db_slug,
+        "country": country,
+        "type": league_type,
+        "logo_url": "",
+        "active": True,
+        "order": order,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "auto_created": True,
+    }
+    await db.leagues.insert_one(league_doc)
+    logger.info(f"sync: lega creata automaticamente: {league_name} (slug={db_slug})")
+    return {"created": True, "slug": db_slug, "name": league_name}
+
+
 async def sync_all_competitions(replace_all: bool = False) -> Dict:
     """
     Sincronizza tutti gli eventi da matchesio.com.
@@ -164,6 +233,7 @@ async def sync_all_competitions(replace_all: bool = False) -> Dict:
         "total_inserted": 0,
         "total_updated": 0,
         "total_deleted_past": 0,
+        "leagues_created": [],
         "per_league": {},
         "errors": [],
         "started_at": datetime.now(timezone.utc).isoformat(),
@@ -171,12 +241,12 @@ async def sync_all_competitions(replace_all: bool = False) -> Dict:
 
     # 1. SCARICA TUTTI I JSON PRIMA di toccare il DB (protezione contro siti down)
     fetched_data = []
-    for slug, league_name, country, league_type in COMPETITIONS:
-        matches = fetch_competition_json(slug)
+    for matchesio_slug, db_slug, league_name, country, league_type, order in COMPETITIONS:
+        matches = fetch_competition_json(matchesio_slug)
         future_matches = [m for m in matches if m.get("date", "") >= today_str]
-        fetched_data.append((slug, league_name, country, league_type, future_matches))
+        fetched_data.append((matchesio_slug, db_slug, league_name, country, league_type, order, future_matches))
 
-    total_fetched = sum(len(t[4]) for t in fetched_data)
+    total_fetched = sum(len(t[6]) for t in fetched_data)
     if total_fetched < 50:
         # Soglia di sicurezza: matchesio.com probabilmente down o cambiato
         err = (
@@ -198,8 +268,17 @@ async def sync_all_competitions(replace_all: bool = False) -> Dict:
 
     # 3. Inserisce/aggiorna gli eventi scaricati
     img_idx = 0
-    for slug, league_name, country, league_type, future_matches in fetched_data:
+    for matchesio_slug, db_slug, league_name, country, league_type, order, future_matches in fetched_data:
         try:
+            # 3a. Auto-create/sync della lega in db.leagues
+            league_status = await ensure_league_in_db(db_slug, league_name, country, league_type, order)
+            if league_status["created"]:
+                stats["leagues_created"].append({
+                    "name": league_name,
+                    "slug": db_slug,
+                    "type": league_type,
+                })
+
             league_count = 0
 
             for m in future_matches:
@@ -281,7 +360,7 @@ async def sync_all_competitions(replace_all: bool = False) -> Dict:
             logger.info(f"sync: {league_name} -> {league_count} eventi futuri")
 
         except Exception as e:
-            err_msg = f"{slug}: {str(e)}"
+            err_msg = f"{matchesio_slug}: {str(e)}"
             stats["errors"].append(err_msg)
             logger.exception(f"sync errore: {err_msg}")
 

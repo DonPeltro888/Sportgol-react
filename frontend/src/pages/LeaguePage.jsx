@@ -61,8 +61,8 @@ const LeaguePage = ({ urlType }) => {
         setLeagueData(data);
         setTeams(data.teams || []);
         
-        // If it's a cup, fetch events
-        if (data.type === 'cup') {
+        // Fetch events for cups OR leagues without teams (auto-discovered new leagues)
+        if (data.type === 'cup' || !data.teams || data.teams.length === 0) {
           fetchCupEvents(data.name);
         }
       } else {
@@ -129,6 +129,8 @@ const LeaguePage = ({ urlType }) => {
 
   const leagueName = leagueData?.name || '';
   const isCup = leagueData?.type === 'cup';
+  // Mostra anche per "league" se non ci sono teams (auto-discovered tramite sync)
+  const showAsEventList = isCup || (leagueData && (!leagueData.teams || leagueData.teams.length === 0));
   const country = leagueData?.country || '';
   
   const seoTitle = getSeoTitle('league', leagueName, lang);
@@ -223,7 +225,7 @@ const LeaguePage = ({ urlType }) => {
       {/* Content Section */}
       <div className="py-8 px-4 bg-gray-50">
         <div className="container mx-auto max-w-4xl">
-          {isCup ? (
+          {showAsEventList ? (
             // Cup Events View
             <>
               {loading ? (
