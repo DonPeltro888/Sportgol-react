@@ -32,12 +32,23 @@ const SanSiroMap = ({ sectors = [], onSectorClick, selectedSector }) => {
     const sector = getCategoryForRegion(regionId);
     const isSelected = sector && selectedSector === sector.name;
     const isHovered = hoveredSector === regionId;
+    const hasSelection = selectedSector !== null;
     
     if (!sector) return { fill: '#333', opacity: 0.3, cursor: 'default' };
-    if (!sector.available) return { fill: '#444', opacity: 0.4, cursor: 'not-allowed' };
+    if (!sector.available) return { fill: '#444', opacity: 0.3, cursor: 'not-allowed' };
+    
+    // Se c'è una selezione, mostra colorato solo il settore selezionato
+    if (hasSelection && !isSelected) {
+      return {
+        fill: isHovered ? mapping?.color || '#666' : '#333',
+        opacity: isHovered ? 0.7 : 0.3,
+        cursor: 'pointer',
+        transition: 'all 0.2s ease'
+      };
+    }
     
     return {
-      fill: isSelected || isHovered ? '#00FF7F' : mapping?.color || '#666',
+      fill: isSelected ? '#00FF7F' : isHovered ? '#00FF7F' : mapping?.color || '#666',
       opacity: 1,
       cursor: 'pointer',
       transition: 'all 0.2s ease'
