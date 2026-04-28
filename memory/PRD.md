@@ -201,7 +201,7 @@ Ogni nuovo evento può avere questi settori preconfigurati:
 - [ ] Mappe SVG dinamiche per stadi diversi (oggi solo San Siro)
 
 ## Session Completed (Apr 2026 - Aggiunta Eventi Maggio + WC2026)
-- [x] **+238 eventi inseriti** in DB tramite `seed_additional_events.py`:
+- [x] **+238 eventi inseriti** in DB tramite `seed_additional_events.py`
   - Serie A: 39 partite (giornate 33-36, Maggio 2026)
   - Premier League: 31 partite (matchdays 36-38)
   - La Liga: 30 partite (matchdays 36-38, incluso Real Madrid vs Barcelona)
@@ -222,3 +222,25 @@ Ogni nuovo evento può avere questi settori preconfigurati:
 - [x] **Traduzioni** IT/ES/EN per fifaWorldCup2026 e usa
 - [x] **LeaguePage** ora carica fino a 100 eventi per coppa (era 20)
 - [x] **Verificato visivamente**: Inter-Parma, Inter team page (6 partite), FIFA WC page (80 partite), Home (50 eventi)
+
+## Session Completed (Apr 2026 - Import REALE da matchesio.com)
+- [x] 🎉 **SCOPERTA**: matchesio.com offre JSON pubblici di calendari calcio gratis (NO Cloudflare!)
+  - Pattern URL: `https://www.matchesio.com/it/competition/{slug}/export/json/`
+  - 13 competizioni disponibili: Serie A, Premier League, La Liga, Bundesliga, Ligue 1,
+    Liga Portugal, Super Lig, Champions League, Coppa Italia, Copa del Rey, FA Cup,
+    DFB Pokal, FIFA World Cup 2026
+- [x] Script `import_matchesio.py` che cancella DB e importa dati ufficiali
+- [x] **353 eventi reali** importati (date/stadi/squadre ufficiali, partite future)
+- [x] **104 partite FIFA World Cup 2026** complete (vs 80 placeholder precedenti)
+- [x] **Rimossi tutti i prezzi** da eventi (richiesta utente)
+- [x] **7 settori standard**: Cat 1 - Lower Central, Cat 1 - Middle Central, Cat 1 - Normal,
+  Cat 2 - Long Upper, Cat 2 - Short Lower, Cat 3 - Short Side Middle, Cat 4 - Short Upper
+- [x] **Frontend**: rimossi prezzi da `EventListItem.jsx` e `EventDetail.jsx`
+- [x] **Home columns balanced**: stesso numero di eventi in UK Events / International Events
+- [x] **Cancellati eventi passati**: filtro automatico per `sort_date >= today`
+- [x] **Stadium maps disabilitate** automaticamente (solo flag esplicito da admin)
+
+## Possibile Enhancement (matchesio.com)
+- Aggiungere endpoint admin `/api/admin/sync-matchesio` per refresh on-demand
+- Cron job giornaliero per auto-aggiornamento partite (status, results, ecc.)
+- Mapping dei nuovi campionati man mano che matchesio li aggiunge
