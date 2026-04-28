@@ -57,8 +57,8 @@ const DynamicRouter = () => {
     slug = dynamicPath.replace(/-tickets$/, '');
   }
   else {
-    // Not a translated URL, let fallback handle it
-    return <Home />;
+    // Not a translated URL → 404
+    return <NotFound />;
   }
   
   // Determine if it's a league or team based on known slugs
@@ -82,8 +82,11 @@ import {
   AdminTranslations,
   AdminSettings,
   AdminSectors,
-  AdminLeaguesTeams
+  AdminLeaguesTeams,
+  AdminSync
 } from './pages/admin';
+import NotFound from './pages/NotFound';
+import WhatsAppButton from './components/WhatsAppButton';
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -166,15 +169,29 @@ function App() {
             <Route path="/admin/leagues-teams" element={
               <ProtectedRoute><AdminLeaguesTeams /></ProtectedRoute>
             } />
+            <Route path="/admin/sync" element={
+              <ProtectedRoute><AdminSync /></ProtectedRoute>
+            } />
             
             {/* Redirect /admin to dashboard */}
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+
+            {/* 404 - Catch all */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
+          <ConditionalWhatsApp />
         </div>
       </AdminAuthProvider>
     </LanguageProvider>
     </Router>
   );
 }
+
+// Show WhatsApp button only on public pages (NOT in admin area)
+const ConditionalWhatsApp = () => {
+  const { pathname } = useLocation();
+  if (pathname.startsWith('/admin')) return null;
+  return <WhatsAppButton />;
+};
 
 export default App;

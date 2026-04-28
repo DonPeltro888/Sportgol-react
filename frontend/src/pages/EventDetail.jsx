@@ -6,6 +6,8 @@ import Footer from '../components/Footer';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { EventSchema, BreadcrumbSchema } from '../components/SchemaOrg';
 import SanSiroMap from '../components/SanSiroMap';
+import UrgencyBadges from '../components/UrgencyBadges';
+import TrustBadges from '../components/TrustBadges';
 import { Calendar, MapPin, MessageCircle, ChevronDown, Loader2, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import SEOHead from '../components/SEOHead';
@@ -252,6 +254,12 @@ const EventDetail = () => {
 
               {activeTab === 'tickets' && (
                 <div className="space-y-4">
+                  {/* Urgency badges */}
+                  <UrgencyBadges
+                    eventId={id}
+                    availableTickets={event.available_tickets}
+                    featured={event.featured}
+                  />
                   {ticketCategories.map((cat, idx) => (
                     <div key={idx} className="bg-white border border-gray-200 rounded-xl p-5 hover:border-[#0984E3] hover:shadow-lg transition-all">
                       <div className="flex items-center justify-between mb-3">
@@ -265,6 +273,8 @@ const EventDetail = () => {
                       </button>
                     </div>
                   ))}
+                  {/* Trust badges below tickets */}
+                  <TrustBadges />
                 </div>
               )}
 
@@ -306,10 +316,11 @@ const EventDetail = () => {
 
             {/* Sidebar */}
             <div>
-              <div className="bg-white border border-gray-200 rounded-xl p-5 sticky top-4">
+              <div className="bg-white border border-gray-200 rounded-xl p-5 sticky top-4 space-y-4">
                 <button onClick={handleContactUs} className="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">
                   <MessageCircle className="w-5 h-5" /> Contattaci su WhatsApp
                 </button>
+                <TrustBadges />
               </div>
             </div>
           </div>

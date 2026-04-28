@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from routes import events, categories, search
 from routes import admin_auth, admin_content
 from routes import upload, seo, sectors, leagues, teams
+from routes import sync as sync_routes
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -79,6 +80,7 @@ app.include_router(seo.router)
 app.include_router(sectors.router)
 app.include_router(leagues.router)
 app.include_router(teams.router)
+app.include_router(sync_routes.router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -99,8 +101,20 @@ logger = logging.getLogger(__name__)
 async def startup_event():
     logger.info("Starting Golevents API...")
     logger.info(f"Connected to MongoDB: {os.environ['DB_NAME']}")
+    # Avvia scheduler per sync automatico ogni 6h
+    try:
+        from services.scheduler import start_scheduler
+        start_scheduler()
+        logger.info("Scheduler avviato (sync matchesio.com ogni 6h)")
+    except Exception as e:
+        logger.error(f"Errore avvio scheduler: {e}")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    try:
+        from services.scheduler import stop_scheduler
+        stop_scheduler()
+    except Exception:
+        pass
     client.close()
     logger.info("MongoDB connection closed")

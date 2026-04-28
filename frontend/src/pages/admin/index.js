@@ -7,3 +7,4 @@ export { default as AdminTranslations } from './AdminTranslations';
 export { default as AdminSettings } from './AdminSettings';
 export { default as AdminSectors } from './AdminSectors';
 export { default as AdminLeaguesTeams } from './AdminLeaguesTeams';
+export { default as AdminSync } from './AdminSync';
