@@ -164,7 +164,6 @@ const EventListItem = ({ event }) => {
   const title = formatCupTitle(rawTitle, event.league);
   const rawLocation = typeof event.location === 'object' ? (event.location.it || event.location.en || '') : event.location;
   const location = translateCity(rawLocation, lang);
-  const priceMin = event.price_range?.min || event.ticket_categories?.[0]?.price_min || 45;
 
   return (
     <Link 
@@ -192,10 +191,8 @@ const EventListItem = ({ event }) => {
           {event.stadium || 'Stadium TBD'}
         </p>
         
-        {/* Price & Location */}
+        {/* Location */}
         <div className="flex items-center gap-2 mt-1">
-          <span className="text-[#FF6B35] font-bold text-sm">€{priceMin}+</span>
-          <span className="text-gray-400">•</span>
           <span className="text-gray-500 text-xs flex items-center gap-1 truncate">
             <MapPin className="w-3 h-3 flex-shrink-0" />
             {location || 'Location TBD'}

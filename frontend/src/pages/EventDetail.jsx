@@ -259,9 +259,6 @@ const EventDetail = () => {
                           <h3 className="font-bold text-[#2D3436]">{cat.name}</h3>
                           {cat.notes && <p className="text-[#0984E3] text-xs mt-1">{cat.notes}</p>}
                         </div>
-                        <div className="text-right">
-                          <div className="text-xl font-bold text-[#FF6B35]">€{Math.round(cat.price)}</div>
-                        </div>
                       </div>
                       <button onClick={handleContactUs} className="w-full bg-[#0984E3] hover:bg-[#0984E3]/90 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2">
                         <MessageCircle className="w-4 h-4" /> Contattaci

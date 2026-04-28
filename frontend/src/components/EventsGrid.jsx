@@ -81,6 +81,11 @@ const EventsGrid = ({ events, loading }) => {
     [...PRIORITY_TEAMS.it, ...PRIORITY_TEAMS.es, ...PRIORITY_TEAMS.en]
   );
 
+  // Balance columns: show same number of events on both sides
+  const minColumnSize = Math.min(localEvents.length, internationalEvents.length);
+  const balancedLocal = minColumnSize > 0 ? localEvents.slice(0, minColumnSize) : localEvents;
+  const balancedInternational = minColumnSize > 0 ? internationalEvents.slice(0, minColumnSize) : internationalEvents;
+
   return (
     <section className="py-6 px-4 bg-white relative overflow-hidden z-0">
       <div className="container mx-auto relative">
@@ -111,12 +116,12 @@ const EventsGrid = ({ events, loading }) => {
                   {t('eventsCountry')}
                 </span>
                 <span className="text-xs text-gray-500 ml-auto">
-                  {localEvents.length} {t('events')}
+                  {balancedLocal.length} {t('events')}
                 </span>
               </div>
               <div>
-                {localEvents.length > 0 ? (
-                  localEvents.map((event) => (
+                {balancedLocal.length > 0 ? (
+                  balancedLocal.map((event) => (
                     <EventListItem key={event.id || event._id} event={event} />
                   ))
                 ) : (
@@ -135,12 +140,12 @@ const EventsGrid = ({ events, loading }) => {
                   {t('eventsInternational')}
                 </span>
                 <span className="text-xs text-gray-500 ml-auto">
-                  {internationalEvents.length} {t('events')}
+                  {balancedInternational.length} {t('events')}
                 </span>
               </div>
               <div>
-                {internationalEvents.length > 0 ? (
-                  internationalEvents.map((event) => (
+                {balancedInternational.length > 0 ? (
+                  balancedInternational.map((event) => (
                     <EventListItem key={event.id || event._id} event={event} />
                   ))
                 ) : (
