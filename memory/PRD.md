@@ -163,6 +163,20 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 - [x] **Breadcrumbs visivi**: Navigazione a briciole di pane su tutte le pagine interne
 - [x] **Fix Schema.org**: Risolto bug con react-helmet-async usando useEffect per iniezione DOM
 - [x] **Test SEO 100% passati**: Sitemap, robots.txt, Schema.org, breadcrumbs verificati
+- [x] **Pagina Admin Settori**: Gestione settori/prezzi per ogni evento con settori default e bulk operations
+- [x] **Collezione Leghe (DB)**: 7 campionati + 6 coppe nel database
+- [x] **Collezione Squadre (DB)**: 137 squadre collegate alle leghe
+- [x] **Pagina Admin Leghe & Squadre**: CRUD completo per leghe e squadre
+- [x] **Frontend Dinamico**: LeaguePage ora carica squadre dal database invece che da array hardcoded
+
+## Settori Default per Eventi
+Ogni nuovo evento può avere questi settori preconfigurati:
+- Cat 1 Premium
+- Cat 1 Normal
+- Cat 2 Short Side Lower
+- Cat 2 Long Side Upper
+- Cat 3 Short Side
+- Best Available
   
 ## REGOLE URL MEMORIZZATE (NON MODIFICARE):
 - **IT**: biglietti PRIMA del nome con trattino → `/biglietti-inter`

@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 # Import route modules
 from routes import events, categories, search
 from routes import admin_auth, admin_content
-from routes import upload, seo, sectors
+from routes import upload, seo, sectors, leagues, teams
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -77,6 +77,8 @@ app.include_router(admin_content.router)
 app.include_router(upload.router)
 app.include_router(seo.router)
 app.include_router(sectors.router)
+app.include_router(leagues.router)
+app.include_router(teams.router)
 
 app.add_middleware(
     CORSMiddleware,
