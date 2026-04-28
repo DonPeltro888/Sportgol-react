@@ -40,6 +40,7 @@ export const translations = {
     france: "Francia",
     turkey: "Turchia",
     europe: "Europa",
+    usa: "USA / Canada / Messico",
     
     // Cups
     championsLeague: "CHAMPIONS LEAGUE",
@@ -48,6 +49,7 @@ export const translations = {
     copaDelRey: "COPA DEL REY",
     faCup: "FA CUP",
     dfbPokal: "DFB POKAL",
+    fifaWorldCup2026: "MONDIALI 2026",
     
     // Hero
     liveEvents: "Eventi Live",
@@ -147,6 +149,7 @@ export const translations = {
     france: "Francia",
     turkey: "Turquía",
     europe: "Europa",
+    usa: "EE.UU. / Canadá / México",
     
     // Cups
     championsLeague: "CHAMPIONS LEAGUE",
@@ -155,6 +158,7 @@ export const translations = {
     copaDelRey: "COPA DEL REY",
     faCup: "FA CUP",
     dfbPokal: "DFB POKAL",
+    fifaWorldCup2026: "MUNDIAL 2026",
     
     // Hero
     liveEvents: "Eventos en Vivo",
@@ -254,6 +258,7 @@ export const translations = {
     france: "France",
     turkey: "Turkey",
     europe: "Europe",
+    usa: "USA / Canada / Mexico",
     
     // Cups
     championsLeague: "CHAMPIONS LEAGUE",
@@ -262,6 +267,7 @@ export const translations = {
     copaDelRey: "COPA DEL REY",
     faCup: "FA CUP",
     dfbPokal: "DFB POKAL",
+    fifaWorldCup2026: "WORLD CUP 2026",
     
     // Hero
     liveEvents: "Live Events",
@@ -325,3 +331,4 @@ export const translations = {
 export const getTranslation = (lang, key) => {
   return translations[lang]?.[key] || translations.en[key] || key;
 };
+;

@@ -198,3 +198,27 @@ Ogni nuovo evento può avere questi settori preconfigurati:
 - [ ] Notifiche email
 - [ ] Analytics dashboard
 - [ ] A/B testing SEO
+- [ ] Mappe SVG dinamiche per stadi diversi (oggi solo San Siro)
+
+## Session Completed (Apr 2026 - Aggiunta Eventi Maggio + WC2026)
+- [x] **+238 eventi inseriti** in DB tramite `seed_additional_events.py`:
+  - Serie A: 39 partite (giornate 33-36, Maggio 2026)
+  - Premier League: 31 partite (matchdays 36-38)
+  - La Liga: 30 partite (matchdays 36-38, incluso Real Madrid vs Barcelona)
+  - Bundesliga: 18 partite (matchdays 33-34)
+  - Ligue 1: 16 partite (giornate finali)
+  - Liga Portugal: 7 partite (incluso Sporting vs Benfica)
+  - Super Lig: 6 partite (derby Galatasaray-Fenerbahçe)
+  - Champions League: 5 (semifinali + Final 30 Maggio Budapest)
+  - Europa League: 5 (semifinali + Final 20 Maggio Istanbul)
+  - FA Cup Final 2026 (16 Maggio, Wembley)
+  - **FIFA World Cup 2026: 80 partite** (11 Giugno - 19 Luglio):
+    - 16 partite Matchday 1 (apertura Mexico-Sudafrica all'Estadio Azteca)
+    - 16 Matchday 2, 16 Matchday 3, 16 Round of 32, 8 Round of 16, 4 QF, 2 SF, 3rd Place, **Final 19 Luglio MetLife Stadium**
+- [x] **Lega "FIFA World Cup 2026"** aggiunta nel DB (slug: `fifa-world-cup-2026`)
+- [x] **+30% Viagogo markup** applicato a tutti i prezzi
+- [x] **Routing aggiornato** (`App.js` → `LEAGUE_SLUGS` include `fifa-world-cup-2026`, `liga-portugal`, `super-lig`, `dfb-pokal`)
+- [x] **Menu mega-dropdown** con voce "WORLD CUP 2026 / MONDIALI 2026 / MUNDIAL 2026"
+- [x] **Traduzioni** IT/ES/EN per fifaWorldCup2026 e usa
+- [x] **LeaguePage** ora carica fino a 100 eventi per coppa (era 20)
+- [x] **Verificato visivamente**: Inter-Parma, Inter team page (6 partite), FIFA WC page (80 partite), Home (50 eventi)

@@ -90,7 +90,7 @@ const LeaguePage = ({ urlType }) => {
 
   const fetchCupEvents = async (leagueName) => {
     try {
-      const data = await eventsAPI.getAll({ league: leagueName.toUpperCase() });
+      const data = await eventsAPI.getAll({ league: leagueName.toUpperCase(), limit: 100 });
       setEvents(data.events || []);
     } catch (error) {
       console.error('Error fetching cup events:', error);

@@ -25,7 +25,9 @@ const ScrollToTop = () => {
 // Known league slugs for routing
 const LEAGUE_SLUGS = [
   'serie-a', 'premier-league', 'la-liga', 'bundesliga', 'ligue-1',
-  'champions-league', 'europa-league', 'coppa-italia', 'fa-cup', 'copa-del-rey'
+  'liga-portugal', 'super-lig',
+  'champions-league', 'europa-league', 'coppa-italia', 'fa-cup', 'copa-del-rey',
+  'dfb-pokal', 'fifa-world-cup-2026'
 ];
 
 // Dynamic Router component to handle translated URLs

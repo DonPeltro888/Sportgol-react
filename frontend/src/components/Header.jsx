@@ -119,6 +119,7 @@ const Header = () => {
   ];
 
   const cups = [
+    { labelKey: 'fifaWorldCup2026', slug: 'fifa-world-cup-2026', countryKey: 'usa', flag: '🌎' },
     { labelKey: 'championsLeague', slug: 'champions-league', countryKey: 'europe', flag: '🏆' },
     { labelKey: 'europaLeague', slug: 'europa-league', countryKey: 'europe', flag: '🏆' },
     { labelKey: 'coppaItalia', slug: 'coppa-italia', countryKey: 'italy', flag: '🇮🇹' },
