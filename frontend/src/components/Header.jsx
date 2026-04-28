@@ -211,7 +211,8 @@ const Header = () => {
               {desktopMenuOpen && (
                 <div 
                   data-testid="desktop-mega-menu"
-                  className="absolute top-full left-0 mt-2 w-[700px] bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden"
+                  className="fixed right-4 top-[130px] w-[700px] bg-white border border-gray-200 rounded-2xl shadow-2xl z-[9999]"
+                  style={{ maxWidth: 'calc(100vw - 40px)' }}
                 >
                   <div className="grid grid-cols-2 gap-0">
                     {/* Leagues Column */}
