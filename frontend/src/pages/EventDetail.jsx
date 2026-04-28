@@ -5,7 +5,8 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { EventSchema, BreadcrumbSchema } from '../components/SchemaOrg';
-import { Calendar, MapPin, ArrowLeft, Ticket, Info, MessageCircle, ChevronDown, Loader2, Users, Euro, Clock, Star, CheckCircle } from 'lucide-react';
+import SanSiroMap from '../components/SanSiroMap';
+import { Calendar, MapPin, ArrowLeft, Ticket, Info, MessageCircle, ChevronDown, Loader2, Users, Euro, Clock, Star, CheckCircle, Map } from 'lucide-react';
 import { toast } from 'sonner';
 import SEOHead from '../components/SEOHead';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -21,6 +22,8 @@ const EventDetail = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('tickets');
   const [openFaq, setOpenFaq] = useState(null);
+  const [showMap, setShowMap] = useState(false);
+  const [selectedSector, setSelectedSector] = useState(null);
   const t = (key) => getTranslation(lang, key);
 
   useEffect(() => {
@@ -46,19 +49,30 @@ const EventDetail = () => {
       return event.ticket_categories.map(cat => ({
         name: getMultiLang(cat.name) || cat.name,
         description: getMultiLang(cat.description) || cat.description,
-        price: cat.price_max || cat.price_min || 100,
-        notes: getMultiLang(cat.notes) || ''
+        price: cat.price || cat.price_max || cat.price_min || 100,
+        available: cat.available !== false,
+        notes: getMultiLang(cat.notes) || cat.notes || ''
       }));
     }
     
     const basePrice = event?.price_range?.min || 50;
     return [
-      { name: 'CAT 1 - VIP', price: basePrice * 4 },
-      { name: 'CAT 2', price: basePrice * 2.5 },
-      { name: 'CAT 3', price: basePrice * 1.5 },
-      { name: 'CAT 4', price: basePrice },
+      { name: 'CAT 1 - VIP', price: basePrice * 4, available: true },
+      { name: 'CAT 2', price: basePrice * 2.5, available: true },
+      { name: 'CAT 3', price: basePrice * 1.5, available: true },
+      { name: 'CAT 4', price: basePrice, available: true },
     ];
   };
+
+  const handleSectorSelect = (sector) => {
+    setSelectedSector(sector);
+    toast.success(`Settore selezionato: ${sector.name} - €${sector.price}`);
+  };
+
+  // Check if stadium has interactive map
+  const hasStadiumMap = event?.has_stadium_map || 
+    event?.stadium?.toLowerCase().includes('san siro') ||
+    event?.stadium?.toLowerCase().includes('meazza');
 
   // Get FAQ items
   const getFaqItems = () => {
@@ -287,26 +301,90 @@ const EventDetail = () => {
 
             {/* Tickets Tab */}
             {activeTab === 'tickets' && (
-              <div className="space-y-4">
-                {ticketCategories.map((category, idx) => (
-                  <div key={idx} className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-[#0984E3] hover:shadow-lg transition-all">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <h3 className="text-base md:text-lg font-bold text-[#2D3436] mb-1">{category.name}</h3>
-                        {category.description && <p className="text-gray-500 text-sm">{category.description}</p>}
-                        {category.notes && <p className="text-[#0984E3] text-xs mt-1">{category.notes}</p>}
+              <div className="space-y-6">
+                {/* Stadium Map Toggle */}
+                {hasStadiumMap && (
+                  <div className="bg-gradient-to-r from-[#0984E3] to-[#2D3436] rounded-2xl p-4">
+                    <button 
+                      onClick={() => setShowMap(!showMap)}
+                      className="w-full flex items-center justify-between text-white"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Map className="w-6 h-6" />
+                        <div className="text-left">
+                          <div className="font-bold">Mappa Interattiva Stadio</div>
+                          <div className="text-sm text-white/70">Clicca sui settori per vedere i prezzi</div>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-xl md:text-2xl font-bold text-[#FF6B35]">€{Math.round(category.price)}</div>
-                        <div className="text-xs text-gray-500">per biglietto</div>
-                      </div>
-                    </div>
-                    <button onClick={handleContactUs}
-                      className="w-full bg-[#0984E3] hover:bg-[#0984E3]/90 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2">
-                      <MessageCircle className="w-5 h-5" /> Contattaci
+                      <ChevronDown className={`w-6 h-6 transition-transform ${showMap ? 'rotate-180' : ''}`} />
                     </button>
+                    
+                    {showMap && (
+                      <div className="mt-4 bg-[#1a1a2e] rounded-xl p-4">
+                        <SanSiroMap 
+                          sectors={ticketCategories} 
+                          onSectorClick={handleSectorSelect}
+                          selectedSector={selectedSector?.name}
+                        />
+                      </div>
+                    )}
                   </div>
-                ))}
+                )}
+
+                {/* Selected Sector Banner */}
+                {selectedSector && (
+                  <div className="bg-green-50 border-2 border-green-500 rounded-2xl p-4 flex items-center justify-between">
+                    <div>
+                      <div className="text-sm text-green-600 font-medium">Settore Selezionato</div>
+                      <div className="font-bold text-green-800">{selectedSector.name}</div>
+                    </div>
+                    <div className="text-2xl font-bold text-green-600">€{selectedSector.price}</div>
+                  </div>
+                )}
+
+                {/* Ticket Categories */}
+                <div className="space-y-4">
+                  {ticketCategories.map((category, idx) => (
+                    <div 
+                      key={idx} 
+                      className={`bg-white border-2 rounded-2xl p-6 transition-all cursor-pointer ${
+                        !category.available 
+                          ? 'border-gray-200 opacity-60' 
+                          : selectedSector?.name === category.name 
+                            ? 'border-green-500 shadow-lg shadow-green-100' 
+                            : 'border-gray-200 hover:border-[#0984E3] hover:shadow-lg'
+                      }`}
+                      onClick={() => category.available && handleSectorSelect(category)}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-base md:text-lg font-bold text-[#2D3436] mb-1">{category.name}</h3>
+                            {!category.available && (
+                              <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs font-bold rounded">ESAURITO</span>
+                            )}
+                          </div>
+                          {category.description && <p className="text-gray-500 text-sm">{category.description}</p>}
+                          {category.notes && <p className="text-[#0984E3] text-xs mt-1">{category.notes}</p>}
+                        </div>
+                        <div className="text-right">
+                          <div className={`text-xl md:text-2xl font-bold ${category.available ? 'text-[#FF6B35]' : 'text-gray-400'}`}>
+                            €{Math.round(category.price)}
+                          </div>
+                          <div className="text-xs text-gray-500">per biglietto</div>
+                        </div>
+                      </div>
+                      {category.available && (
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleContactUs(); }}
+                          className="w-full bg-[#0984E3] hover:bg-[#0984E3]/90 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+                        >
+                          <MessageCircle className="w-5 h-5" /> Contattaci
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
