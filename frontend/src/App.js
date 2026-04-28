@@ -78,7 +78,8 @@ import {
   AdminCategories,
   AdminPages,
   AdminTranslations,
-  AdminSettings
+  AdminSettings,
+  AdminSectors
 } from './pages/admin';
 
 // Protected Route component
@@ -155,6 +156,9 @@ function App() {
             } />
             <Route path="/admin/settings" element={
               <ProtectedRoute><AdminSettings /></ProtectedRoute>
+            } />
+            <Route path="/admin/sectors" element={
+              <ProtectedRoute><AdminSectors /></ProtectedRoute>
             } />
             
             {/* Redirect /admin to dashboard */}

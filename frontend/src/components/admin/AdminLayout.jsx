@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../contexts/AdminAuthContext';
 import { 
   LayoutDashboard, Calendar, FolderTree, FileText, 
-  Globe, Settings, Languages, LogOut, Menu, X, ChevronDown
+  Globe, Settings, Languages, LogOut, Menu, X, ChevronDown, Layers
 } from 'lucide-react';
 
 const AdminLayout = ({ children }) => {
@@ -16,6 +16,7 @@ const AdminLayout = ({ children }) => {
   const menuItems = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/admin/events', label: 'Eventi', icon: Calendar },
+    { path: '/admin/sectors', label: 'Settori & Prezzi', icon: Layers },
     { path: '/admin/categories', label: 'Categorie Menu', icon: FolderTree },
     { path: '/admin/pages', label: 'Pagine & Testi', icon: FileText },
     { path: '/admin/seo', label: 'SEO', icon: Globe },

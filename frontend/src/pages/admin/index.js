@@ -5,3 +5,4 @@ export { default as AdminCategories } from './AdminCategories';
 export { default as AdminPages } from './AdminPages';
 export { default as AdminTranslations } from './AdminTranslations';
 export { default as AdminSettings } from './AdminSettings';
+export { default as AdminSectors } from './AdminSectors';
