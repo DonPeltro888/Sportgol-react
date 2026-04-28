@@ -69,9 +69,7 @@ const EventDetail = () => {
     window.open('https://wa.me/', '_blank');
   };
 
-  const hasStadiumMap = event?.has_stadium_map || 
-    event?.stadium?.toLowerCase().includes('san siro') ||
-    event?.stadium?.toLowerCase().includes('meazza');
+  const hasStadiumMap = event?.has_stadium_map === true;
 
   const getFaqItems = () => {
     const customFaq = [];
