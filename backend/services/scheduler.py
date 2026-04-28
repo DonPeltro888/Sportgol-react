@@ -13,11 +13,15 @@ _scheduler: AsyncIOScheduler | None = None
 
 async def _run_sync_job():
     try:
-        logger.info("Scheduler: avvio sync programmato matchesio.com (replace_all=True)")
-        stats = await sync_all_competitions(replace_all=True)
+        # Cron: usa upsert (replace_all=False) per sicurezza:
+        # - non cancella eventi custom dell'admin
+        # - aggiorna solo gli esistenti
+        logger.info("Scheduler: avvio sync programmato matchesio.com (upsert)")
+        stats = await sync_all_competitions(replace_all=False)
         logger.info(
             f"Scheduler: sync completato. Inseriti={stats['total_inserted']}, "
-            f"in DB={stats.get('total_in_db', 0)}, errori={len(stats.get('errors', []))}"
+            f"aggiornati={stats['total_updated']}, in DB={stats.get('total_in_db', 0)}, "
+            f"errori={len(stats.get('errors', []))}"
         )
     except Exception as e:
         logger.exception(f"Scheduler: errore durante sync: {e}")

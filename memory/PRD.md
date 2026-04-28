@@ -244,3 +244,27 @@ Ogni nuovo evento può avere questi settori preconfigurati:
 - Aggiungere endpoint admin `/api/admin/sync-matchesio` per refresh on-demand
 - Cron job giornaliero per auto-aggiornamento partite (status, results, ecc.)
 - Mapping dei nuovi campionati man mano che matchesio li aggiunge
+
+
+## Session Completed (Apr 2026 - Tutte le Next Actions)
+- [x] **Sync admin pannello** `/admin/sync` con UI completa (storico, modalità, sync manuale)
+- [x] **Endpoint REST** `POST /api/admin/sync/matchesio` + `GET /api/admin/sync/logs` (auth richiesta)
+- [x] **Modulo riusabile** `services/matchesio_sync.py` con normalizzazione nomi (USA, AC Milan, ecc.)
+- [x] **Cron schedulato** AsyncIOScheduler (`services/scheduler.py`) ogni 6h: 00/06/12/18 UTC
+- [x] **Soglia di sicurezza** sync: se < 50 eventi fetched → ABORT (protezione contro matchesio.com down)
+- [x] **Default sicuro**: `replace_all=False` (upsert), `replace_all=True` cancella SOLO eventi matchesio_id (custom preservati)
+- [x] **WhatsAppButton.jsx**: floating button verde con tooltip e ping animation
+- [x] **UrgencyBadges.jsx**: 3 badge (biglietti rimasti / live viewers / acquisti 24h) deterministici per eventId
+- [x] **TrustBadges.jsx**: 5 loghi pagamento (Visa, MasterCard, PayPal, Apple Pay, Stripe) + 3 trust points
+- [x] **NotFound.jsx**: pagina 404 personalizzata con palla calcio animata, CTA tradotti IT/ES/EN
+- [x] **DynamicRouter**: ora restituisce <NotFound /> invece di <Home /> per slug sconosciuti
+- [x] **Test backend 13/13 PASS** (testing_agent_v3_fork iteration_3)
+- [x] **test_credentials.md** creato in /app/memory/
+
+### Endpoint chiave
+- `POST /api/admin/sync/matchesio?replace_all=false` (default upsert)
+- `GET /api/admin/sync/logs?limit=10`
+
+### Cron details
+APScheduler AsyncIOScheduler in `services/scheduler.py` con `CronTrigger(hour="0,6,12,18")`.
+Logging completo in stdout backend; errori catturati in `db.sync_logs`.

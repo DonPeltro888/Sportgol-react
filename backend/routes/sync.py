@@ -13,13 +13,14 @@ router = APIRouter(prefix="/api/admin/sync", tags=["admin-sync"])
 
 
 @router.post("/matchesio")
-async def manual_sync(replace_all: bool = True, _=Depends(verify_admin_token)):
+async def manual_sync(replace_all: bool = False, _=Depends(verify_admin_token)):
     """
     Esegue sync manuale da matchesio.com.
 
     Query params:
-    - replace_all: se True (default), cancella tutti gli eventi e re-importa.
-                   Se False, fa upsert (più conservativo).
+    - replace_all: se True, cancella eventi importati da matchesio (preserva
+                   eventi custom creati dall'admin) e re-importa.
+                   Se False (default), fa upsert su matchesio_id.
     """
     try:
         stats = await sync_all_competitions(replace_all=replace_all)

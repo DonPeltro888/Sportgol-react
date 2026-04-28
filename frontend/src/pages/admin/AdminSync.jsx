@@ -11,7 +11,7 @@ const AdminSync = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
-  const [replaceAll, setReplaceAll] = useState(true);
+  const [replaceAll, setReplaceAll] = useState(false);
 
   useEffect(() => {
     fetchLogs();
@@ -32,7 +32,7 @@ const AdminSync = () => {
 
   const runSync = async () => {
     if (!confirm(replaceAll
-      ? 'Confermi sync completa? Tutti gli eventi verranno SOSTITUITI con i dati di matchesio.com.'
+      ? 'Confermi sync completa? Tutti gli eventi importati da matchesio verranno SOSTITUITI. Eventi custom dell\'admin saranno preservati.'
       : 'Confermi sync incrementale? Verranno aggiornati gli eventi esistenti e aggiunti i nuovi.')) {
       return;
     }
@@ -114,15 +114,15 @@ const AdminSync = () => {
               <input
                 type="radio"
                 name="mode"
-                checked={replaceAll}
-                onChange={() => setReplaceAll(true)}
+                checked={!replaceAll}
+                onChange={() => setReplaceAll(false)}
                 className="mt-1"
-                data-testid="sync-mode-replace"
+                data-testid="sync-mode-upsert"
               />
               <div>
-                <div className="text-white font-medium">Sostituzione completa (replace_all)</div>
+                <div className="text-white font-medium">Sync incrementale (upsert) — RACCOMANDATO</div>
                 <div className="text-gray-400 text-xs mt-0.5">
-                  Cancella tutti gli eventi e re-importa da zero. Più veloce per cleanup.
+                  Aggiorna eventi esistenti e aggiunge nuovi. Preserva eventi custom dell'admin.
                 </div>
               </div>
             </label>
@@ -131,15 +131,15 @@ const AdminSync = () => {
               <input
                 type="radio"
                 name="mode"
-                checked={!replaceAll}
-                onChange={() => setReplaceAll(false)}
+                checked={replaceAll}
+                onChange={() => setReplaceAll(true)}
                 className="mt-1"
-                data-testid="sync-mode-upsert"
+                data-testid="sync-mode-replace"
               />
               <div>
-                <div className="text-white font-medium">Sync incrementale (upsert)</div>
+                <div className="text-white font-medium">Sostituzione completa (replace_all)</div>
                 <div className="text-gray-400 text-xs mt-0.5">
-                  Aggiorna eventi esistenti e aggiunge nuovi. Preserva eventi custom.
+                  Cancella tutti gli eventi matchesio e re-importa da zero. Eventi custom preservati.
                 </div>
               </div>
             </label>

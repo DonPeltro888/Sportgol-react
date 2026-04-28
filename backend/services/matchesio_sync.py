@@ -146,13 +146,15 @@ def fetch_competition_json(slug: str):
         return []
 
 
-async def sync_all_competitions(replace_all: bool = True) -> Dict:
+async def sync_all_competitions(replace_all: bool = False) -> Dict:
     """
     Sincronizza tutti gli eventi da matchesio.com.
 
     Args:
-        replace_all: se True, cancella tutti gli eventi esistenti prima dell'import.
-                     Se False, fa upsert su matchesio_id (più sicuro per cron).
+        replace_all: se True, cancella SOLO gli eventi precedentemente importati
+                     da matchesio (matchesio_id presente). Eventi custom dell'admin
+                     sono sempre preservati.
+                     Default False (upsert) = approccio più sicuro.
 
     Returns:
         dict con stats: total_inserted, total_updated, per_league {nome: count}
@@ -167,16 +169,37 @@ async def sync_all_competitions(replace_all: bool = True) -> Dict:
         "started_at": datetime.now(timezone.utc).isoformat(),
     }
 
-    if replace_all:
-        deleted = await db.events.delete_many({})
-        stats["total_deleted_past"] = deleted.deleted_count
-        logger.info(f"sync: cancellati {deleted.deleted_count} eventi esistenti")
-
-    img_idx = 0
+    # 1. SCARICA TUTTI I JSON PRIMA di toccare il DB (protezione contro siti down)
+    fetched_data = []
     for slug, league_name, country, league_type in COMPETITIONS:
+        matches = fetch_competition_json(slug)
+        future_matches = [m for m in matches if m.get("date", "") >= today_str]
+        fetched_data.append((slug, league_name, country, league_type, future_matches))
+
+    total_fetched = sum(len(t[4]) for t in fetched_data)
+    if total_fetched < 50:
+        # Soglia di sicurezza: matchesio.com probabilmente down o cambiato
+        err = (
+            f"Sync ABORTITO: solo {total_fetched} eventi futuri trovati "
+            f"da matchesio.com (soglia minima: 50). DB non modificato."
+        )
+        logger.error(err)
+        stats["errors"].append(err)
+        stats["finished_at"] = datetime.now(timezone.utc).isoformat()
+        stats["total_in_db"] = await db.events.count_documents({})
+        await db.sync_logs.insert_one({**stats, "log_at": datetime.now(timezone.utc)})
+        return stats
+
+    # 2. Cancella eventi solo se replace_all=True - e SOLO quelli da matchesio
+    if replace_all:
+        deleted = await db.events.delete_many({"matchesio_id": {"$exists": True}})
+        stats["total_deleted_past"] = deleted.deleted_count
+        logger.info(f"sync: cancellati {deleted.deleted_count} eventi matchesio (custom preservati)")
+
+    # 3. Inserisce/aggiorna gli eventi scaricati
+    img_idx = 0
+    for slug, league_name, country, league_type, future_matches in fetched_data:
         try:
-            matches = fetch_competition_json(slug)
-            future_matches = [m for m in matches if m.get("date", "") >= today_str]
             league_count = 0
 
             for m in future_matches:
@@ -262,10 +285,9 @@ async def sync_all_competitions(replace_all: bool = True) -> Dict:
             stats["errors"].append(err_msg)
             logger.exception(f"sync errore: {err_msg}")
 
-    # Cancella eventi passati (anche in modalità upsert)
-    if not replace_all:
-        deleted = await db.events.delete_many({"sort_date": {"$lt": today_str}})
-        stats["total_deleted_past"] = deleted.deleted_count
+    # Cancella SEMPRE eventi passati (anche custom) per pulizia
+    deleted_past = await db.events.delete_many({"sort_date": {"$lt": today_str}})
+    stats["total_deleted_past"] = stats.get("total_deleted_past", 0) + deleted_past.deleted_count
 
     stats["finished_at"] = datetime.now(timezone.utc).isoformat()
     stats["total_in_db"] = await db.events.count_documents({})
