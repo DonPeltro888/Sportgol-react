@@ -98,34 +98,67 @@ const EventListItem = ({ event }) => {
   };
   
   // Parse date to get day, month, year, day of week
-  const parseDate = (dateStr) => {
+  const parseDate = (dateStr, sortDate) => {
     const locale = getLocale();
+    
+    // First try sort_date (ISO format) which is more reliable
+    if (sortDate) {
+      try {
+        const date = new Date(sortDate);
+        if (!isNaN(date.getTime())) {
+          return {
+            dayOfWeek: date.toLocaleDateString(locale, { weekday: 'short' }).toUpperCase(),
+            day: date.getDate(),
+            month: date.toLocaleDateString(locale, { month: 'short' }),
+            year: date.getFullYear()
+          };
+        }
+      } catch {
+        // Fall through to try dateStr
+      }
+    }
+    
+    // Then try dateStr
     try {
       const date = new Date(dateStr);
-      if (isNaN(date.getTime())) {
-        // Try parsing "March 15, 2026" format
-        const parsed = new Date(Date.parse(dateStr));
-        if (!isNaN(parsed.getTime())) {
+      if (!isNaN(date.getTime())) {
+        return {
+          dayOfWeek: date.toLocaleDateString(locale, { weekday: 'short' }).toUpperCase(),
+          day: date.getDate(),
+          month: date.toLocaleDateString(locale, { month: 'short' }),
+          year: date.getFullYear()
+        };
+      }
+      
+      // Try parsing Italian format like "Domenica, 3 Maggio 2026"
+      const italianMonths = {
+        'gennaio': 0, 'febbraio': 1, 'marzo': 2, 'aprile': 3, 'maggio': 4, 'giugno': 5,
+        'luglio': 6, 'agosto': 7, 'settembre': 8, 'ottobre': 9, 'novembre': 10, 'dicembre': 11
+      };
+      const match = dateStr.match(/(\d+)\s+(\w+)\s+(\d{4})/i);
+      if (match) {
+        const day = parseInt(match[1]);
+        const monthName = match[2].toLowerCase();
+        const year = parseInt(match[3]);
+        const month = italianMonths[monthName];
+        if (month !== undefined) {
+          const parsedDate = new Date(year, month, day);
           return {
-            dayOfWeek: parsed.toLocaleDateString(locale, { weekday: 'short' }).toUpperCase(),
-            day: parsed.getDate(),
-            month: parsed.toLocaleDateString(locale, { month: 'short' }),
-            year: parsed.getFullYear()
+            dayOfWeek: parsedDate.toLocaleDateString(locale, { weekday: 'short' }).toUpperCase(),
+            day: parsedDate.getDate(),
+            month: parsedDate.toLocaleDateString(locale, { month: 'short' }),
+            year: parsedDate.getFullYear()
           };
         }
       }
-      return {
-        dayOfWeek: date.toLocaleDateString(locale, { weekday: 'short' }).toUpperCase(),
-        day: date.getDate(),
-        month: date.toLocaleDateString(locale, { month: 'short' }),
-        year: date.getFullYear()
-      };
     } catch {
-      return { dayOfWeek: 'TBD', day: '--', month: '---', year: '----' };
+      // Return fallback
     }
+    
+    return { dayOfWeek: 'TBD', day: '--', month: '---', year: '----' };
   };
 
-  const dateInfo = parseDate(event.date || event.sort_date);
+  const dateInfo = parseDate(event.date, event.sort_date);
   const eventId = event.id || event._id;
   const rawTitle = typeof event.title === 'object' ? (event.title.it || event.title.en || '') : event.title;
   const title = formatCupTitle(rawTitle, event.league);
