@@ -327,3 +327,14 @@ Logging completo in stdout backend; errori catturati in `db.sync_logs`.
 - TTL cleanup automatico tokens scaduti: ✓
 - 56 immagini lazy-loaded all'apertura della home
 - [x] Schema `db.teams` arricchito: `{name, slug, logo_url, league_slug, active, auto_created}`
+
+## Session Completed (Apr 2026 - P2 Sviluppo Completo)
+- [x] **datetime.utcnow → datetime.now(timezone.utc)** in categories.py, models/event.py, models/category.py
+- [x] **GET `/api/health`**: monitoring con DB ping + scheduler status + counts
+- [x] **POST `/api/admin/sync/team-logo/{id}`**: refresh logo singola squadra
+- [x] **AdminTeams page** `/admin/teams-logos`: gestione 187 squadre con stats, filtri, refresh logo per ogni squadra
+- [x] **AdminLayout** voce "Squadre & Loghi" nel sidebar
+
+### SEO P3
+- [x] `index.html`: lang="it", description GOLEVENTS, theme-color brand, preconnect critici, preload font Inter
+- [x] `SEOHead.jsx` Open Graph completi: og:site_name, og:image:width/height, og:url, og:locale:alternate, twitter:site, robots ottimizzato

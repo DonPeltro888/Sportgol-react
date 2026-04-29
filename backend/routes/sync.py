@@ -2,7 +2,7 @@
 Endpoint admin per sincronizzazione manuale e logs.
 """
 from fastapi import APIRouter, Depends, HTTPException
-from typing import Optional
+from bson import ObjectId
 from routes.admin_auth import verify_admin_token
 from services.matchesio_sync import sync_all_competitions
 from database import db
@@ -34,7 +34,6 @@ async def manual_sync(replace_all: bool = False, _=Depends(verify_admin_token)):
 async def get_sync_logs(limit: int = 10, _=Depends(verify_admin_token)):
     """Restituisce gli ultimi N log di sync."""
     logs = await db.sync_logs.find({}, {"_id": 0}).sort("log_at", -1).limit(limit).to_list(limit)
-    # Convert datetime objects to iso strings
     for log in logs:
         if "log_at" in log and hasattr(log["log_at"], "isoformat"):
             log["log_at"] = log["log_at"].isoformat()
@@ -53,8 +52,6 @@ async def manual_logos_sync(
     Query params:
     - refresh_existing: se True, sovrascrive anche i logo già presenti.
     - team_batch: max numero di team da processare per chiamata (default 50).
-                  Limit per evitare timeout (rate limit ThSportsDB = 30 req/min).
-                  Per popolare TUTTI i team (~400+) richiama l'endpoint più volte.
     """
     try:
         from services.logo_fetcher import populate_all_logos
@@ -65,4 +62,30 @@ async def manual_logos_sync(
         return {"success": True, "stats": stats}
     except Exception as e:
         logger.exception("Errore durante logos sync")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/team-logo/{team_id}")
+async def refresh_single_team_logo(team_id: str, _=Depends(verify_admin_token)):
+    """Refresh del logo di una singola squadra da TheSportsDB."""
+    try:
+        team = await db.teams.find_one({"_id": ObjectId(team_id)})
+        if not team:
+            raise HTTPException(status_code=404, detail="Team not found")
+
+        import httpx
+        from services.logo_fetcher import fetch_team_logo
+        async with httpx.AsyncClient() as client:
+            logo = await fetch_team_logo(team["name"], client)
+
+        if logo:
+            await db.teams.update_one(
+                {"_id": ObjectId(team_id)},
+                {"$set": {"logo_url": logo}}
+            )
+            return {"success": True, "logo_url": logo}
+        return {"success": False, "message": "Logo non trovato su TheSportsDB"}
+    except HTTPException:
+        raise
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

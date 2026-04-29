@@ -37,19 +37,40 @@ const SEOHead = ({
     updateMeta('description', description);
     updateMeta('keywords', keywords);
     updateMeta('language', lang);
-    
-    // Open Graph
+    updateMeta('robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
+    updateMeta('author', 'GOLEVENTS');
+    updateMeta('theme-color', '#0984E3');
+
+    // Open Graph (Facebook, LinkedIn, WhatsApp)
+    updateMeta('og:site_name', 'GOLEVENTS', true);
     updateMeta('og:title', title, true);
     updateMeta('og:description', description, true);
     updateMeta('og:type', type, true);
     updateMeta('og:image', ogImage, true);
+    updateMeta('og:image:alt', title, true);
+    updateMeta('og:image:width', '1200', true);
+    updateMeta('og:image:height', '630', true);
+    updateMeta('og:url', window.location.href, true);
     updateMeta('og:locale', lang === 'it' ? 'it_IT' : lang === 'es' ? 'es_ES' : 'en_US', true);
-    
+    // Alternate locales
+    ['it_IT', 'es_ES', 'en_US'].forEach((loc) => {
+      const currLoc = lang === 'it' ? 'it_IT' : lang === 'es' ? 'es_ES' : 'en_US';
+      if (loc !== currLoc) {
+        const m = document.createElement('meta');
+        m.setAttribute('property', 'og:locale:alternate');
+        m.setAttribute('content', loc);
+        const existing = document.querySelector(`meta[property="og:locale:alternate"][content="${loc}"]`);
+        if (!existing) document.head.appendChild(m);
+      }
+    });
+
     // Twitter Card
     updateMeta('twitter:card', 'summary_large_image');
     updateMeta('twitter:title', title);
     updateMeta('twitter:description', description);
     updateMeta('twitter:image', ogImage);
+    updateMeta('twitter:image:alt', title);
+    updateMeta('twitter:site', '@golevents');
     
     // Canonical URL
     if (canonicalUrl) {

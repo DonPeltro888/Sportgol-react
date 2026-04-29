@@ -69,6 +69,35 @@ async def get_status_checks():
 # Include the router in the main app
 app.include_router(api_router)
 
+
+# Health check endpoint per monitoring/uptime
+@app.get("/api/health")
+async def health_check():
+    """Endpoint health check con verifica DB e scheduler."""
+    from datetime import datetime, timezone
+    health = {
+        "status": "ok",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "db": "unknown",
+        "scheduler": "unknown",
+    }
+    try:
+        await db.command("ping")
+        health["db"] = "ok"
+        health["events_count"] = await db.events.count_documents({})
+        health["leagues_count"] = await db.leagues.count_documents({})
+        health["teams_count"] = await db.teams.count_documents({})
+    except Exception as e:
+        health["status"] = "degraded"
+        health["db"] = f"error: {e}"
+    try:
+        from services.scheduler import _scheduler
+        health["scheduler"] = "running" if _scheduler and _scheduler.running else "stopped"
+    except Exception:
+        health["scheduler"] = "unknown"
+    return health
+
+
 # Include new feature routes
 app.include_router(events.router)
 app.include_router(categories.router)

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../contexts/AdminAuthContext';
 import { 
   LayoutDashboard, Calendar, FolderTree, FileText, 
-  Globe, Settings, Languages, LogOut, Menu, X, ChevronDown, Layers, Trophy, RefreshCw
+  Globe, Settings, Languages, LogOut, Menu, X, ChevronDown, Layers, Trophy, RefreshCw, Image as ImageIcon
 } from 'lucide-react';
 
 const AdminLayout = ({ children }) => {
@@ -16,6 +16,7 @@ const AdminLayout = ({ children }) => {
   const menuItems = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/admin/sync', label: 'Sync matchesio.com', icon: RefreshCw },
+    { path: '/admin/teams-logos', label: 'Squadre & Loghi', icon: ImageIcon },
     { path: '/admin/events', label: 'Eventi', icon: Calendar },
     { path: '/admin/sectors', label: 'Settori & Prezzi', icon: Layers },
     { path: '/admin/leagues-teams', label: 'Leghe & Squadre', icon: Trophy },

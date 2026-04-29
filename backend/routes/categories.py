@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
 from models.category import Category, CategoryCreate
 from database import db
+from datetime import datetime, timezone
 import logging
 
 logger = logging.getLogger(__name__)
@@ -63,7 +64,7 @@ async def create_category(category: CategoryCreate):
     try:
         from datetime import datetime
         category_dict = category.dict()
-        category_dict["created_at"] = datetime.utcnow()
+        category_dict["created_at"] = datetime.now(timezone.utc)
         category_dict["event_count"] = 0
         
         result = await db.categories.insert_one(category_dict)

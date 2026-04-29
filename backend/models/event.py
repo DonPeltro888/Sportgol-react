@@ -1,6 +1,11 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
+
+
+def _utcnow():
+    return datetime.now(timezone.utc)
+
 
 class PriceRange(BaseModel):
     min: float
@@ -18,8 +23,8 @@ class Event(BaseModel):
     available_tickets: Optional[int] = 1000
     featured: bool = True
     league: Optional[str] = "SERIE A"
-    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
-    updated_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    created_at: Optional[datetime] = Field(default_factory=_utcnow)
+    updated_at: Optional[datetime] = Field(default_factory=_utcnow)
 
     class Config:
         populate_by_name = True
