@@ -8,7 +8,7 @@
 ## API Endpoints
 - **Backend URL**: from `/app/frontend/.env` REACT_APP_BACKEND_URL
 - **Login endpoint**: `POST /api/admin/login` con body `{"username":"admin","password":"golevents2024"}`
-- **Token usage**: `Authorization: Bearer {token}` (24h TTL, in-memory)
+- **Token usage**: `Authorization: Bearer {token}` (24h TTL, persistito in `db.admin_tokens` con TTL index per auto-cleanup)
 
 ## Source di Dati
 - **matchesio.com**: JSON pubblici, no auth

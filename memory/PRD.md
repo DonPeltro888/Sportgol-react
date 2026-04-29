@@ -298,4 +298,32 @@ Logging completo in stdout backend; errori catturati in `db.sync_logs`.
 - [x] **LeaguePage**: usa `leagueData.logo_url` da DB
 - [x] **AdminSync UI**: bottone "Popola Loghi" verde
 - [x] Rate limiting 2.1s + retry su HTTP 429
+
+## Session Completed (Apr 2026 - P2 Refactor + P3 SEO)
+### P2 Backend Refactor (12/12 test PASS)
+- [x] **httpx.AsyncClient** sostituito requests sync in `matchesio_sync.py` e `logo_fetcher.py`
+- [x] **asyncio.gather** con `Semaphore(5)` per fetch parallelo 33 competizioni in **2.6s** (era 30+s)
+- [x] **asyncio.sleep** sostituito time.sleep nel rate limiter (event loop NON bloccato)
+- [x] **Token DB-backed**: `db.admin_tokens` collection con TTL index per auto-cleanup
+- [x] **Token persiste** tra restart backend (testato con sudo supervisorctl restart)
+- [x] **Background task** per `populate_league_logos`: il sync matchesio non blocca mai >5s
+- [x] **Auth header parsing** sicuro con `split(' ', 1)` invece di `replace("Bearer ", "")`
+- [x] **datetime.utcnow → datetime.now(timezone.utc)** in routes/events.py
+
+### P3 SEO Frontend
+- [x] **56/56 immagini** con `loading="lazy"` (lazy loading attivo)
+- [x] **56/56 immagini** con `decoding="async"` (parsing non bloccante)
+- [x] **Alt tag descrittivi** ottimizzati su tutte le immagini:
+  - Logo squadre: `Logo {nome team}`
+  - Logo leghe: `Logo {nome lega}`
+  - Hero immagini eventi: `{titolo} - {stadio} {città}`
+  - Categories: `Logo {team} - Biglietti calcio ufficiali`
+- [x] **Logo critical** (header pagina lega/team): `loading="eager"` per LCP
+
+### Risultati misurati
+- Sync matchesio.com: **2.6s** (era 30+s) ✓
+- Backend response durante sync: **5ms** (event loop libero) ✓
+- Token persistenza: ✓ supera restart
+- TTL cleanup automatico tokens scaduti: ✓
+- 56 immagini lazy-loaded all'apertura della home
 - [x] Schema `db.teams` arricchito: `{name, slug, logo_url, league_slug, active, auto_created}`

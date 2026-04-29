@@ -101,6 +101,13 @@ logger = logging.getLogger(__name__)
 async def startup_event():
     logger.info("Starting Golevents API...")
     logger.info(f"Connected to MongoDB: {os.environ['DB_NAME']}")
+    # TTL index per auto-cleanup admin tokens scaduti
+    try:
+        from database import db
+        await db.admin_tokens.create_index("expires_at", expireAfterSeconds=0)
+        logger.info("TTL index su admin_tokens.expires_at creato")
+    except Exception as e:
+        logger.warning(f"TTL index admin_tokens già esistente o errore: {e}")
     # Avvia scheduler per sync automatico ogni 6h
     try:
         from services.scheduler import start_scheduler

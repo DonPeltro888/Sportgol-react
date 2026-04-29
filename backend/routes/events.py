@@ -160,8 +160,8 @@ async def create_event(event: EventCreate):
     """Create new event"""
     try:
         event_dict = event.dict()
-        event_dict["created_at"] = datetime.utcnow()
-        event_dict["updated_at"] = datetime.utcnow()
+        event_dict["created_at"] = datetime.now(timezone.utc)
+        event_dict["updated_at"] = datetime.now(timezone.utc)
         
         result = await db.events.insert_one(event_dict)
         event_dict["_id"] = str(result.inserted_id)
@@ -178,7 +178,7 @@ async def update_event(event_id: str, event: EventUpdate):
     try:
         from bson import ObjectId
         update_data = {k: v for k, v in event.dict(exclude_unset=True).items()}
-        update_data["updated_at"] = datetime.utcnow()
+        update_data["updated_at"] = datetime.now(timezone.utc)
         
         result = await db.events.update_one(
             {"_id": ObjectId(event_id)},

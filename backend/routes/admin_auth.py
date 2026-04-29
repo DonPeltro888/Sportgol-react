@@ -27,14 +27,16 @@ async def verify_admin_token(authorization: Optional[str] = Header(None)):
     if not authorization:
         raise HTTPException(status_code=401, detail="Authorization header required")
 
-    token = authorization.replace("Bearer ", "")
+    parts = authorization.split(" ", 1)
+    if len(parts) != 2 or parts[0] != "Bearer":
+        raise HTTPException(status_code=401, detail="Invalid authorization scheme")
+    token = parts[1].strip()
 
     token_data = await db.admin_tokens.find_one({"token": token})
     if not token_data:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
     expires_at = token_data.get("expires_at")
-    # MongoDB returns datetime, ensure timezone-aware compare
     if expires_at and expires_at.tzinfo is None:
         expires_at = expires_at.replace(tzinfo=timezone.utc)
 
@@ -75,8 +77,9 @@ async def admin_login(login: AdminLogin):
 @router.post("/logout")
 async def admin_logout(token_data: dict = Depends(verify_admin_token), authorization: str = Header(None)):
     """Admin logout endpoint"""
-    token = authorization.replace("Bearer ", "")
-    await db.admin_tokens.delete_one({"token": token})
+    parts = authorization.split(" ", 1) if authorization else []
+    if len(parts) == 2 and parts[0] == "Bearer":
+        await db.admin_tokens.delete_one({"token": parts[1].strip()})
     return {"message": "Logged out successfully"}
 
 

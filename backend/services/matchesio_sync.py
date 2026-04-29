@@ -258,12 +258,15 @@ async def sync_all_competitions(replace_all: bool = False) -> Dict:
         "started_at": datetime.now(timezone.utc).isoformat(),
     }
 
-    # 1. SCARICA TUTTI I JSON IN PARALLELO PRIMA di toccare il DB
+    # 1. SCARICA TUTTI I JSON IN PARALLELO (con throttle Semaphore=5 per non
+    # triggerare rate limit di matchesio.com)
     fetched_data = []
+    sem = asyncio.Semaphore(5)
     async with httpx.AsyncClient() as client:
         async def fetch_one(comp):
             matchesio_slug, db_slug, league_name, country, league_type, order = comp
-            matches = await fetch_competition_json_async(matchesio_slug, client)
+            async with sem:
+                matches = await fetch_competition_json_async(matchesio_slug, client)
             future_matches = [m for m in matches if m.get("date", "") >= today_str]
             return (matchesio_slug, db_slug, league_name, country, league_type, order, future_matches)
 
@@ -396,20 +399,26 @@ async def sync_all_competitions(replace_all: bool = False) -> Dict:
     deleted_past = await db.events.delete_many({"sort_date": {"$lt": today_str}})
     stats["total_deleted_past"] = stats.get("total_deleted_past", 0) + deleted_past.deleted_count
 
-    # 4. Auto-populate league logos (solo leghe nuove, mai team)
-    # I team logos sono lenti per via del rate limit TheSportsDB (30/min) -
-    # vanno popolati separatamente via POST /api/admin/sync/logos
+    # 4. Auto-populate league logos in BACKGROUND (non blocca la response)
+    # populate_league_logos può richiedere 30-60s per via del rate limit TheSportsDB.
+    # Eseguiamo come task in background per restituire subito la response.
     try:
-        from services.logo_fetcher import populate_league_logos
-        league_logos_stats = await populate_league_logos()
-        stats["league_logos"] = league_logos_stats
-        logger.info(
-            f"sync league logos: updated={league_logos_stats['updated']}, "
-            f"skipped={league_logos_stats['skipped']}, "
-            f"not_found={league_logos_stats['not_found']}"
-        )
+        async def _bg_logos():
+            try:
+                from services.logo_fetcher import populate_league_logos
+                logos_stats = await populate_league_logos()
+                logger.info(
+                    f"[bg] sync league logos: updated={logos_stats['updated']}, "
+                    f"skipped={logos_stats['skipped']}, "
+                    f"not_found={logos_stats['not_found']}"
+                )
+            except Exception as ee:
+                logger.exception(f"[bg] sync league logos errore: {ee}")
+
+        asyncio.create_task(_bg_logos())
+        stats["league_logos_scheduled"] = True
     except Exception as e:
-        logger.exception(f"sync league logos errore: {e}")
+        logger.exception(f"sync league logos scheduling errore: {e}")
         stats["league_logos_error"] = str(e)
 
     stats["finished_at"] = datetime.now(timezone.utc).isoformat()
