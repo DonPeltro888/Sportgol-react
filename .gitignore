@@ -81,10 +81,7 @@ android-sdk/ frontend/node_modules/.cache/default-development/0.pack
 frontend/node_modules/.cache/default-development/0.pack
 -e 
 # Environment and credential files
-.env
-.env.*
-*.env
+# (rimossi .env/.env.*/*.env per consentire deployment Emergent - i .env vengono inclusi nella build)
 credentials.json
 *.pem
 *.key
-.credentials
