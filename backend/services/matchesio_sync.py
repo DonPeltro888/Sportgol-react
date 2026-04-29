@@ -4,12 +4,15 @@ Usato da:
 - routes/sync.py (endpoint admin manuale)
 - scheduler (cron job automatico)
 - import_matchesio.py (CLI/seed)
+
+Async-friendly: usa httpx.AsyncClient per non bloccare event loop.
 """
+import asyncio
 import logging
 from datetime import datetime, timezone
 from typing import Dict
 
-import requests
+import httpx
 from database import db
 
 logger = logging.getLogger(__name__)
@@ -164,10 +167,26 @@ def fmt_ita_date(date_str: str) -> str:
 
 
 def fetch_competition_json(slug: str):
-    """Scarica il JSON ufficiale di una competizione."""
+    """DEPRECATED sincrono - usato solo da import_matchesio.py CLI.
+    Per usi async usare fetch_competition_json_async()."""
+    import requests as _requests
     url = f"{BASE_URL}/{slug}/export/json/"
     try:
-        r = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=20)
+        r = _requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=20)
+        if r.status_code != 200:
+            logger.warning(f"matchesio: HTTP {r.status_code} for slug={slug}")
+            return []
+        return r.json()
+    except Exception as e:
+        logger.error(f"matchesio: errore fetch slug={slug}: {e}")
+        return []
+
+
+async def fetch_competition_json_async(slug: str, client: httpx.AsyncClient):
+    """Scarica il JSON ufficiale di una competizione (async)."""
+    url = f"{BASE_URL}/{slug}/export/json/"
+    try:
+        r = await client.get(url, headers={"User-Agent": USER_AGENT}, timeout=20)
         if r.status_code != 200:
             logger.warning(f"matchesio: HTTP {r.status_code} for slug={slug}")
             return []
@@ -239,12 +258,21 @@ async def sync_all_competitions(replace_all: bool = False) -> Dict:
         "started_at": datetime.now(timezone.utc).isoformat(),
     }
 
-    # 1. SCARICA TUTTI I JSON PRIMA di toccare il DB (protezione contro siti down)
+    # 1. SCARICA TUTTI I JSON IN PARALLELO PRIMA di toccare il DB
     fetched_data = []
-    for matchesio_slug, db_slug, league_name, country, league_type, order in COMPETITIONS:
-        matches = fetch_competition_json(matchesio_slug)
-        future_matches = [m for m in matches if m.get("date", "") >= today_str]
-        fetched_data.append((matchesio_slug, db_slug, league_name, country, league_type, order, future_matches))
+    async with httpx.AsyncClient() as client:
+        async def fetch_one(comp):
+            matchesio_slug, db_slug, league_name, country, league_type, order = comp
+            matches = await fetch_competition_json_async(matchesio_slug, client)
+            future_matches = [m for m in matches if m.get("date", "") >= today_str]
+            return (matchesio_slug, db_slug, league_name, country, league_type, order, future_matches)
+
+        results = await asyncio.gather(*[fetch_one(c) for c in COMPETITIONS], return_exceptions=True)
+        for r in results:
+            if isinstance(r, Exception):
+                stats["errors"].append(f"fetch error: {r}")
+                continue
+            fetched_data.append(r)
 
     total_fetched = sum(len(t[6]) for t in fetched_data)
     if total_fetched < 50:

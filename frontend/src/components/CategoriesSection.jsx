@@ -36,7 +36,9 @@ const CategoriesSection = ({ categories }) => {
                     <div className="w-12 h-12 mb-3 flex items-center justify-center">
                       <img 
                         src={logo} 
-                        alt={`${t('seoTickets')} ${category.name}`}
+                        alt={`Logo ${category.name} - ${t('seoTickets')}`}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-contain"
                         onError={(e) => {
                           e.target.style.display = 'none';

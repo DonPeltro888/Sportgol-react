@@ -35,7 +35,9 @@ const EventCard = ({ event }) => {
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent z-10 opacity-60 group-hover:opacity-40 transition-opacity duration-300"></div>
         <img
           src={event.image}
-          alt={event.title}
+          alt={`${event.title} - ${event.stadium || 'Stadio'} ${event.location || ''}`.trim()}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
         {/* Shine effect */}

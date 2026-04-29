@@ -185,9 +185,10 @@ const EventListItem = ({ event }) => {
           {event.home_team_logo ? (
             <img
               src={event.home_team_logo}
-              alt={event.home_team || ''}
+              alt={`Logo ${event.home_team || ''}`}
               className="w-7 h-7 object-contain"
               loading="lazy"
+              decoding="async"
             />
           ) : (
             <div className="w-7 h-7 bg-gray-100 rounded-full" />
@@ -196,9 +197,10 @@ const EventListItem = ({ event }) => {
           {event.away_team_logo ? (
             <img
               src={event.away_team_logo}
-              alt={event.away_team || ''}
+              alt={`Logo ${event.away_team || ''}`}
               className="w-7 h-7 object-contain"
               loading="lazy"
+              decoding="async"
             />
           ) : (
             <div className="w-7 h-7 bg-gray-100 rounded-full" />

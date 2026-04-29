@@ -116,7 +116,9 @@ const TeamPage = ({ urlType }) => {
               <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-white rounded-lg p-1">
                 <img 
                   src={teamLogo} 
-                  alt={`${t('seoTickets')} ${teamName}`}
+                  alt={`Logo ${teamName} - Biglietti calcio ufficiali`}
+                  loading="eager"
+                  decoding="async"
                   className="w-full h-full object-contain"
                 />
               </div>

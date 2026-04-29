@@ -268,7 +268,9 @@ const Header = () => {
                                 {getLeagueLogo(league.slug) ? (
                                   <img 
                                     src={getLeagueLogo(league.slug)} 
-                                    alt={t(league.labelKey)}
+                                    alt={`Logo ${t(league.labelKey)}`}
+                                    loading="lazy"
+                                    decoding="async"
                                     className="w-6 h-6 object-contain"
                                   />
                                 ) : (
@@ -343,7 +345,9 @@ const Header = () => {
                             {getLeagueLogo(cup.slug) ? (
                               <img 
                                 src={getLeagueLogo(cup.slug)} 
-                                alt={t(cup.labelKey)}
+                                alt={`Logo ${t(cup.labelKey)}`}
+                                loading="lazy"
+                                decoding="async"
                                 className="w-6 h-6 object-contain"
                               />
                             ) : (
@@ -433,7 +437,7 @@ const Header = () => {
                       className="flex-1 text-left py-3 text-gray-300 hover:text-white font-medium text-sm transition-colors flex items-center gap-2"
                     >
                       {leagueLogo ? (
-                        <img src={leagueLogo} alt={t(league.labelKey)} className="w-5 h-5 object-contain" />
+                        <img src={leagueLogo} alt={`Logo ${t(league.labelKey)}`} loading="lazy" decoding="async" className="w-5 h-5 object-contain" />
                       ) : (
                         <span>{league.flag}</span>
                       )}
@@ -485,7 +489,7 @@ const Header = () => {
                   className="w-full text-left py-3 text-gray-300 hover:text-white font-medium text-sm transition-colors flex items-center gap-2"
                 >
                   {cupLogo ? (
-                    <img src={cupLogo} alt={t(cup.labelKey)} className="w-5 h-5 object-contain" />
+                    <img src={cupLogo} alt={`Logo ${t(cup.labelKey)}`} loading="lazy" decoding="async" className="w-5 h-5 object-contain" />
                   ) : (
                     <span>{cup.flag}</span>
                   )}

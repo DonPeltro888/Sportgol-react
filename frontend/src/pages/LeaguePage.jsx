@@ -193,7 +193,9 @@ const LeaguePage = ({ urlType }) => {
               {(leagueData?.logo_url || getLeagueLogo(actualLeague)) && (
                 <img 
                   src={leagueData?.logo_url || getLeagueLogo(actualLeague)} 
-                  alt={leagueName}
+                  alt={`Logo ${leagueName}`}
+                  loading="eager"
+                  decoding="async"
                   className="w-full h-full object-contain absolute inset-0 p-1"
                   onLoad={(e) => {
                     const fallback = e.target.parentElement.querySelector('.league-fallback');
@@ -274,7 +276,9 @@ const LeaguePage = ({ urlType }) => {
                         {teamLogo && (
                           <img 
                             src={teamLogo} 
-                            alt={`${t('seoTickets')} ${teamName}`}
+                            alt={`Logo ${teamName} - ${t('seoTickets')}`}
+                            loading="lazy"
+                            decoding="async"
                             className="w-full h-full object-contain absolute inset-0"
                             onLoad={(e) => {
                               const fallback = e.target.parentElement.querySelector('.team-fallback');

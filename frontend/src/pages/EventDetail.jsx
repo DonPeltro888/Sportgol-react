@@ -141,11 +141,11 @@ const EventDetail = () => {
             {/* Team Logos */}
             <div className="flex items-center justify-center gap-6 mb-4">
               <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-xl p-2 flex items-center justify-center">
-                {homeTeamLogo ? <img src={homeTeamLogo} alt={event.home_team} className="w-full h-full object-contain" /> : <span className="text-2xl font-bold">{event.home_team?.[0]}</span>}
+                {homeTeamLogo ? <img src={homeTeamLogo} alt={`Logo ${event.home_team}`} loading="eager" decoding="async" className="w-full h-full object-contain" /> : <span className="text-2xl font-bold">{event.home_team?.[0]}</span>}
               </div>
               <span className="text-white text-2xl font-bold">vs</span>
               <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-xl p-2 flex items-center justify-center">
-                {awayTeamLogo ? <img src={awayTeamLogo} alt={event.away_team} className="w-full h-full object-contain" /> : <span className="text-2xl font-bold">{event.away_team?.[0]}</span>}
+                {awayTeamLogo ? <img src={awayTeamLogo} alt={`Logo ${event.away_team}`} loading="eager" decoding="async" className="w-full h-full object-contain" /> : <span className="text-2xl font-bold">{event.away_team?.[0]}</span>}
               </div>
             </div>
             

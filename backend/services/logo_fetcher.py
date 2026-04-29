@@ -5,13 +5,15 @@ Logo fetcher service - usa TheSportsDB API gratuita per recuperare:
 
 API: https://www.thesportsdb.com/api/v1/json/3/
 
+Async-friendly: usa httpx.AsyncClient + asyncio.sleep per non bloccare event loop.
 Rate limit: 30 requests/minute (gratis). Cachiamo i risultati in DB
-per evitare chiamate ripetute. Usiamo throttle di 2.1s tra le chiamate.
+per evitare chiamate ripetute.
 """
+import asyncio
 import logging
-import time
-import requests
 from typing import Optional, Dict, List
+
+import httpx
 from database import db
 
 logger = logging.getLogger(__name__)
@@ -58,15 +60,15 @@ LEAGUE_LOGO_MAP = {
 }
 
 
-def _http_get(url: str) -> Optional[Dict]:
-    """GET con rate-limiting e gestione errori. Ritorna dict JSON o None."""
-    time.sleep(RATE_LIMIT_DELAY)  # Throttle: 30 req/min
+async def _http_get(url: str, client: httpx.AsyncClient) -> Optional[Dict]:
+    """GET async con rate-limiting e gestione errori. Ritorna dict JSON o None."""
+    await asyncio.sleep(RATE_LIMIT_DELAY)  # Throttle: 30 req/min
     try:
-        r = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=10)
+        r = await client.get(url, headers={"User-Agent": USER_AGENT}, timeout=10)
         if r.status_code == 429:
             logger.warning("logo_fetcher: rate-limited (429), aspetto 60s e riprovo")
-            time.sleep(60)
-            r = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=10)
+            await asyncio.sleep(60)
+            r = await client.get(url, headers={"User-Agent": USER_AGENT}, timeout=10)
         if r.status_code == 200 and r.content:
             try:
                 return r.json()
@@ -77,7 +79,7 @@ def _http_get(url: str) -> Optional[Dict]:
     return None
 
 
-def fetch_league_logo(slug: str) -> Optional[str]:
+async def fetch_league_logo(slug: str, client: httpx.AsyncClient) -> Optional[str]:
     """
     Cerca il logo della lega su TheSportsDB.
     Strategy:
@@ -91,7 +93,10 @@ def fetch_league_logo(slug: str) -> Optional[str]:
     country, league_name = mapping
 
     # Tentativo 1: searchleagues per nome
-    data = _http_get(f"{THESPORTSDB_BASE}/searchleagues.php?l={league_name.replace(' ', '%20')}")
+    data = await _http_get(
+        f"{THESPORTSDB_BASE}/searchleagues.php?l={league_name.replace(' ', '%20')}",
+        client,
+    )
     if data:
         leagues = data.get("countries") or data.get("leagues") or []
         for league in leagues:
@@ -100,7 +105,10 @@ def fetch_league_logo(slug: str) -> Optional[str]:
                 return badge
 
     # Tentativo 2: cerca per country
-    data = _http_get(f"{THESPORTSDB_BASE}/search_all_leagues.php?c={country.replace(' ', '%20')}&s=Soccer")
+    data = await _http_get(
+        f"{THESPORTSDB_BASE}/search_all_leagues.php?c={country.replace(' ', '%20')}&s=Soccer",
+        client,
+    )
     if data:
         leagues = data.get("countries") or data.get("leagues") or []
         for league in leagues:
@@ -113,7 +121,7 @@ def fetch_league_logo(slug: str) -> Optional[str]:
     return None
 
 
-def fetch_team_logo(team_name: str) -> Optional[str]:
+async def fetch_team_logo(team_name: str, client: httpx.AsyncClient) -> Optional[str]:
     """
     Cerca il badge del team su TheSportsDB.
     Restituisce URL del logo o None.
@@ -121,9 +129,8 @@ def fetch_team_logo(team_name: str) -> Optional[str]:
     if not team_name or team_name in ("TBD", "TBA"):
         return None
 
-    # Prova prima nome esatto
     encoded = team_name.replace(" ", "%20").replace("&", "%26")
-    data = _http_get(f"{THESPORTSDB_BASE}/searchteams.php?t={encoded}")
+    data = await _http_get(f"{THESPORTSDB_BASE}/searchteams.php?t={encoded}", client)
     if not data:
         return None
 
@@ -155,23 +162,24 @@ async def populate_league_logos() -> Dict:
     """
     stats = {"updated": 0, "skipped": 0, "not_found": 0}
 
-    cursor = db.leagues.find({})
-    async for league in cursor:
-        if league.get("logo_url"):
-            stats["skipped"] += 1
-            continue
+    async with httpx.AsyncClient() as client:
+        cursor = db.leagues.find({})
+        async for league in cursor:
+            if league.get("logo_url"):
+                stats["skipped"] += 1
+                continue
 
-        slug = league.get("slug")
-        logo = fetch_league_logo(slug)
-        if logo:
-            await db.leagues.update_one(
-                {"_id": league["_id"]},
-                {"$set": {"logo_url": logo}}
-            )
-            stats["updated"] += 1
-            logger.info(f"logo_fetcher: aggiornato logo per lega {slug} -> {logo}")
-        else:
-            stats["not_found"] += 1
+            slug = league.get("slug")
+            logo = await fetch_league_logo(slug, client)
+            if logo:
+                await db.leagues.update_one(
+                    {"_id": league["_id"]},
+                    {"$set": {"logo_url": logo}}
+                )
+                stats["updated"] += 1
+                logger.info(f"logo_fetcher: aggiornato logo per lega {slug}")
+            else:
+                stats["not_found"] += 1
 
     return stats
 
@@ -183,12 +191,10 @@ async def populate_team_logos(refresh_existing: bool = False, batch_limit: int =
     Args:
         refresh_existing: se True, rifecta logo anche per teams che già lo hanno
         batch_limit: max numero di team da processare in una sola chiamata
-                     (per evitare lunghi blocking call e rate limits)
     """
     stats = {"created": 0, "updated_logo": 0, "skipped": 0, "not_found": 0,
              "remaining": 0, "batch_limit": batch_limit}
 
-    # Estrae tutti i nomi unici di home/away dagli eventi
     pipeline = [
         {"$project": {"teams": [
             {"name": "$home_team", "league": "$league"},
@@ -205,69 +211,70 @@ async def populate_team_logos(refresh_existing: bool = False, batch_limit: int =
 
     logger.info(f"logo_fetcher: trovati {len(unique_teams)} team unici negli eventi")
 
-    # Ordina per priorità: team con almeno 1 lega popolare prima
     POPULAR_LEAGUES = {
         "SERIE A", "PREMIER LEAGUE", "LA LIGA", "BUNDESLIGA", "LIGUE 1",
         "CHAMPIONS LEAGUE", "EUROPA LEAGUE", "FIFA WORLD CUP 2026"
     }
+
     def _sort_key(e):
         leagues = e.get("leagues", [])
-        return (-int(any(l in POPULAR_LEAGUES for l in leagues)), e["_id"])
+        return (-int(any(le in POPULAR_LEAGUES for le in leagues)), e["_id"])
+
     unique_teams.sort(key=_sort_key)
 
-    processed = 0
-    for entry in unique_teams:
-        if processed >= batch_limit:
-            stats["remaining"] = len(unique_teams) - processed
-            break
+    async with httpx.AsyncClient() as client:
+        processed = 0
+        for entry in unique_teams:
+            if processed >= batch_limit:
+                stats["remaining"] = len(unique_teams) - processed
+                break
 
-        team_name = entry["_id"]
-        leagues = entry.get("leagues", [])
+            team_name = entry["_id"]
+            leagues = entry.get("leagues", [])
 
-        if not team_name or team_name in ("TBD", "TBA"):
-            continue
+            if not team_name or team_name in ("TBD", "TBA"):
+                continue
 
-        existing = await db.teams.find_one({"name": team_name})
+            existing = await db.teams.find_one({"name": team_name})
 
-        if existing and existing.get("logo_url") and not refresh_existing:
-            stats["skipped"] += 1
-            continue
+            if existing and existing.get("logo_url") and not refresh_existing:
+                stats["skipped"] += 1
+                continue
 
-        logo = fetch_team_logo(team_name)
-        processed += 1
+            logo = await fetch_team_logo(team_name, client)
+            processed += 1
 
-        if not logo:
-            stats["not_found"] += 1
-            continue
+            if not logo:
+                stats["not_found"] += 1
+                continue
 
-        team_slug = team_name.lower().replace(" ", "-").replace("'", "").replace("&", "and")
-        team_slug = "".join(c for c in team_slug if c.isalnum() or c == "-")
+            team_slug = team_name.lower().replace(" ", "-").replace("'", "").replace("&", "and")
+            team_slug = "".join(c for c in team_slug if c.isalnum() or c == "-")
 
-        if existing:
-            await db.teams.update_one(
-                {"_id": existing["_id"]},
-                {"$set": {"logo_url": logo}}
-            )
-            stats["updated_logo"] += 1
-        else:
-            # Determina la primary league (prima della lista)
-            primary_league = leagues[0] if leagues else None
-            league_doc = await db.leagues.find_one(
-                {"name": {"$regex": f"^{primary_league}$", "$options": "i"}}
-            ) if primary_league else None
-            league_slug = league_doc.get("slug") if league_doc else None
+            if existing:
+                await db.teams.update_one(
+                    {"_id": existing["_id"]},
+                    {"$set": {"logo_url": logo}}
+                )
+                stats["updated_logo"] += 1
+            else:
+                primary_league = leagues[0] if leagues else None
+                league_doc = await db.leagues.find_one(
+                    {"name": {"$regex": f"^{primary_league}$", "$options": "i"}}
+                ) if primary_league else None
+                league_slug = league_doc.get("slug") if league_doc else None
 
-            await db.teams.insert_one({
-                "name": team_name,
-                "slug": team_slug,
-                "logo_url": logo,
-                "league_slug": league_slug,
-                "active": True,
-                "auto_created": True,
-                "order": 999,
-            })
-            stats["created"] += 1
-            logger.info(f"logo_fetcher: creato team {team_name} con logo")
+                await db.teams.insert_one({
+                    "name": team_name,
+                    "slug": team_slug,
+                    "logo_url": logo,
+                    "league_slug": league_slug,
+                    "active": True,
+                    "auto_created": True,
+                    "order": 999,
+                })
+                stats["created"] += 1
+                logger.info(f"logo_fetcher: creato team {team_name} con logo")
 
     return stats
 

@@ -169,7 +169,7 @@ const StickySearch = () => {
                             className="w-full flex items-center gap-2 px-2 py-1.5 hover:bg-[#0984E3]/10 rounded-lg transition-colors text-left"
                           >
                             {logo ? (
-                              <img src={logo} alt={team.name} className="w-6 h-6 object-contain" onError={(e) => e.target.style.display = 'none'} />
+                              <img src={logo} alt={`Logo ${team.name}`} loading="lazy" decoding="async" className="w-6 h-6 object-contain" onError={(e) => e.target.style.display = 'none'} />
                             ) : (
                               <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
                                 <Users className="w-3 h-3 text-gray-400" />
