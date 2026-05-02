@@ -21,6 +21,15 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 6. **Ordinamento eventi** per data (dal più prossimo)
 7. **Multilingua** (IT, ES, EN) con language switcher
 8. **SEO completo**: meta tags, hreflang, Schema.org, sitemap.xml, robots.txt
+9. **Dynamic Rendering SEO** (2026-02): HTML pre-renderizzato per bot/crawler via FastAPI
+   - index.html arricchito con contenuto SEO fallback (~21KB) + 3 blocchi JSON-LD (Organization, WebSite, SportsActivityLocation)
+   - Endpoint `/api/prerender/home` → HTML rich homepage con Organization + WebSite schema
+   - Endpoint `/api/prerender/event/{id}` → HTML rich evento con SportsEvent + BreadcrumbList schema
+   - Endpoint `/api/prerender/league/{slug}` → HTML rich lega con SportsOrganization schema
+   - Endpoint `/api/prerender/team/{slug}` → HTML rich squadra con SportsTeam schema
+   - `/robots.txt` statico con regole per tutti i bot (Googlebot, Bingbot, facebookexternalhit, Twitterbot, WhatsApp, LinkedInBot)
+   - `/llms.txt` per AI crawlers
+   - JSON-LD serializzati con json.dumps (validi al 100%)
 
 ### Admin Panel (`/admin`)
 1. **Autenticazione** semplice (admin/golevents2024)

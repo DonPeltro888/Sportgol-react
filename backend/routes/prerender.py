@@ -18,6 +18,7 @@ from fastapi.responses import HTMLResponse
 from database import db
 from datetime import datetime
 import os
+import json
 import html as html_lib
 from bson import ObjectId
 from bson.errors import InvalidId
@@ -28,10 +29,15 @@ BASE_URL = os.environ.get("BASE_URL", "https://sports-events-2.preview.emergenta
 
 
 def _esc(text) -> str:
-    """Safe HTML escape."""
+    """Safe HTML escape (for HTML body/attributes)."""
     if text is None:
         return ""
     return html_lib.escape(str(text), quote=True)
+
+
+def _jsonld(data: dict) -> str:
+    """Safely serialize a dict to JSON-LD (escapes </script to prevent XSS)."""
+    return json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
 
 
 def _page_wrapper(
@@ -160,8 +166,20 @@ async def prerender_home(lang: str = "it"):
     title = "GOLEVENTS - Biglietti Ufficiali Calcio | Serie A, Champions League, World Cup 2026"
     description = f"Biglietti ufficiali per {events_count}+ eventi calcistici: Serie A, Premier League, La Liga, Bundesliga, Champions League, World Cup 2026. Garanzia di autenticità, supporto WhatsApp 24/7."
 
-    org_schema = """{"@context":"https://schema.org","@type":"Organization","name":"GOLEVENTS","url":"%s/","description":"Rivenditore biglietti calcio ufficiali"}""" % BASE_URL
-    website_schema = """{"@context":"https://schema.org","@type":"WebSite","name":"GOLEVENTS","url":"%s/","inLanguage":["it","en","es"]}""" % BASE_URL
+    org_schema = _jsonld({
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "GOLEVENTS",
+        "url": f"{BASE_URL}/",
+        "description": "Rivenditore biglietti calcio ufficiali",
+    })
+    website_schema = _jsonld({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "GOLEVENTS",
+        "url": f"{BASE_URL}/",
+        "inLanguage": ["it", "en", "es"],
+    })
 
     body = f"""
 <h1>Biglietti ufficiali calcio - Serie A, Premier League, Champions League</h1>
@@ -238,25 +256,36 @@ async def prerender_event(event_id: str, lang: str = "it"):
         tickets_html += "</ul>"
 
     # Event structured data
-    event_schema = """{"@context":"https://schema.org","@type":"SportsEvent","name":"%s","description":"%s","startDate":"%s","location":{"@type":"StadiumOrArena","name":"%s","address":{"@type":"PostalAddress","addressLocality":"%s"}},"eventStatus":"https://schema.org/EventScheduled","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","performer":[%s],"organizer":{"@type":"Organization","name":"GOLEVENTS","url":"%s"},"url":"%s/event/%s"}""" % (
-        _esc(title_raw),
-        _esc(description),
-        _esc(sort_date or date),
-        _esc(stadium),
-        _esc(location),
-        ",".join([f'{{"@type":"SportsTeam","name":"{_esc(c)}"}}' for c in cats[:2]]) if cats else "",
-        BASE_URL,
-        BASE_URL,
-        _esc(event_id),
-    )
+    event_schema = _jsonld({
+        "@context": "https://schema.org",
+        "@type": "SportsEvent",
+        "name": title_raw,
+        "description": description,
+        "startDate": sort_date or date,
+        "location": {
+            "@type": "StadiumOrArena",
+            "name": stadium,
+            "address": {
+                "@type": "PostalAddress",
+                "addressLocality": location,
+            },
+        },
+        "eventStatus": "https://schema.org/EventScheduled",
+        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+        "performer": [{"@type": "SportsTeam", "name": c} for c in cats[:2]],
+        "organizer": {"@type": "Organization", "name": "GOLEVENTS", "url": BASE_URL},
+        "url": f"{BASE_URL}/event/{event_id}",
+    })
 
-    breadcrumb_schema = """{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"%s/"},{"@type":"ListItem","position":2,"name":"%s","item":"%s/biglietti-%s"},{"@type":"ListItem","position":3,"name":"%s"}]}""" % (
-        BASE_URL,
-        _esc(league),
-        BASE_URL,
-        _esc(league.lower().replace(" ", "-")) if league else "",
-        _esc(title_raw),
-    )
+    breadcrumb_schema = _jsonld({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": f"{BASE_URL}/"},
+            {"@type": "ListItem", "position": 2, "name": league, "item": f"{BASE_URL}/biglietti-{league.lower().replace(' ', '-')}" if league else f"{BASE_URL}/"},
+            {"@type": "ListItem", "position": 3, "name": title_raw},
+        ],
+    })
 
     body = f"""
 <nav aria-label="breadcrumb"><a href="{BASE_URL}/">Home</a> &raquo; <a href="{BASE_URL}/biglietti-{_esc(league.lower().replace(' ', '-')) if league else ''}">{_esc(league)}</a> &raquo; {_esc(title_raw)}</nav>
@@ -324,7 +353,13 @@ async def prerender_league(slug: str, lang: str = "it"):
             events_html += f'<article class="event-card"><h3><a href="{BASE_URL}/event/{_esc(ev_id)}">{_esc(ev_title)}</a></h3><p class="meta">{_esc(ev.get("date",""))} · {_esc(ev.get("stadium",""))}</p></article>'
 
     schema_type = "SportsOrganization" if league_type == "league" else "SportsEvent"
-    league_schema = """{"@context":"https://schema.org","@type":"%s","name":"%s","sport":"Football","url":"%s/biglietti-%s"}""" % (schema_type, _esc(name), BASE_URL, _esc(slug))
+    league_schema = _jsonld({
+        "@context": "https://schema.org",
+        "@type": schema_type,
+        "name": name,
+        "sport": "Football",
+        "url": f"{BASE_URL}/biglietti-{slug}",
+    })
 
     body = f"""
 <nav><a href="{BASE_URL}/">Home</a> &raquo; {_esc(name)}</nav>
@@ -374,7 +409,13 @@ async def prerender_team(slug: str, lang: str = "it"):
     else:
         events_html = "<p>Nessuna partita programmata al momento. Contattaci via WhatsApp per richieste su partite future.</p>"
 
-    team_schema = """{"@context":"https://schema.org","@type":"SportsTeam","name":"%s","sport":"Football","url":"%s/biglietti-%s"}""" % (_esc(team_name), BASE_URL, _esc(slug))
+    team_schema = _jsonld({
+        "@context": "https://schema.org",
+        "@type": "SportsTeam",
+        "name": team_name,
+        "sport": "Football",
+        "url": f"{BASE_URL}/biglietti-{slug}",
+    })
 
     body = f"""
 <nav><a href="{BASE_URL}/">Home</a> &raquo; {_esc(team_name)}</nav>
