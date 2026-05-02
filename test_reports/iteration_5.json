@@ -1,0 +1,38 @@
+{
+  "summary": "Backend-only SEO + Prerender regression suite: 19/19 pytest tests passing after fix. Covers: (1) 4 new endpoints /api/prerender/home, /event/{id}, /league/{slug}, /team/{slug} - HTML 200 responses with correct <title>, meta description, canonical, OG/Twitter cards, hreflang, and valid JSON-LD schema.org blocks (Organization + WebSite for home; SportsOrganization/SportsEvent for leagues; SportsTeam for teams; SportsEvent + BreadcrumbList for events). (2) Regression on /api/health, /api/events, /api/sitemap.xml (verified league slugs + /event/ URLs), /api/robots.txt, /robots.txt (static), /llms.txt (static), and /api/admin/login. (3) Googlebot user-agent simulation against homepage / confirms index.html SEO fallback has 3+ JSON-LD blocks (Organization, WebSite, SportsActivityLocation) plus required keywords (Serie A, Premier League, Juventus, Inter, Champions League).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /api/prerender/event/{id}", "issue": "FIXED during testing - endpoint was querying MongoDB with raw string on _id while db.events._id is stored as ObjectId, so every valid event id returned 404. Added bson.ObjectId conversion with fallback to string _id and matchesio_id lookup."}
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_prerender_api.py",
+    "/app/test_reports/pytest/prerender_results.xml"
+  ],
+  "action_items": [
+    "Review the ObjectId fix applied in /app/backend/routes/prerender.py (prerender_event). If event ids in the user-facing React app are always surfaced as hex strings of ObjectId, you may want to apply the same bson.ObjectId conversion pattern across any other endpoint that looks up events by _id to avoid a repeat of the 404 bug. Currently the sitemap already calls str(event['_id']) so external URLs use hex ObjectId strings.",
+    "(Non-blocking, SEO best practice) BASE_URL in /app/backend/routes/prerender.py and /app/backend/routes/seo.py defaults to the preview URL. When the site is promoted to a real domain (e.g. golevents.com) you must either set BASE_URL env or update the default to avoid exposing the preview URL in canonical/OG tags.",
+    "(Non-blocking) /api/prerender/league uses @type=SportsOrganization for league and SportsEvent for cups - cups are arguably closer to @type=Tournament (schema.org) or a SportsEvent series; consider SportsEvent with 'subEvent' array or Tournament for richer SERP.",
+    "(Non-blocking) prerender_event builds JSON-LD via % string formatting - if team names contain special chars like quotes they would break the JSON even with html escape (html.escape doesn't escape JSON). Consider json.dumps() for schema assembly."
+  ],
+  "critical_code_review_comments": [
+    "prerender.py: JSON-LD is built with raw Python % formatting + html.escape(). html.escape replaces &<>'\" -> entities, which produces valid HTML attributes but technically INVALID JSON inside <script type=\"application/ld+json\"> (e.g. team name with apostrophe becomes &#x27; inside the JSON string). Recommended: use json.dumps() to serialize the dict, then embed. Test showed parsing still succeeds for current DB data because no problematic characters are present, but this is a latent bug.",
+    "prerender.py: file has 3 near-identical _page_wrapper calls with only body/structured_data differing - acceptable since file <400 lines, but if more page types are added, extract per-section helpers.",
+    "prerender_event used raw string match on _id - FIXED (now tries ObjectId, then string _id, then matchesio_id). Sitemap and events list already use str(event['_id']) so the URLs exposed to the world are ObjectId hex strings, which round-tripped correctly after the fix.",
+    "prerender.py BASE_URL os.environ.get default hardcodes preview URL - will cause canonical/OG issues after prod cutover (same pattern in seo.py).",
+    "Inconsistency: /api/robots.txt endpoint (backend) and /robots.txt (static frontend file) both exist and differ slightly (static lists many bots individually, backend is generic). Static file is the one actually served by CRA public/. Recommend picking ONE source of truth to avoid crawler confusion."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_prerender_api.py (NEW - 19 pytest tests)",
+    "/app/backend/routes/prerender.py (FIX - prerender_event now converts event_id to ObjectId before MongoDB lookup, with fallbacks to string _id / matchesio_id)"
+  ],
+  "success_rate": {"backend": "100% (19/19)", "frontend": "not tested (skipped per request - frontend only had index.html SEO enrichment, no React component changes)"},
+  "test_credentials": "admin / golevents2024 (from /app/memory/test_credentials.md) - verified working via POST /api/admin/login during regression.",
+  "seed_data_creation": "None. Used existing MongoDB dataset (~963 events, ~30 leagues, ~500 teams). Sample event id picked dynamically from GET /api/events?limit=1 fixture.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "test_prerender_api.py is the SEO/prerender regression file. It auto-picks a valid event id via fixture, tests 2 real league slugs (serie-a, champions-league) and 2 real team slugs (inter, liverpool), verifies JSON-LD parses as valid JSON, and simulates Googlebot against the homepage to confirm index.html fallback is served. If the Googlebot test ever fails, it's most likely because the static index.html was regenerated without the JSON-LD/keywords block (CRA build step) - re-run `yarn build` to restore.",
+  "rca of the issue": "Bug: GET /api/prerender/event/{id} returned 404 for every valid event id. RCA: MongoDB db.events stores _id as a native BSON ObjectId (verified by asyncio shell: type(ev['_id']).__name__ == 'ObjectId'), but prerender_event passed the URL param (a plain hex string) straight into find_one({'_id': event_id}). Motor/PyMongo does NOT auto-convert string to ObjectId, so the query never matched. Meanwhile the sitemap.xml correctly emits str(event['_id']) producing hex strings, which means Googlebot would follow a sitemap link /event/<hex> and hit the broken endpoint. Fix: wrap event_id in bson.ObjectId(...) inside try/except for backward compatibility with records that may use string ids (future-proofing), with a secondary fallback to matchesio_id lookup. Re-tested: 19/19 green."
+}

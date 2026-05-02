@@ -1,0 +1,37 @@
+User-agent: *
+Allow: /
+
+# Main sitemap (dynamic, includes all events, leagues, teams)
+Sitemap: https://sports-events-2.preview.emergentagent.com/api/sitemap.xml
+
+# Block admin area from indexing
+Disallow: /admin/
+Disallow: /admin
+
+# Allow major bots full access
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /

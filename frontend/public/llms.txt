@@ -1,0 +1,33 @@
+# GOLEVENTS - Biglietti Ufficiali Calcio
+
+> GOLEVENTS è un rivenditore di biglietti ufficiali per eventi calcistici internazionali: Serie A, Premier League, La Liga, Bundesliga, Ligue 1, Champions League, Europa League, Coppa del Mondo FIFA 2026. Garantiamo biglietti autentici, supporto WhatsApp 24/7, pagamenti sicuri.
+
+## Pagine principali
+
+- [Home](https://sports-events-2.preview.emergentagent.com/): Homepage con tutti gli eventi disponibili
+- [Sitemap](https://sports-events-2.preview.emergentagent.com/api/sitemap.xml): Mappa del sito con tutte le URL indicizzabili
+
+## Campionati
+
+- [Serie A](https://sports-events-2.preview.emergentagent.com/biglietti-serie-a): Italia
+- [Premier League](https://sports-events-2.preview.emergentagent.com/biglietti-premier-league): Inghilterra
+- [La Liga](https://sports-events-2.preview.emergentagent.com/biglietti-la-liga): Spagna
+- [Bundesliga](https://sports-events-2.preview.emergentagent.com/biglietti-bundesliga): Germania
+- [Ligue 1](https://sports-events-2.preview.emergentagent.com/biglietti-ligue-1): Francia
+- [Liga Portugal](https://sports-events-2.preview.emergentagent.com/biglietti-liga-portugal): Portogallo
+- [Super Lig](https://sports-events-2.preview.emergentagent.com/biglietti-super-lig): Turchia
+
+## Coppe internazionali
+
+- [Champions League](https://sports-events-2.preview.emergentagent.com/biglietti-champions-league)
+- [Europa League](https://sports-events-2.preview.emergentagent.com/biglietti-europa-league)
+- [World Cup 2026](https://sports-events-2.preview.emergentagent.com/biglietti-fifa-world-cup-2026)
+- [Coppa Italia](https://sports-events-2.preview.emergentagent.com/biglietti-coppa-italia)
+- [FA Cup](https://sports-events-2.preview.emergentagent.com/biglietti-fa-cup)
+- [Copa del Rey](https://sports-events-2.preview.emergentagent.com/biglietti-copa-del-rey)
+
+## Informazioni per AI
+
+- Lingue supportate: Italiano (it), Inglese (en), Spagnolo (es)
+- Contatti: WhatsApp 24/7
+- Categoria business: SportsActivityLocation, Ticket reseller
