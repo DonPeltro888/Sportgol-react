@@ -291,7 +291,10 @@ const AdminSync = () => {
           ) : (
             <div className="space-y-3" data-testid="sync-logs-list">
               {logs.map((log, idx) => {
-                const hasErrors = log.errors && log.errors.length > 0;
+                const hasErrors = (log.errors && log.errors.length > 0) || (log.leagues_failed && log.leagues_failed.length > 0);
+                const source = log.source || 'matchesio';
+                const sourceLabel = source === 'api_football' ? '⭐ API-Football' : source === 'logos' ? '🖼️ Loghi' : '🌐 matchesio.com';
+                const sourceColor = source === 'api_football' ? 'bg-green-700 text-green-100' : source === 'logos' ? 'bg-purple-700 text-purple-100' : 'bg-blue-700 text-blue-100';
                 return (
                   <div
                     key={idx}
@@ -300,7 +303,7 @@ const AdminSync = () => {
                     }`}
                   >
                     <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         {hasErrors ? (
                           <AlertCircle className="w-4 h-4 text-yellow-500" />
                         ) : (
@@ -309,53 +312,115 @@ const AdminSync = () => {
                         <span className="text-white font-medium text-sm">
                           {fmtDate(log.log_at || log.finished_at)}
                         </span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sourceColor}`}>{sourceLabel}</span>
                       </div>
                       <span className="text-gray-400 text-xs">
-                        {log.total_in_db || 0} eventi totali
+                        {log.total_in_db || 0} eventi totali in DB
                       </span>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mt-3">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs mt-3">
                       <div>
-                        <div className="text-gray-500">Inseriti</div>
-                        <div className="text-green-400 font-bold">{log.total_inserted || 0}</div>
+                        <div className="text-gray-500">Nuovi eventi</div>
+                        <div className="text-green-400 font-bold text-base">+{log.total_inserted || 0}</div>
                       </div>
                       <div>
                         <div className="text-gray-500">Aggiornati</div>
-                        <div className="text-blue-400 font-bold">{log.total_updated || 0}</div>
+                        <div className="text-blue-400 font-bold text-base">{log.total_updated || 0}</div>
                       </div>
                       <div>
-                        <div className="text-gray-500">Cancellati</div>
-                        <div className="text-orange-400 font-bold">{log.total_deleted_past || 0}</div>
+                        <div className="text-gray-500">Cancellati passati</div>
+                        <div className="text-orange-400 font-bold text-base">{log.total_deleted_past || 0}</div>
                       </div>
                       <div>
-                        <div className="text-gray-500">Errori</div>
-                        <div className={hasErrors ? 'text-yellow-400 font-bold' : 'text-gray-400'}>
-                          {(log.errors || []).length}
-                        </div>
+                        <div className="text-gray-500">Loghi aggiunti</div>
+                        <div className="text-purple-400 font-bold text-base">+{log.logos_added || 0}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500">Slug SEO</div>
+                        <div className="text-pink-400 font-bold text-base">{log.slugs_updated || 0}</div>
                       </div>
                     </div>
+
+                    {/* Sample nuovi eventi */}
+                    {log.sample_inserted && log.sample_inserted.length > 0 && (
+                      <details className="mt-3" open>
+                        <summary className="text-green-400 text-xs cursor-pointer hover:text-green-300 font-medium">
+                          🆕 Ecco gli ultimi {log.sample_inserted.length} eventi appena aggiunti:
+                        </summary>
+                        <ul className="mt-2 space-y-1 text-xs text-gray-300 ml-4">
+                          {log.sample_inserted.map((ev, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <span className="text-green-500">•</span>
+                              <span><strong className="text-white">{ev.title}</strong> · <span className="text-gray-500">{ev.league}</span> · {ev.date} · 📍 {ev.stadium}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    )}
+
+                    {/* Stats per lega - colorate per stato */}
                     {log.per_league && Object.keys(log.per_league).length > 0 && (
                       <details className="mt-3">
-                        <summary className="text-gray-500 text-xs cursor-pointer hover:text-gray-400">
-                          Dettagli per lega
+                        <summary className="text-gray-300 text-xs cursor-pointer hover:text-white font-medium">
+                          📊 Dettagli per competizione ({Object.keys(log.per_league).length})
                         </summary>
-                        <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-1 text-xs">
+                        <div className="mt-2 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5 text-xs">
                           {Object.entries(log.per_league).map(([league, count]) => (
-                            <div key={league} className="text-gray-400">
-                              {league}: <span className="text-white">{count}</span>
+                            <div
+                              key={league}
+                              className={`px-2 py-1 rounded ${count === 0 ? 'bg-red-900/40 border border-red-800' : count > 30 ? 'bg-green-900/40 border border-green-800' : 'bg-gray-800 border border-gray-700'}`}
+                              title={count === 0 ? 'Nessun evento - lega vuota' : `${count} eventi`}
+                            >
+                              <span className={count === 0 ? 'text-red-400' : count > 30 ? 'text-green-300' : 'text-gray-300'}>
+                                {count === 0 ? '❌' : count > 30 ? '✅' : '🔸'} {league}:
+                              </span>{' '}
+                              <span className={count === 0 ? 'text-red-300' : 'text-white'}>{count}</span>
                             </div>
                           ))}
                         </div>
                       </details>
                     )}
+
+                    {/* Leghe vuote - sezione dedicata */}
+                    {log.leagues_empty && log.leagues_empty.length > 0 && (
+                      <details className="mt-2">
+                        <summary className="text-red-400 text-xs cursor-pointer hover:text-red-300 font-medium">
+                          ⚠️ {log.leagues_empty.length} competizioni VUOTE (nessun evento ricevuto)
+                        </summary>
+                        <ul className="mt-2 space-y-1 text-xs text-red-300 ml-4">
+                          {log.leagues_empty.map((item, i) => (
+                            <li key={i}>• <strong>{item.league}</strong> — <span className="text-gray-400">{item.reason}</span></li>
+                          ))}
+                        </ul>
+                      </details>
+                    )}
+
+                    {/* Nuove leghe create */}
+                    {log.leagues_created && log.leagues_created.length > 0 && (
+                      <details className="mt-2">
+                        <summary className="text-cyan-400 text-xs cursor-pointer hover:text-cyan-300 font-medium">
+                          ✨ {log.leagues_created.length} nuove leghe create automaticamente
+                        </summary>
+                        <ul className="mt-2 space-y-1 text-xs text-cyan-300 ml-4">
+                          {log.leagues_created.map((item, i) => (
+                            <li key={i}>• <strong>{item.name}</strong> ({item.type}) — slug: <code className="bg-gray-800 px-1 rounded">{item.slug}</code></li>
+                          ))}
+                        </ul>
+                      </details>
+                    )}
+
+                    {/* Errori */}
                     {hasErrors && (
                       <details className="mt-2">
-                        <summary className="text-yellow-500 text-xs cursor-pointer">
-                          Vedi errori ({log.errors.length})
+                        <summary className="text-yellow-500 text-xs cursor-pointer font-medium">
+                          ⚠️ Errori durante il sync
                         </summary>
-                        <ul className="mt-2 text-yellow-400 text-xs space-y-1">
-                          {log.errors.map((err, i) => (
-                            <li key={i}>• {err}</li>
+                        <ul className="mt-2 text-yellow-400 text-xs space-y-1 ml-4">
+                          {(log.errors || []).map((err, i) => (
+                            <li key={`e-${i}`}>• {err}</li>
+                          ))}
+                          {(log.leagues_failed || []).map((item, i) => (
+                            <li key={`lf-${i}`}>• <strong>{item.league}</strong>: {item.error}</li>
                           ))}
                         </ul>
                       </details>

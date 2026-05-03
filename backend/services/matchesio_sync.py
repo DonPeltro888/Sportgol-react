@@ -249,12 +249,15 @@ async def sync_all_competitions(replace_all: bool = False) -> Dict:
     """
     today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     stats = {
+        "source": "matchesio",
         "total_inserted": 0,
         "total_updated": 0,
         "total_deleted_past": 0,
         "leagues_created": [],
+        "leagues_empty": [],
         "per_league": {},
         "errors": [],
+        "sample_inserted": [],
         "started_at": datetime.now(timezone.utc).isoformat(),
     }
 
@@ -367,6 +370,8 @@ async def sync_all_competitions(replace_all: bool = False) -> Dict:
                     event_doc["created_at"] = datetime.now(timezone.utc)
                     await db.events.insert_one(event_doc)
                     stats["total_inserted"] += 1
+                    if len(stats["sample_inserted"]) < 10:
+                        stats["sample_inserted"].append({"title": title, "league": league_name, "date": event_doc["date"], "stadium": stadium})
                 else:
                     # Upsert su matchesio_id se presente
                     if matchesio_id:
@@ -377,17 +382,23 @@ async def sync_all_competitions(replace_all: bool = False) -> Dict:
                         )
                         if result.upserted_id:
                             stats["total_inserted"] += 1
+                            if len(stats["sample_inserted"]) < 10:
+                                stats["sample_inserted"].append({"title": title, "league": league_name, "date": event_doc["date"], "stadium": stadium})
                         elif result.modified_count > 0:
                             stats["total_updated"] += 1
                     else:
                         event_doc["created_at"] = datetime.now(timezone.utc)
                         await db.events.insert_one(event_doc)
                         stats["total_inserted"] += 1
+                        if len(stats["sample_inserted"]) < 10:
+                            stats["sample_inserted"].append({"title": title, "league": league_name, "date": event_doc["date"], "stadium": stadium})
 
                 league_count += 1
                 img_idx += 1
 
             stats["per_league"][league_name] = league_count
+            if league_count == 0:
+                stats["leagues_empty"].append({"league": league_name, "reason": "matchesio.com ha restituito 0 eventi futuri"})
             logger.info(f"sync: {league_name} -> {league_count} eventi futuri")
 
         except Exception as e:

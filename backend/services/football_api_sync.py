@@ -183,12 +183,15 @@ async def sync_via_api_football() -> Dict:
     started_at = datetime.now(timezone.utc).isoformat()
     stats = {
         "started_at": started_at,
+        "source": "api_football",
         "total_inserted": 0,
         "total_updated": 0,
         "leagues_synced": 0,
         "leagues_failed": [],
+        "leagues_empty": [],
         "per_league": {},
         "logos_added": 0,
+        "sample_inserted": [],  # primi 10 nuovi eventi inseriti
     }
 
     async with httpx.AsyncClient(timeout=20.0) as client:
@@ -199,6 +202,7 @@ async def sync_via_api_football() -> Dict:
                 stats["per_league"][league_name] = len(fixtures)
 
                 if not fixtures:
+                    stats["leagues_empty"].append({"league": league_name, "reason": "API ha restituito 0 eventi"})
                     continue
 
                 inserted = 0
@@ -223,6 +227,14 @@ async def sync_via_api_football() -> Dict:
                         ev["created_at"] = datetime.now(timezone.utc).isoformat()
                         await db.events.insert_one(ev)
                         inserted += 1
+                        # Salva esempio (max 10 totali)
+                        if len(stats["sample_inserted"]) < 10:
+                            stats["sample_inserted"].append({
+                                "title": ev["title"],
+                                "league": league_name,
+                                "date": ev["date"],
+                                "stadium": ev["stadium"],
+                            })
 
                     # Logo squadre
                     for team_name, logo_url in [
