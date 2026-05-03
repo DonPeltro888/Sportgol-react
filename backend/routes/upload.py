@@ -11,7 +11,11 @@ from pathlib import Path
 router = APIRouter(prefix="/api/upload", tags=["upload"])
 
 UPLOAD_DIR = Path("/app/backend/uploads")
-UPLOAD_DIR.mkdir(exist_ok=True)
+try:
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+except Exception:
+    # In ambienti read-only (K8s) ignora — gli upload falliranno con errore esplicito al primo POST
+    pass
 
 # Allowed file types
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'}

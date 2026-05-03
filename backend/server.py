@@ -131,6 +131,7 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("startup")
 async def startup_event():
+    import asyncio
     logger.info("Starting Golevents API...")
     logger.info(f"Connected to MongoDB: {os.environ['DB_NAME']}")
     # TTL index per auto-cleanup admin tokens scaduti
@@ -147,24 +148,28 @@ async def startup_event():
         logger.info("Index su events.slug creato")
     except Exception as e:
         logger.warning(f"Index events.slug già esistente o errore: {e}")
-    # Auto-backfill slugs per eventi senza slug
-    try:
-        from database import db
-        missing = await db.events.count_documents({"slug": {"$exists": False}})
-        if missing > 0:
-            logger.info(f"Backfilling slugs for {missing} events...")
-            from services.event_slug import backfill_all_slugs
-            stats = await backfill_all_slugs()
-            logger.info(f"Slug backfill done: {stats}")
-    except Exception as e:
-        logger.error(f"Errore backfill slugs: {e}")
-    # Avvia scheduler per sync automatico ogni 6h
-    try:
-        from services.scheduler import start_scheduler
-        start_scheduler()
-        logger.info("Scheduler avviato (auto-sync 06:00 + 21:00 Italia, priorità API-Football → matchesio fallback)")
-    except Exception as e:
-        logger.error(f"Errore avvio scheduler: {e}")
+
+    # Background task: backfill slugs + scheduler avvio (non blocca startup K8s health check)
+    async def _bg_init():
+        try:
+            from database import db
+            missing = await db.events.count_documents({"slug": {"$exists": False}})
+            if missing > 0:
+                logger.info(f"Backfilling slugs for {missing} events (background)...")
+                from services.event_slug import backfill_all_slugs
+                stats = await backfill_all_slugs()
+                logger.info(f"Slug backfill done: {stats}")
+        except Exception as e:
+            logger.error(f"Errore backfill slugs (background): {e}")
+        try:
+            from services.scheduler import start_scheduler
+            start_scheduler()
+            logger.info("Scheduler avviato (auto-sync 06:00 + 21:00 Italia)")
+        except Exception as e:
+            logger.error(f"Errore avvio scheduler: {e}")
+
+    asyncio.create_task(_bg_init())
+    logger.info("Startup completato (backfill+scheduler in background)")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
