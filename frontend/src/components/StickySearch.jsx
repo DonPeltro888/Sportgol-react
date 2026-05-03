@@ -102,7 +102,9 @@ const StickySearch = () => {
   };
 
   const formatDate = (dateStr) => {
+    if (!dateStr) return '';
     const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
     return date.toLocaleDateString(lang === 'it' ? 'it-IT' : lang === 'es' ? 'es-ES' : 'en-GB', {
       day: 'numeric',
       month: 'short'
@@ -196,8 +198,8 @@ const StickySearch = () => {
                         onClick={() => handleEventClick(event)}
                         className="w-full px-3 py-2 flex items-center gap-3 hover:bg-[#FF6B35]/10 transition-colors text-left border-b border-gray-100 last:border-b-0"
                       >
-                        <div className="flex-shrink-0 w-10 text-center">
-                          <div className="text-xs font-bold text-[#FF6B35]">{formatDate(event.date)}</div>
+                        <div className="flex-shrink-0 w-12 text-center">
+                          <div className="text-xs font-bold text-[#FF6B35]">{formatDate(event.sort_date || event.date)}</div>
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-medium text-[#2D3436] truncate">{event.title}</div>
