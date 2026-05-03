@@ -25,7 +25,7 @@ from bson.errors import InvalidId
 
 router = APIRouter(prefix="/api/prerender", tags=["prerender"])
 
-BASE_URL = os.environ.get("BASE_URL", "https://sports-events-2.preview.emergentagent.com")
+BASE_URL = os.environ["BASE_URL"]
 
 
 def _esc(text) -> str:
