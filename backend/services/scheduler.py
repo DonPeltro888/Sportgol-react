@@ -25,33 +25,38 @@ async def _has_football_api_configured() -> bool:
 
 
 async def _run_sync_job():
-    """Esegue il sync programmato. Prova prima API-Football, poi matchesio come fallback."""
+    """Esegue il sync programmato. STRATEGIA MIX:
+    1. matchesio.com (gratis, veloce) per le ~20 competizioni che supporta
+    2. Se API esterna configurata, riempie SOLO le leghe vuote dopo matchesio.
+    """
     try:
-        if await _has_football_api_configured():
-            logger.info("Scheduler: avvio sync via API-Football (provider primario)")
-            try:
-                from services.football_api_sync import sync_via_api_football
-                stats = await sync_via_api_football()
-                if stats.get("success"):
-                    logger.info(
-                        f"Scheduler API-Football OK. Inseriti={stats.get('total_inserted')}, "
-                        f"aggiornati={stats.get('total_updated')}, "
-                        f"leghe sincronizzate={stats.get('leagues_synced')}, "
-                        f"loghi aggiunti={stats.get('logos_added')}"
-                    )
-                    return
-                logger.warning(f"API-Football fallita: {stats.get('error')}. Fallback a matchesio.")
-            except Exception as e:
-                logger.exception(f"Errore API-Football, fallback matchesio: {e}")
-        else:
-            logger.info("Scheduler: API-Football non configurata, uso matchesio.com")
+        # STEP 1: matchesio sempre primo (no costi)
+        logger.info("Scheduler: STEP 1 - sync matchesio.com")
+        m_stats = await sync_all_competitions(replace_all=False)
+        logger.info(f"matchesio: inseriti={m_stats['total_inserted']}, aggiornati={m_stats['total_updated']}, leghe vuote={len(m_stats.get('leagues_empty', []))}")
 
-        # Fallback automatico: matchesio
-        stats = await sync_all_competitions(replace_all=False)
-        logger.info(
-            f"Scheduler matchesio OK. Inseriti={stats['total_inserted']}, "
-            f"aggiornati={stats['total_updated']}, in DB={stats.get('total_in_db', 0)}"
-        )
+        # STEP 2: riempi mancanti via API esterna se configurata
+        doc = await db.settings.find_one({"_id": "integrations"}, {"_id": 0})
+        fa = (doc or {}).get("football_api", {})
+        if fa.get("enabled") and fa.get("api_key"):
+            provider = fa.get("provider", "api_football")
+            empty = [item["league"] for item in m_stats.get("leagues_empty", [])]
+            if empty:
+                logger.info(f"Scheduler: STEP 2 - {provider} riempie {len(empty)} leghe vuote: {empty}")
+                if provider == "football_data":
+                    from services.football_data_sync import sync_via_football_data
+                    api_stats = await sync_via_football_data(only_empty_leagues=empty)
+                else:
+                    from services.football_api_sync import sync_via_api_football
+                    api_stats = await sync_via_api_football()
+                if api_stats.get("success"):
+                    logger.info(f"{provider}: riempiti {api_stats.get('total_inserted', 0)} eventi nuovi, {api_stats.get('logos_added', 0)} loghi")
+                else:
+                    logger.warning(f"{provider} fallito: {api_stats.get('error')}")
+            else:
+                logger.info("Scheduler: nessuna lega vuota, no chiamate API esterne")
+        else:
+            logger.info("Scheduler: nessuna API esterna configurata, solo matchesio")
     except Exception as e:
         logger.exception(f"Scheduler: errore durante sync: {e}")
 

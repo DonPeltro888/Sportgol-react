@@ -15,25 +15,56 @@ const AdminSync = () => {
 
   const [logosLoading, setLogosLoading] = useState(false);
   const [apiSyncing, setApiSyncing] = useState(false);
+  const [fillSyncing, setFillSyncing] = useState(false);
 
   const runApiFootballSync = async () => {
-    if (!confirm('Avviare sync via API-Football (provider primario)? Verranno recuperati eventi e loghi per tutte le competizioni configurate.')) return;
+    if (!confirm('Avviare sync via API esterna (provider configurato)? Verranno recuperati eventi e loghi per tutte le competizioni supportate dal provider.')) return;
     try {
       setApiSyncing(true);
-      toast.info('Sync API-Football avviata, attendere prego (~10-30s)...');
+      toast.info('Sync API esterna avviata, attendere prego (~30-90s con rate limit)...');
       const r = await authFetch(`${API_URL}/api/admin/sync/football-api`, { method: 'POST' });
-      const data = await r.json();
+      const text = await r.text();
+      let data = {};
+      try { data = text ? JSON.parse(text) : {}; } catch {
+        throw new Error(`Risposta non valida (HTTP ${r.status}). ${text.slice(0, 100)}`);
+      }
       if (!r.ok || data.success === false) {
         throw new Error(data.detail || data.error || `HTTP ${r.status}`);
       }
       toast.success(
-        `Sync API-Football OK: ${data.total_inserted} nuovi, ${data.total_updated} aggiornati, ${data.logos_added} loghi nuovi, ${data.leagues_synced} leghe`
+        `Sync API OK: +${data.total_inserted || 0} nuovi, ${data.total_updated || 0} aggiornati, +${data.logos_added || 0} loghi, ${data.leagues_synced || 0} leghe`
       );
       fetchLogs();
     } catch (e) {
-      toast.error(`Errore: ${e.message}. Hai configurato la API key in /admin/integrations?`);
+      toast.error(`Errore: ${e.message}`);
     } finally {
       setApiSyncing(false);
+    }
+  };
+
+  const runFillMissing = async () => {
+    if (!confirm('Riempire SOLO le leghe attualmente vuote tramite API esterna? Risparmia chiamate API.')) return;
+    try {
+      setFillSyncing(true);
+      toast.info('Identifico leghe vuote e le riempio via API...');
+      const r = await authFetch(`${API_URL}/api/admin/sync/fill-missing`, { method: 'POST' });
+      const text = await r.text();
+      let data = {};
+      try { data = text ? JSON.parse(text) : {}; } catch {
+        throw new Error(`Risposta non valida (HTTP ${r.status}). ${text.slice(0, 100)}`);
+      }
+      if (!r.ok || data.success === false) {
+        throw new Error(data.detail || data.error || `HTTP ${r.status}`);
+      }
+      const targeted = (data.empty_leagues_targeted || []).join(', ') || '-';
+      toast.success(
+        `Fill OK: +${data.total_inserted || 0} eventi, ${data.leagues_synced || 0} leghe riempite. Target: ${targeted.slice(0, 80)}`
+      );
+      fetchLogs();
+    } catch (e) {
+      toast.error(`Errore: ${e.message}`);
+    } finally {
+      setFillSyncing(false);
     }
   };
 
@@ -152,18 +183,35 @@ const AdminSync = () => {
               </div>
             </div>
           </div>
-          <button
-            onClick={runApiFootballSync}
-            disabled={apiSyncing}
-            data-testid="run-api-football-sync-btn"
-            className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-lg flex items-center gap-2 transition-all"
-          >
-            {apiSyncing ? (
-              <><Loader2 className="w-5 h-5 animate-spin" /> Sync API-Football in corso...</>
-            ) : (
-              <><RefreshCw className="w-5 h-5" /> Avvia sync API-Football ora</>
-            )}
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={runApiFootballSync}
+              disabled={apiSyncing}
+              data-testid="run-api-football-sync-btn"
+              className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-lg flex items-center gap-2 transition-all"
+            >
+              {apiSyncing ? (
+                <><Loader2 className="w-5 h-5 animate-spin" /> Sync API in corso...</>
+              ) : (
+                <><RefreshCw className="w-5 h-5" /> Sync completa via API</>
+              )}
+            </button>
+            <button
+              onClick={runFillMissing}
+              disabled={fillSyncing}
+              data-testid="run-fill-missing-btn"
+              className="px-6 py-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-lg flex items-center gap-2 transition-all"
+            >
+              {fillSyncing ? (
+                <><Loader2 className="w-5 h-5 animate-spin" /> Riempimento in corso...</>
+              ) : (
+                <><RefreshCw className="w-5 h-5" /> Riempi solo leghe vuote (consigliato)</>
+              )}
+            </button>
+          </div>
+          <p className="text-xs text-gray-400 mt-3">
+            💡 <strong>Riempi solo leghe vuote</strong> è la strategia MIX consigliata: matchesio rimane primario, l'API esterna interviene solo per le leghe mancanti (es. Europa League, Conference, Copa del Rey). Risparmia il 90% delle chiamate API.
+          </p>
         </div>
 
         {/* Info Card matchesio (FALLBACK) */}

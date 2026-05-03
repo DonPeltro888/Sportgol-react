@@ -109,17 +109,82 @@ async def sync_event_slugs(_=Depends(verify_admin_token)):
 @router.post("/football-api")
 async def sync_football_api(_=Depends(verify_admin_token)):
     """
-    Sync eventi e loghi tramite API-Football (provider primario).
+    Sync eventi e loghi tramite il provider configurato (api_football OR football_data).
     Richiede API key configurata in /admin/integrations.
     """
     try:
-        from services.football_api_sync import sync_via_api_football
-        stats = await sync_via_api_football()
+        # Determina provider
+        doc = await db.settings.find_one({"_id": "integrations"}, {"_id": 0})
+        if not doc:
+            raise HTTPException(status_code=400, detail="Nessuna integrazione configurata. Vai in Admin → Integrazioni API.")
+        provider = doc.get("football_api", {}).get("provider", "api_football")
+
+        if provider == "api_football":
+            from services.football_api_sync import sync_via_api_football
+            stats = await sync_via_api_football()
+        elif provider == "football_data":
+            from services.football_data_sync import sync_via_football_data
+            stats = await sync_via_football_data()
+        else:
+            raise HTTPException(status_code=400, detail=f"Provider '{provider}' sconosciuto.")
+
         if not stats.get("success"):
             raise HTTPException(status_code=400, detail=stats.get("error", "Sync fallito"))
         return stats
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("Errore durante sync API-Football")
+        logger.exception("Errore durante sync Football API")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/fill-missing")
+async def sync_fill_missing(_=Depends(verify_admin_token)):
+    """
+    MIX intelligente: identifica le leghe vuote nel DB e le riempie via API esterna.
+    Risparmia chiamate API perché tocca solo le leghe veramente mancanti.
+    """
+    try:
+        # Trova le leghe vuote (0 eventi futuri)
+        from datetime import datetime, timezone as tz
+        today = datetime.now(tz.utc).strftime("%Y-%m-%d")
+        all_leagues = await db.leagues.find({"active": {"$ne": False}}, {"_id": 0, "name": 1}).to_list(100)
+        empty_leagues = []
+        for lg in all_leagues:
+            name = lg.get("name", "")
+            # Match case-insensitive: gli eventi hanno league uppercase ("SERIE A") mentre leagues "Serie A"
+            count = await db.events.count_documents({
+                "league": {"$regex": f"^{name}$", "$options": "i"},
+                "sort_date": {"$gte": today}
+            })
+            if count == 0:
+                empty_leagues.append(name)
+
+        if not empty_leagues:
+            return {"success": True, "message": "Nessuna lega vuota trovata. Tutte le competizioni hanno eventi.", "filled_leagues": []}
+
+        # Determina provider
+        doc = await db.settings.find_one({"_id": "integrations"}, {"_id": 0})
+        if not doc:
+            raise HTTPException(status_code=400, detail="API esterna non configurata. Vai in Admin → Integrazioni API.")
+        provider = doc.get("football_api", {}).get("provider", "api_football")
+
+        if provider == "football_data":
+            from services.football_data_sync import sync_via_football_data
+            stats = await sync_via_football_data(only_empty_leagues=empty_leagues)
+        elif provider == "api_football":
+            # API-Football non supporta filtro per nome lega in questo flusso; fa sync completa
+            from services.football_api_sync import sync_via_api_football
+            stats = await sync_via_api_football()
+        else:
+            raise HTTPException(status_code=400, detail=f"Provider '{provider}' sconosciuto.")
+
+        if not stats.get("success"):
+            raise HTTPException(status_code=400, detail=stats.get("error", "Sync fallito"))
+        stats["empty_leagues_targeted"] = empty_leagues
+        return stats
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Errore durante fill-missing")
         raise HTTPException(status_code=500, detail=str(e))
