@@ -118,7 +118,7 @@ footer {{ background: #2D3436; color: #ccc; padding: 20px; text-align: center; f
 async def prerender_home(lang: str = "it"):
     """HTML pre-renderizzato per la homepage con lista eventi prossimi."""
     events = await db.events.find(
-        {}, {"_id": 1, "title": 1, "home_team": 1, "away_team": 1, "stadium": 1, "location": 1, "league": 1, "date": 1, "sort_date": 1}
+        {}, {"_id": 1, "slug": 1, "title": 1, "home_team": 1, "away_team": 1, "stadium": 1, "location": 1, "league": 1, "date": 1, "sort_date": 1}
     ).sort("sort_date", 1).limit(50).to_list(50)
 
     leagues = await db.leagues.find(
@@ -130,7 +130,7 @@ async def prerender_home(lang: str = "it"):
     # Build events list HTML
     events_html = ""
     for ev in events:
-        ev_id = str(ev.get("_id"))
+        ev_slug = ev.get("slug") or str(ev.get("_id"))
         title = ev.get("title") or f"{ev.get('home_team','')} vs {ev.get('away_team','')}"
         stadium = ev.get("stadium") or ""
         location = ev.get("location") or ""
@@ -138,7 +138,7 @@ async def prerender_home(lang: str = "it"):
         date = ev.get("date") or ""
         events_html += f"""
 <article class="event-card">
-  <h3><a href="{BASE_URL}/event/{_esc(ev_id)}">{_esc(title)}</a></h3>
+  <h3><a href="{BASE_URL}/biglietti-{_esc(ev_slug)}">{_esc(title)}</a></h3>
   <p class="meta">📅 {_esc(date)} · 📍 {_esc(stadium)}, {_esc(location)}</p>
   <span class="tag">{_esc(league)}</span>
 </article>"""
@@ -334,7 +334,7 @@ async def prerender_league(slug: str, lang: str = "it"):
     # Find events for this league
     events = await db.events.find(
         {"league": {"$regex": f"^{name}$", "$options": "i"}},
-        {"_id": 1, "title": 1, "home_team": 1, "away_team": 1, "stadium": 1, "date": 1, "sort_date": 1}
+        {"_id": 1, "slug": 1, "title": 1, "home_team": 1, "away_team": 1, "stadium": 1, "date": 1, "sort_date": 1}
     ).sort("sort_date", 1).limit(30).to_list(30)
 
     title = f"Biglietti {name} - Calendario completo e prezzi ufficiali" if lang == "it" else f"{name} Tickets - Full fixtures"
@@ -353,9 +353,9 @@ async def prerender_league(slug: str, lang: str = "it"):
     if events:
         events_html = f"<h2>Prossimi eventi di {_esc(name)} ({len(events)})</h2>"
         for ev in events:
-            ev_id = str(ev.get("_id"))
+            ev_slug = ev.get("slug") or str(ev.get("_id"))
             ev_title = ev.get("title") or f"{ev.get('home_team','')} vs {ev.get('away_team','')}"
-            events_html += f'<article class="event-card"><h3><a href="{BASE_URL}/event/{_esc(ev_id)}">{_esc(ev_title)}</a></h3><p class="meta">{_esc(ev.get("date",""))} · {_esc(ev.get("stadium",""))}</p></article>'
+            events_html += f'<article class="event-card"><h3><a href="{BASE_URL}/biglietti-{_esc(ev_slug)}">{_esc(ev_title)}</a></h3><p class="meta">{_esc(ev.get("date",""))} · {_esc(ev.get("stadium",""))}</p></article>'
 
     schema_type = "SportsOrganization" if league_type == "league" else "SportsEvent"
     league_schema = _jsonld({
@@ -398,7 +398,7 @@ async def prerender_team(slug: str, lang: str = "it"):
             {"home_team": {"$regex": f"^{team_name}$", "$options": "i"}},
             {"away_team": {"$regex": f"^{team_name}$", "$options": "i"}},
         ]},
-        {"_id": 1, "title": 1, "home_team": 1, "away_team": 1, "stadium": 1, "date": 1, "sort_date": 1, "league": 1}
+        {"_id": 1, "slug": 1, "title": 1, "home_team": 1, "away_team": 1, "stadium": 1, "date": 1, "sort_date": 1, "league": 1}
     ).sort("sort_date", 1).limit(30).to_list(30)
 
     title = f"Biglietti {team_name} - Calendario completo casa e trasferta" if lang == "it" else f"{team_name} Tickets - Home & Away fixtures"
@@ -408,9 +408,9 @@ async def prerender_team(slug: str, lang: str = "it"):
     if events:
         events_html = f"<h2>Prossime partite di {_esc(team_name)} ({len(events)})</h2>"
         for ev in events:
-            ev_id = str(ev.get("_id"))
+            ev_slug = ev.get("slug") or str(ev.get("_id"))
             ev_title = ev.get("title") or f"{ev.get('home_team','')} vs {ev.get('away_team','')}"
-            events_html += f'<article class="event-card"><h3><a href="{BASE_URL}/event/{_esc(ev_id)}">{_esc(ev_title)}</a></h3><p class="meta">{_esc(ev.get("date",""))} · {_esc(ev.get("stadium",""))} · {_esc(ev.get("league",""))}</p></article>'
+            events_html += f'<article class="event-card"><h3><a href="{BASE_URL}/biglietti-{_esc(ev_slug)}">{_esc(ev_title)}</a></h3><p class="meta">{_esc(ev.get("date",""))} · {_esc(ev.get("stadium",""))} · {_esc(ev.get("league",""))}</p></article>'
     else:
         events_html = "<p>Nessuna partita programmata al momento. Contattaci via WhatsApp per richieste su partite future.</p>"
 

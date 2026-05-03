@@ -34,27 +34,6 @@ def compute_base_slug(event: dict) -> str:
     return _normalize(title or "")
 
 
-async def ensure_unique_slug(base_slug: str, event_id) -> str:
-    """
-    Given a base slug and event _id, return a unique slug.
-    If base_slug is already used by another event, append -2, -3, etc.
-    """
-    if not base_slug:
-        return str(event_id)
-
-    candidate = base_slug
-    counter = 1
-    while True:
-        existing = await db.events.find_one(
-            {"slug": candidate, "_id": {"$ne": event_id}},
-            {"_id": 1},
-        )
-        if not existing:
-            return candidate
-        counter += 1
-        candidate = f"{base_slug}-{counter}"
-
-
 async def backfill_all_slugs() -> dict:
     """
     Generate and save slug for every event in DB.

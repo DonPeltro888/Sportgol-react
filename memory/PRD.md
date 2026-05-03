@@ -24,12 +24,20 @@ Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti pe
 9. **Dynamic Rendering SEO** (2026-02): HTML pre-renderizzato per bot/crawler via FastAPI
    - index.html arricchito con contenuto SEO fallback (~21KB) + 3 blocchi JSON-LD (Organization, WebSite, SportsActivityLocation)
    - Endpoint `/api/prerender/home` → HTML rich homepage con Organization + WebSite schema
-   - Endpoint `/api/prerender/event/{id}` → HTML rich evento con SportsEvent + BreadcrumbList schema
+   - Endpoint `/api/prerender/event/{id-or-slug}` → HTML rich evento con SportsEvent + BreadcrumbList schema
    - Endpoint `/api/prerender/league/{slug}` → HTML rich lega con SportsOrganization schema
    - Endpoint `/api/prerender/team/{slug}` → HTML rich squadra con SportsTeam schema
    - `/robots.txt` statico con regole per tutti i bot (Googlebot, Bingbot, facebookexternalhit, Twitterbot, WhatsApp, LinkedInBot)
    - `/llms.txt` per AI crawlers
    - JSON-LD serializzati con json.dumps (validi al 100%)
+10. **URL Events SEO-friendly multilingua** (2026-02): schema unificato a tutto il sito
+    - Ogni evento ha slug generato da home-vs-away (es. `inter-vs-parma`, duplicati con suffisso -2, -3)
+    - URL: IT `/biglietti-inter-vs-parma`, EN `/inter-vs-parma-tickets`, ES `/entradas-inter-vs-parma`
+    - Legacy `/event/{id}` redirige automaticamente al nuovo URL slug
+    - Auto-backfill slug al startup + dopo ogni sync matchesio
+    - Admin endpoint `POST /api/admin/sync/event-slugs` per re-generation manuale
+    - Sitemap.xml usa ora gli URL slug (in 3 lingue) invece di /event/{id}
+    - Testing: 15/15 backend + 7/7 frontend Playwright passati (2026-02)
 
 ### Admin Panel (`/admin`)
 1. **Autenticazione** semplice (admin/golevents2024)
