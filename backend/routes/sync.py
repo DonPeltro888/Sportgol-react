@@ -91,6 +91,85 @@ async def refresh_single_team_logo(team_id: str, _=Depends(verify_admin_token)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post("/run-mix")
+async def run_mix_sync(_=Depends(verify_admin_token)):
+    """
+    Esegue il MIX 5-fonti completo:
+      1. OpenFootball (top leghe nazionali, JSON GitHub)
+      2. matchesio.com (resto leghe)
+      3. APIfootball.com (UEL/UECL/coppe se key configurata)
+      4. TheSportsDB (coppe restanti, key '3' free)
+      5. Backfill slugs
+
+    Ritorna stats aggregate per fonte.
+    """
+    from datetime import datetime as dt, timezone as tz
+    from database import db as _db
+
+    overall = {
+        "started_at": dt.now(tz.utc).isoformat(),
+        "providers_run": [],
+        "providers_skipped": [],
+        "totals": {"inserted": 0, "updated": 0, "logos": 0},
+    }
+
+    async def _run_step(name: str, fn, *args, **kwargs):
+        try:
+            stats = await fn(*args, **kwargs)
+            overall["providers_run"].append({
+                "provider": name,
+                "ok": stats.get("success", False),
+                "inserted": stats.get("total_inserted", 0),
+                "updated": stats.get("total_updated", 0),
+                "logos_added": stats.get("logos_added", 0),
+                "leagues_synced": stats.get("leagues_synced", 0),
+                "leagues_empty": len(stats.get("leagues_empty", [])),
+                "leagues_failed": len(stats.get("leagues_failed", [])),
+                "error": stats.get("error"),
+            })
+            overall["totals"]["inserted"] += stats.get("total_inserted", 0)
+            overall["totals"]["updated"] += stats.get("total_updated", 0)
+            overall["totals"]["logos"] += stats.get("logos_added", 0)
+        except Exception as e:
+            overall["providers_run"].append({"provider": name, "ok": False, "error": str(e)[:200]})
+
+    # STEP 1: OpenFootball (gratis, no key)
+    from services.openfootball_sync import sync_via_openfootball
+    await _run_step("openfootball", sync_via_openfootball)
+
+    # STEP 2: matchesio (gratis, no key)
+    from services.matchesio_sync import sync_all_competitions
+    await _run_step("matchesio", sync_all_competitions, replace_all=False)
+
+    # STEP 3: APIfootball.com (se key configurata e abilitata)
+    settings_doc = await _db.settings.find_one({"_id": "integrations"}, {"_id": 0}) or {}
+    af_cfg = settings_doc.get("apifootball", {})
+    if af_cfg.get("enabled") and af_cfg.get("api_key"):
+        from services.apifootball_sync import sync_via_apifootball
+        await _run_step("apifootball", sync_via_apifootball)
+    else:
+        overall["providers_skipped"].append({"provider": "apifootball", "reason": "key non configurata o disabilitata"})
+
+    # STEP 4: TheSportsDB (sempre runna, key '3' free di default)
+    from services.thesportsdb_sync import sync_via_thesportsdb
+    await _run_step("thesportsdb", sync_via_thesportsdb)
+
+    overall["finished_at"] = dt.now(tz.utc).isoformat()
+    overall["total_in_db"] = await _db.events.count_documents({})
+    overall["success"] = True
+
+    # Salva log MIX
+    await _db.sync_logs.insert_one({
+        **overall,
+        "log_at": dt.now(tz.utc),
+        "source": "mix",
+        "total_inserted": overall["totals"]["inserted"],
+        "total_updated": overall["totals"]["updated"],
+        "logos_added": overall["totals"]["logos"],
+    })
+    return overall
+
+
 @router.post("/event-slugs")
 async def sync_event_slugs(_=Depends(verify_admin_token)):
     """

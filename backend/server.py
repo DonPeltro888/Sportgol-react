@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 
 # Import route modules
 from routes import events, categories, search
-from routes import admin_auth, admin_content, admin_integrations
+from routes import admin_auth, admin_content, admin_integrations, admin_providers
 from routes import upload, seo, sectors, leagues, teams, prerender
 from routes import sync as sync_routes
 
@@ -112,6 +112,7 @@ app.include_router(teams.router)
 app.include_router(sync_routes.router)
 app.include_router(prerender.router)
 app.include_router(admin_integrations.router)
+app.include_router(admin_providers.router)
 
 app.add_middleware(
     CORSMiddleware,

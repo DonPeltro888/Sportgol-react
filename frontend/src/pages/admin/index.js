@@ -10,3 +10,4 @@ export { default as AdminLeaguesTeams } from './AdminLeaguesTeams';
 export { default as AdminSync } from './AdminSync';
 export { default as AdminTeams } from './AdminTeams';
 export { default as AdminIntegrations } from './AdminIntegrations';
+export { default as AdminProviders } from './AdminProviders';
