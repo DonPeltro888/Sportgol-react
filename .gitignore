@@ -30,8 +30,7 @@ next-env.d.ts
 dist/
 dist
 
-# Environment files (comprehensive coverage)
-
+# Token/credential artefatti (sempre ignorati)
 *token.json*
 *credentials.json*
 
@@ -77,20 +76,10 @@ agenthub/agents/youtube/db
 .cache/
 
 # Mobile development
-android-sdk/ frontend/node_modules/.cache/default-development/0.pack
+android-sdk/
 frontend/node_modules/.cache/default-development/0.pack
--e 
-# Environment and credential files
-# (rimossi .env/.env.*/*.env per consentire deployment Emergent - i .env vengono inclusi nella build)
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
+
+# Credential files (NO .env blocks - Emergent deploy needs them in build context)
 credentials.json
 *.pem
 *.key
