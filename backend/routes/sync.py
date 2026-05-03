@@ -104,3 +104,22 @@ async def sync_event_slugs(_=Depends(verify_admin_token)):
     except Exception as e:
         logger.exception("Errore durante event-slugs sync")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/football-api")
+async def sync_football_api(_=Depends(verify_admin_token)):
+    """
+    Sync eventi e loghi tramite API-Football (provider primario).
+    Richiede API key configurata in /admin/integrations.
+    """
+    try:
+        from services.football_api_sync import sync_via_api_football
+        stats = await sync_via_api_football()
+        if not stats.get("success"):
+            raise HTTPException(status_code=400, detail=stats.get("error", "Sync fallito"))
+        return stats
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Errore durante sync API-Football")
+        raise HTTPException(status_code=500, detail=str(e))

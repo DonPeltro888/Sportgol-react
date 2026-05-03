@@ -14,6 +14,28 @@ const AdminSync = () => {
   const [replaceAll, setReplaceAll] = useState(false);
 
   const [logosLoading, setLogosLoading] = useState(false);
+  const [apiSyncing, setApiSyncing] = useState(false);
+
+  const runApiFootballSync = async () => {
+    if (!confirm('Avviare sync via API-Football (provider primario)? Verranno recuperati eventi e loghi per tutte le competizioni configurate.')) return;
+    try {
+      setApiSyncing(true);
+      toast.info('Sync API-Football avviata, attendere prego (~10-30s)...');
+      const r = await authFetch(`${API_URL}/api/admin/sync/football-api`, { method: 'POST' });
+      const data = await r.json();
+      if (!r.ok || data.success === false) {
+        throw new Error(data.detail || data.error || `HTTP ${r.status}`);
+      }
+      toast.success(
+        `Sync API-Football OK: ${data.total_inserted} nuovi, ${data.total_updated} aggiornati, ${data.logos_added} loghi nuovi, ${data.leagues_synced} leghe`
+      );
+      fetchLogs();
+    } catch (e) {
+      toast.error(`Errore: ${e.message}. Hai configurato la API key in /admin/integrations?`);
+    } finally {
+      setApiSyncing(false);
+    }
+  };
 
   useEffect(() => {
     fetchLogs();
@@ -102,37 +124,70 @@ const AdminSync = () => {
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <RefreshCw className="w-6 h-6 text-blue-400" /> Sincronizzazione matchesio.com
+            <RefreshCw className="w-6 h-6 text-blue-400" /> Sincronizzazione Eventi
           </h1>
           <p className="text-gray-400">
-            Aggiorna automaticamente eventi, date e stadi dai calendari ufficiali
+            API-Football è il provider primario. matchesio.com e TheSportsDB restano disponibili come fallback manuali.
           </p>
         </div>
 
-        {/* Info Card */}
-        <div className="bg-gradient-to-r from-blue-900/40 to-purple-900/40 border border-blue-700 rounded-xl p-6">
+        {/* API-Football Card (PRIMARIO) */}
+        <div className="bg-gradient-to-r from-green-900/40 to-emerald-900/40 border border-green-700 rounded-xl p-6">
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex items-start gap-3">
+              <CheckCircle className="w-6 h-6 text-green-400 flex-shrink-0 mt-1" />
+              <div>
+                <h3 className="text-white font-bold mb-1 flex items-center gap-2">
+                  ⭐ API-Football <span className="text-xs bg-green-600 text-white px-2 py-0.5 rounded-full">PRIMARIO</span>
+                </h3>
+                <p className="text-gray-300 text-sm mb-2">
+                  31 competizioni con dati ufficiali, loghi inclusi, aggiornamento real-time. Copertura completa: Champions, Europa League, Conference, World Cup, tutte le coppe nazionali.
+                </p>
+                <p className="text-gray-400 text-xs">
+                  <Clock className="w-3 h-3 inline mr-1" />
+                  Sync auto: <strong>06:00</strong> e <strong>21:00</strong> Italia (cattura annunci serali UEFA/Lega).
+                  <br />
+                  📊 Configurazione API key: <a href="/admin/integrations" className="text-blue-400 hover:underline">Admin → Integrazioni API</a>
+                </p>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={runApiFootballSync}
+            disabled={apiSyncing}
+            data-testid="run-api-football-sync-btn"
+            className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-lg flex items-center gap-2 transition-all"
+          >
+            {apiSyncing ? (
+              <><Loader2 className="w-5 h-5 animate-spin" /> Sync API-Football in corso...</>
+            ) : (
+              <><RefreshCw className="w-5 h-5" /> Avvia sync API-Football ora</>
+            )}
+          </button>
+        </div>
+
+        {/* Info Card matchesio (FALLBACK) */}
+        <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
           <div className="flex items-start gap-3">
-            <Globe className="w-6 h-6 text-blue-400 flex-shrink-0 mt-1" />
+            <Globe className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" />
             <div>
-              <h3 className="text-white font-bold mb-1">
-                Fonte dati: matchesio.com
+              <h3 className="text-white font-bold mb-1 flex items-center gap-2">
+                matchesio.com <span className="text-xs bg-yellow-600 text-white px-2 py-0.5 rounded-full">FALLBACK</span>
               </h3>
               <p className="text-gray-300 text-sm mb-2">
-                13 competizioni: Serie A, Premier League, La Liga, Bundesliga, Ligue 1,
-                Liga Portugal, Super Lig, Champions League, Coppa Italia, Copa del Rey,
-                FA Cup, DFB Pokal, FIFA World Cup 2026.
+                Usato automaticamente se API-Football non è disponibile o non configurata. Mantienilo come safety net.
               </p>
               <p className="text-gray-400 text-xs">
-                <Clock className="w-3 h-3 inline mr-1" />
-                Sync automatica ogni 6 ore (00:00, 06:00, 12:00, 18:00 UTC).
+                <AlertCircle className="w-3 h-3 inline mr-1" />
+                Limite noto: alcune coppe (Europa League, Conference, Copa del Rey) non disponibili (server matchesio errore 500).
               </p>
             </div>
           </div>
         </div>
 
-        {/* Controls */}
+        {/* Controls matchesio (fallback manuale) */}
         <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
-          <h2 className="text-white font-bold text-lg mb-4">Sync Manuale</h2>
+          <h2 className="text-white font-bold text-lg mb-4">Sync Manuale matchesio.com (fallback)</h2>
 
           <div className="space-y-4">
             <label className="flex items-start gap-3 cursor-pointer p-3 bg-gray-900 rounded-lg border border-gray-700">
@@ -188,11 +243,11 @@ const AdminSync = () => {
           </div>
         </div>
 
-        {/* Logos sync */}
+        {/* Logos sync (TheSportsDB fallback) */}
         <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
-          <h2 className="text-white font-bold text-lg mb-2">Sincronizzazione Loghi</h2>
+          <h2 className="text-white font-bold text-lg mb-2">Loghi via TheSportsDB (fallback)</h2>
           <p className="text-gray-400 text-sm mb-4">
-            Recupera automaticamente loghi delle leghe e badge delle squadre da
+            Usa solo se i loghi non vengono dall'API-Football. Recupera loghi delle leghe e badge delle squadre da
             <a href="https://www.thesportsdb.com" target="_blank" rel="noreferrer" className="text-blue-400 hover:underline ml-1">TheSportsDB</a>
             (gratis, rate limit ~30 req/min).
           </p>

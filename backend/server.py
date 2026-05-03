@@ -161,7 +161,7 @@ async def startup_event():
     try:
         from services.scheduler import start_scheduler
         start_scheduler()
-        logger.info("Scheduler avviato (sync matchesio.com ogni 6h)")
+        logger.info("Scheduler avviato (auto-sync 06:00 + 21:00 Italia, priorità API-Football → matchesio fallback)")
     except Exception as e:
         logger.error(f"Errore avvio scheduler: {e}")
 
