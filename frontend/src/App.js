@@ -103,7 +103,8 @@ import {
   AdminSectors,
   AdminLeaguesTeams,
   AdminSync,
-  AdminTeams
+  AdminTeams,
+  AdminIntegrations
 } from './pages/admin';
 import NotFound from './pages/NotFound';
 import WhatsAppButton from './components/WhatsAppButton';
@@ -194,6 +195,9 @@ function App() {
             } />
             <Route path="/admin/teams-logos" element={
               <ProtectedRoute><AdminTeams /></ProtectedRoute>
+            } />
+            <Route path="/admin/integrations" element={
+              <ProtectedRoute><AdminIntegrations /></ProtectedRoute>
             } />
             
             {/* Redirect /admin to dashboard */}
