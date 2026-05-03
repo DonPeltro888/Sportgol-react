@@ -1,12 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getEventUrl, getTeamUrl } from '../utils/seoHelpers';
 
 const EventCard = ({ event }) => {
   const navigate = useNavigate();
+  const { lang } = useLanguage();
 
   const handleViewDetails = () => {
-    navigate(`/event/${event.id || event._id}`);
+    navigate(getEventUrl(event, lang));
   };
 
   // Extract only team names (not FOOTBALL, SERIE A, etc.)
@@ -23,7 +26,7 @@ const EventCard = ({ event }) => {
 
   const handleTeamClick = (teamName, e) => {
     e.stopPropagation();
-    navigate(`/team/${getTeamSlug(teamName)}`);
+    navigate(getTeamUrl(getTeamSlug(teamName), lang));
   };
 
   const teamTags = getTeamTags();

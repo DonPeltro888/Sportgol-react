@@ -138,6 +138,24 @@ async def startup_event():
         logger.info("TTL index su admin_tokens.expires_at creato")
     except Exception as e:
         logger.warning(f"TTL index admin_tokens già esistente o errore: {e}")
+    # Index su events.slug per lookup veloce
+    try:
+        from database import db
+        await db.events.create_index("slug", unique=False, sparse=True)
+        logger.info("Index su events.slug creato")
+    except Exception as e:
+        logger.warning(f"Index events.slug già esistente o errore: {e}")
+    # Auto-backfill slugs per eventi senza slug
+    try:
+        from database import db
+        missing = await db.events.count_documents({"slug": {"$exists": False}})
+        if missing > 0:
+            logger.info(f"Backfilling slugs for {missing} events...")
+            from services.event_slug import backfill_all_slugs
+            stats = await backfill_all_slugs()
+            logger.info(f"Slug backfill done: {stats}")
+    except Exception as e:
+        logger.error(f"Errore backfill slugs: {e}")
     # Avvia scheduler per sync automatico ogni 6h
     try:
         from services.scheduler import start_scheduler

@@ -47,6 +47,10 @@ const LEAGUE_SLUGS = [
 // - IT: /biglietti-{name} (biglietti PRIMA con trattino)
 // - EN: /{name}-tickets (tickets DOPO con trattino)  
 // - ES: /entradas-{name} (entradas PRIMA con trattino)
+// Tipo di pagina determinato dal pattern dello slug:
+// - Evento: slug contiene "-vs-" (es. inter-vs-parma)
+// - Lega:   slug è in LEAGUE_SLUGS (es. serie-a, champions-league)
+// - Squadra: tutto il resto (es. inter, real-madrid)
 const DynamicRouter = () => {
   const { dynamicPath } = useParams();
   
@@ -54,17 +58,16 @@ const DynamicRouter = () => {
   
   // Check if it's a league or team URL
   let slug = '';
-  let isLeague = false;
   
-  // IT: /biglietti-inter or /biglietti-serie-a
+  // IT: /biglietti-inter or /biglietti-serie-a or /biglietti-inter-vs-parma
   if (dynamicPath.startsWith('biglietti-')) {
     slug = dynamicPath.replace('biglietti-', '');
   }
-  // ES: /entradas-inter or /entradas-serie-a
+  // ES: /entradas-inter or /entradas-serie-a or /entradas-inter-vs-parma
   else if (dynamicPath.startsWith('entradas-')) {
     slug = dynamicPath.replace('entradas-', '');
   }
-  // EN: /inter-tickets or /serie-a-tickets
+  // EN: /inter-tickets or /serie-a-tickets or /inter-vs-parma-tickets
   else if (dynamicPath.endsWith('-tickets')) {
     slug = dynamicPath.replace(/-tickets$/, '');
   }
@@ -73,14 +76,18 @@ const DynamicRouter = () => {
     return <NotFound />;
   }
   
-  // Determine if it's a league or team based on known slugs
-  isLeague = LEAGUE_SLUGS.includes(slug);
-  
-  if (isLeague) {
-    return <LeaguePage />;
-  } else {
-    return <TeamPage />;
+  // Event: slug contains "-vs-" (match home-vs-away)
+  if (slug.includes('-vs-')) {
+    return <EventDetail />;
   }
+  
+  // League: slug is in known league slugs
+  if (LEAGUE_SLUGS.includes(slug)) {
+    return <LeaguePage />;
+  }
+  
+  // Team: default
+  return <TeamPage />;
 };
 
 // Admin imports

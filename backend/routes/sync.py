@@ -89,3 +89,18 @@ async def refresh_single_team_logo(team_id: str, _=Depends(verify_admin_token)):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/event-slugs")
+async def sync_event_slugs(_=Depends(verify_admin_token)):
+    """
+    Genera/rigenera gli slug SEO ('inter-vs-parma') per tutti gli eventi.
+    Garantisce unicità via suffisso numerico (-2, -3, ...) per match ripetuti.
+    """
+    try:
+        from services.event_slug import backfill_all_slugs
+        stats = await backfill_all_slugs()
+        return {"success": True, "stats": stats}
+    except Exception as e:
+        logger.exception("Errore durante event-slugs sync")
+        raise HTTPException(status_code=500, detail=str(e))

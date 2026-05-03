@@ -116,6 +116,10 @@ async def get_events(
             event["id"] = str(event["_id"])
             event["home_team_logo"] = team_logo_map.get(event.get("home_team"))
             event["away_team_logo"] = team_logo_map.get(event.get("away_team"))
+            # slug already stored in DB via backfill; fallback if missing
+            if not event.get("slug"):
+                from services.event_slug import compute_base_slug
+                event["slug"] = compute_base_slug(event)
         
         return {
             "events": events,
@@ -125,6 +129,35 @@ async def get_events(
         }
     except Exception as e:
         logger.error(f"Error fetching events: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/by-slug/{slug}", response_model=dict)
+async def get_event_by_slug(slug: str):
+    """Get single event by SEO slug (e.g. 'inter-vs-parma')."""
+    try:
+        event = await db.events.find_one({"slug": slug})
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+
+        event["_id"] = str(event["_id"])
+        event["id"] = str(event["_id"])
+
+        # Enrich with team logos
+        for team_field, logo_field in [("home_team", "home_team_logo"), ("away_team", "away_team_logo")]:
+            team_name = event.get(team_field)
+            if team_name:
+                team_doc = await db.teams.find_one(
+                    {"name": team_name},
+                    {"_id": 0, "logo_url": 1},
+                )
+                event[logo_field] = team_doc.get("logo_url") if team_doc else None
+
+        return event
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching event by slug: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/{event_id}", response_model=dict)
@@ -139,7 +172,12 @@ async def get_event(event_id: str):
         
         event["_id"] = str(event["_id"])
         event["id"] = str(event["_id"])
-        
+
+        # Ensure slug is present
+        if not event.get("slug"):
+            from services.event_slug import compute_base_slug
+            event["slug"] = compute_base_slug(event)
+
         # Enrich with team logos
         for team_field, logo_field in [("home_team", "home_team_logo"), ("away_team", "away_team_logo")]:
             team_name = event.get(team_field)
@@ -151,6 +189,8 @@ async def get_event(event_id: str):
                 event[logo_field] = team_doc.get("logo_url") if team_doc else None
         
         return event
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error fetching event: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

@@ -212,26 +212,31 @@ async def prerender_home(lang: str = "it"):
 
 @router.get("/event/{event_id}", response_class=HTMLResponse)
 async def prerender_event(event_id: str, lang: str = "it"):
-    """HTML pre-renderizzato per un singolo evento con Schema.org SportsEvent."""
-    # Build query: try ObjectId first (DB stores _id as ObjectId), fallback to string _id
-    query = None
-    try:
-        query = {"_id": ObjectId(event_id)}
-    except (InvalidId, TypeError, ValueError):
-        query = {"_id": event_id}
-
-    event = await db.events.find_one(
-        query,
-        {"_id": 1, "title": 1, "home_team": 1, "away_team": 1, "stadium": 1, "location": 1, "league": 1, "date": 1, "sort_date": 1, "time": 1, "ticket_categories": 1, "categories": 1},
-    )
-    if not event:
-        # Last attempt: search by string _id or matchesio_id alias
+    """HTML pre-renderizzato per un singolo evento. Accetta sia slug SEO ('inter-vs-parma') che ObjectId."""
+    event = None
+    # Try slug lookup first (more common going forward)
+    if event_id and not all(c in "0123456789abcdef" for c in event_id.lower()) or "-" in event_id:
         event = await db.events.find_one(
-            {"$or": [{"_id": event_id}, {"matchesio_id": event_id}]},
-            {"_id": 1, "title": 1, "home_team": 1, "away_team": 1, "stadium": 1, "location": 1, "league": 1, "date": 1, "sort_date": 1, "time": 1, "ticket_categories": 1, "categories": 1},
+            {"slug": event_id},
+            {"_id": 1, "slug": 1, "title": 1, "home_team": 1, "away_team": 1, "stadium": 1, "location": 1, "league": 1, "date": 1, "sort_date": 1, "time": 1, "ticket_categories": 1, "categories": 1},
         )
+
+    if not event:
+        # Fallback: ObjectId
+        query = None
+        try:
+            query = {"_id": ObjectId(event_id)}
+        except (InvalidId, TypeError, ValueError):
+            query = {"_id": event_id}
+        event = await db.events.find_one(
+            query,
+            {"_id": 1, "slug": 1, "title": 1, "home_team": 1, "away_team": 1, "stadium": 1, "location": 1, "league": 1, "date": 1, "sort_date": 1, "time": 1, "ticket_categories": 1, "categories": 1},
+        )
+
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
+
+    event_slug = event.get("slug") or str(event.get("_id"))
 
     title_raw = event.get("title") or f"{event.get('home_team','')} vs {event.get('away_team','')}"
     stadium = event.get("stadium") or ""
@@ -274,7 +279,7 @@ async def prerender_event(event_id: str, lang: str = "it"):
         "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
         "performer": [{"@type": "SportsTeam", "name": c} for c in cats[:2]],
         "organizer": {"@type": "Organization", "name": "GOLEVENTS", "url": BASE_URL},
-        "url": f"{BASE_URL}/event/{event_id}",
+        "url": f"{BASE_URL}/biglietti-{event_slug}",
     })
 
     breadcrumb_schema = _jsonld({
@@ -304,7 +309,7 @@ async def prerender_event(event_id: str, lang: str = "it"):
     return HTMLResponse(content=_page_wrapper(
         title=title,
         description=description,
-        canonical=f"{BASE_URL}/event/{event_id}",
+        canonical=f"{BASE_URL}/biglietti-{event_slug}",
         og_image=f"{BASE_URL}/og-event.jpg",
         body_content=body,
         structured_data=[event_schema, breadcrumb_schema],

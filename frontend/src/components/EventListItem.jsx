@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, MapPin } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getEventUrl } from '../utils/seoHelpers';
 
 // City name translations
 const CITY_TRANSLATIONS = {
@@ -159,15 +160,15 @@ const EventListItem = ({ event }) => {
   };
 
   const dateInfo = parseDate(event.date, event.sort_date);
-  const eventId = event.id || event._id;
   const rawTitle = typeof event.title === 'object' ? (event.title.it || event.title.en || '') : event.title;
   const title = formatCupTitle(rawTitle, event.league);
   const rawLocation = typeof event.location === 'object' ? (event.location.it || event.location.en || '') : event.location;
   const location = translateCity(rawLocation, lang);
+  const eventUrl = getEventUrl(event, lang);
 
   return (
     <Link 
-      to={`/event/${eventId}`}
+      to={eventUrl}
       className="flex items-stretch bg-white hover:bg-gray-50 border-b border-gray-100 transition-colors group"
     >
       {/* Date Box */}

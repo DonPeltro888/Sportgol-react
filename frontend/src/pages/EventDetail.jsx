@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { eventsAPI } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -13,12 +13,15 @@ import { toast } from 'sonner';
 import SEOHead from '../components/SEOHead';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
-import { getSeoTitle, getSeoDescription, getTeamUrl, getLeagueUrl } from '../utils/seoHelpers';
+import { getSeoTitle, getSeoDescription, getTeamUrl, getLeagueUrl, getEventUrl } from '../utils/seoHelpers';
 import { getTeamLogo } from '../data/teamLogos';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const EventDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { lang, getMultiLang } = useLanguage();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,14 +30,47 @@ const EventDetail = () => {
   const [openFaq, setOpenFaq] = useState(null);
   const t = (key) => getTranslation(lang, key);
 
+  // Extract slug or id from URL
+  // Supports:
+  //   /event/:id (legacy)
+  //   /biglietti-{slug} (IT)
+  //   /{slug}-tickets (EN)
+  //   /entradas-{slug} (ES)
+  const extractEventKey = () => {
+    if (id) return { key: id, type: 'id' };
+    const path = location.pathname;
+    if (path.startsWith('/biglietti-')) return { key: path.replace('/biglietti-', ''), type: 'slug' };
+    if (path.startsWith('/entradas-')) return { key: path.replace('/entradas-', ''), type: 'slug' };
+    if (path.endsWith('-tickets')) return { key: path.slice(1).replace(/-tickets$/, ''), type: 'slug' };
+    return { key: '', type: 'id' };
+  };
+
   useEffect(() => {
     fetchEventDetail();
-  }, [id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, location.pathname]);
 
   const fetchEventDetail = async () => {
     try {
       setLoading(true);
-      const data = await eventsAPI.getById(id);
+      const { key, type } = extractEventKey();
+      if (!key) {
+        setLoading(false);
+        return;
+      }
+      let data;
+      if (type === 'slug') {
+        const resp = await fetch(`${API_URL}/api/events/by-slug/${encodeURIComponent(key)}`);
+        if (!resp.ok) throw new Error('Event not found by slug');
+        data = await resp.json();
+      } else {
+        // Legacy id-based lookup. If URL is /event/{id}, redirect to SEO slug URL if possible.
+        data = await eventsAPI.getById(key);
+        if (data?.slug && location.pathname.startsWith('/event/')) {
+          navigate(getEventUrl(data, lang), { replace: true });
+          return;
+        }
+      }
       setEvent(data);
     } catch (error) {
       console.error('Error fetching event:', error);
@@ -122,7 +158,7 @@ const EventDetail = () => {
   
   const seoTitle = getSeoTitle('event', eventTitle, lang);
   const seoDescription = getSeoDescription('event', eventTitle, lang, { stadium: event.stadium, date: event.date });
-  const canonicalUrl = `${window.location.origin}/event/${id}`;
+  const canonicalUrl = `${window.location.origin}${getEventUrl(event, lang)}`;
 
   return (
     <div className="min-h-screen bg-gray-50">

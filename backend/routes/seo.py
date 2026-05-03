@@ -74,15 +74,24 @@ async def sitemap():
         <xhtml:link rel="alternate" hreflang="es" href="{es_url}"/>
     </url>""")
     
-    # Events from DB
-    events = await db.events.find({}, {"_id": 1}).to_list(1000)
+    # Events from DB - multilingual URLs with SEO slug
+    events = await db.events.find({"slug": {"$exists": True, "$ne": ""}}, {"_id": 0, "slug": 1}).to_list(5000)
     for event in events:
+        slug = event.get("slug")
+        if not slug:
+            continue
+        it_url = f"{BASE_URL}/biglietti-{slug}"
+        en_url = f"{BASE_URL}/{slug}-tickets"
+        es_url = f"{BASE_URL}/entradas-{slug}"
         urls.append(f"""
     <url>
-        <loc>{BASE_URL}/event/{str(event['_id'])}</loc>
+        <loc>{it_url}</loc>
         <lastmod>{today}</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="it" href="{it_url}"/>
+        <xhtml:link rel="alternate" hreflang="en" href="{en_url}"/>
+        <xhtml:link rel="alternate" hreflang="es" href="{es_url}"/>
     </url>""")
     
     sitemap_xml = f"""<?xml version="1.0" encoding="UTF-8"?>

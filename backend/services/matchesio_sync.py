@@ -424,6 +424,16 @@ async def sync_all_competitions(replace_all: bool = False) -> Dict:
     stats["finished_at"] = datetime.now(timezone.utc).isoformat()
     stats["total_in_db"] = await db.events.count_documents({})
 
+    # Regenera gli slug SEO dopo il sync (per coprire nuovi eventi/squadre)
+    try:
+        from services.event_slug import backfill_all_slugs
+        slug_stats = await backfill_all_slugs()
+        stats["slugs_updated"] = slug_stats.get("updated", 0)
+        logger.info(f"Slug backfill post-sync: {slug_stats}")
+    except Exception as e:
+        logger.exception(f"Slug backfill errore: {e}")
+        stats["slug_backfill_error"] = str(e)
+
     # Salva log dell'esecuzione
     await db.sync_logs.insert_one({**stats, "log_at": datetime.now(timezone.utc)})
 

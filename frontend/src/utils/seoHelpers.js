@@ -38,6 +38,24 @@ export const getLeagueUrl = (league, lang) => {
   }
 };
 
+// Generate event URL using SEO slug (es. "inter-vs-parma").
+// Same multilingual schema as team/league URLs:
+// - IT: /biglietti-inter-vs-parma
+// - EN: /inter-vs-parma-tickets
+// - ES: /entradas-inter-vs-parma
+// Falls back to legacy /event/{id} if slug is missing.
+export const getEventUrl = (event, lang) => {
+  if (!event) return '/';
+  const slug = event.slug;
+  const id = event.id || event._id;
+  if (!slug) {
+    return id ? `/event/${id}` : '/';
+  }
+  if (lang === 'en') return `/${slug}-tickets`;
+  if (lang === 'es') return `/entradas-${slug}`;
+  return `/biglietti-${slug}`;
+};
+
 // Generate canonical URL
 export const getCanonicalUrl = (baseUrl, path, lang) => {
   return `${baseUrl}${path}`;
