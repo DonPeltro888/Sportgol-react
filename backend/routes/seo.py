@@ -6,7 +6,7 @@ import os
 
 router = APIRouter(prefix="/api", tags=["seo"])
 
-BASE_URL = os.environ["BASE_URL"]
+BASE_URL = os.environ.get("BASE_URL", "").rstrip("/")
 
 # Teams by league
 TEAMS = {
