@@ -1,5 +1,19 @@
 # GOLEVENTS Clone - Product Requirements Document
 
+## Status (2026-05-03)
+- ✅ Sito live su https://golevents.com
+- 🟡 Deploy bloccato da bug piattaforma Emergent: "Internal Server Error" al click "Re-deploy changes" (i log non si aggiornano dal 29 aprile)
+- 📧 Ticket aperto a support@emergent.sh con Job ID `66ca3056-867e-4c98-a18c-d6c38c18ecae`, Run ID `1b43ff11-3f0f-4a08-9254-167cf41cdaea`
+- ✅ Tutti i fix code-level deploy-ready applicati (BASE_URL, .gitignore, startup background, requirements.txt, upload.py)
+
+## Roadmap futura: SEO Automation Admin
+Sviluppato in workspace separato `golevents-seo-admin` (per non rischiare il sito live).
+Una volta validato il P0, sarà integrato qui come modulo isolato sotto:
+- Frontend: route `/admin/seo` con code-splitting (lazy load)
+- Backend: endpoint `/api/seo/*` (nessun conflitto con `/api/events`, `/api/admin/*`)
+- Database: collezioni con prefisso `seo_*` (seo_pages, seo_audits, seo_versions, seo_api_tools, etc.)
+Obiettivo: un solo deploy, un solo costo, due app coese.
+
 ## Original Problem Statement
 Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti per eventi sportivi (principalmente calcio).
 
