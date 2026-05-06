@@ -523,6 +523,16 @@ const AdminLeaguesTeams = () => {
                           {team.city && <div className="text-xs text-gray-400">{team.city}</div>}
                         </div>
                         <div className="flex gap-1">
+                          <a
+                            href={`/admin/seo/targets/team/${team.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            data-testid={`seo-ai-from-team-${team.slug}`}
+                            className="px-2 py-1 rounded bg-gradient-to-r from-purple-600 to-blue-600 text-white text-[11px] font-semibold inline-flex items-center"
+                            title="Apri SEO Admin"
+                          >
+                            ✨
+                          </a>
                           <Button variant="ghost" size="sm" onClick={() => setEditingTeam(team)}>
                             <Edit2 className="w-4 h-4" />
                           </Button>
@@ -555,7 +565,20 @@ const AdminLeaguesTeams = () => {
         {editingLeague && !editingLeague.id?.startsWith('new') && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl p-6 w-full max-w-md">
-              <h3 className="text-lg font-bold mb-4">Modifica Lega</h3>
+              <h3 className="text-lg font-bold mb-4 flex items-center justify-between">
+                <span>Modifica Lega</span>
+                {editingLeague.slug && (
+                  <a
+                    href={`/admin/seo/targets/league/${editingLeague.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-testid="seo-ai-from-league-edit"
+                    className="text-xs px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 text-white inline-flex items-center gap-1 font-semibold"
+                  >
+                    ✨ SEO AI
+                  </a>
+                )}
+              </h3>
               <div className="space-y-3">
                 <Input
                   placeholder="Nome"

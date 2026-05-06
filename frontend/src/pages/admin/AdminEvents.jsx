@@ -335,9 +335,23 @@ const AdminEvents = () => {
               <h2 className="text-xl font-bold text-white">
                 {editingEvent ? 'Modifica Evento' : 'Nuovo Evento'}
               </h2>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white">
-                <X className="w-6 h-6" />
-              </button>
+              <div className="flex items-center gap-2">
+                {editingEvent && (editingEvent.slug || editingEvent.id) && (
+                  <a
+                    href={`/admin/seo/targets/event/${editingEvent.slug || editingEvent.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-testid="seo-ai-from-event-edit"
+                    className="text-xs px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white inline-flex items-center gap-1.5 font-semibold"
+                    title="Apri il SEO Admin per generare con AI"
+                  >
+                    ✨ Genera SEO con AI
+                  </a>
+                )}
+                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
             </div>
 
             {/* Language Tabs */}

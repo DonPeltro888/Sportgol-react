@@ -9,29 +9,39 @@
 
 ## SEO Automation Admin – Stato (2026-05-06)
 **FASE 1 (Foundation P0) – ✅ DONE**
-- Backend: encryption Fernet (`SEO_ADMIN_FERNET_KEY` in env), routes `/api/seo/*` modulari
-- Catalog 10 tool API (Claude, Gemini+Nano Banana, Perplexity, DataForSEO, SE Ranking, DeepL, Undetectable, GSC, PageSpeed, GA4)
-- Endpoint: `GET /api/seo/tools`, `PUT /api/seo/tools/{slug}`, `POST /api/seo/tools/{slug}/test`, `GET /api/seo/dashboard/stats`
-- Test connection live verificati: **Claude 4.5, Gemini 3, Perplexity Sonar, DataForSEO** tutte ✓ Live
-- Frontend: `/admin/seo` (Dashboard) + `/admin/seo/api-tools` (10 cards) + `/admin/seo/pages` placeholder
-- Sidebar admin aggiornata con voce "SEO Automation"
-- DataForSEO balance attivo $44.138
+- Backend: encryption Fernet, routes `/api/seo/*` modulari
+- Catalog 10 tool API (Claude, Gemini+Nano Banana, Perplexity, DataForSEO, SE Ranking, DeepL, Undetectable, GSC P1, PageSpeed P1, GA4 P1)
+- 4 chiavi live: Claude 4.5, Gemini 3, Perplexity Sonar Pro, DataForSEO ($44 balance)
+- Frontend: `/admin/seo` Dashboard, `/admin/seo/api-tools`, sidebar voce SEO
 
-**FASE 2 (Pipeline Engine) – TODO**
-- Service layer per ogni provider in `backend/services/seo_*` (Claude, Gemini, Perplexity, DeepL, DataForSEO)
-- Orchestratore async pipeline con state machine (pending→researching→writing→translating→auditing→ready)
-- Nano Banana banner hero (solo Lega/Squadra)
+**FASE 1.5 (DB Wiring) – ✅ DONE 2026-05-06**
+- Endpoint `routes/seo_targets.py`:
+  - `GET /api/seo/targets?type=event|league|team` → lista entity esistenti con paginazione/filtri
+  - `GET /api/seo/targets/{type}/{id}` → fetch entity con seo_meta merged
+  - `POST /api/seo/targets/{type}/{id}/generate` → mock draft (3 lingue)
+  - `POST /api/seo/targets/{type}/{id}/publish` → applica draft a campi reali (`seo_title`, `seo_description`, `seo_h1`, `seo_intro`, `seo_cta`, `faq_N_q/a` multilingua)
+  - `PUT /api/seo/targets/{type}/{id}/lock` → lock/unlock per field
+  - `PUT /api/seo/targets/{type}/{id}/field` → edit manuale (scrive simultaneo su seo_meta E campo diretto)
+  - `DELETE /api/seo/targets/{type}/{id}/draft` → discard draft
+- Mapping draft → campi entity esistenti (pubblicazione istantanea)
+- Lock per field rispettati al publish (campo locked NON viene sovrascritto)
+- Frontend nuovi:
+  - `/admin/seo/pages` → lista 1188 events + 35 leagues + 239 teams con tabs/filtri/paginazione
+  - `/admin/seo/targets/{type}/{id}` → editor multi-lingua (IT/EN/ES) con view toggle Published/Draft
+- Pulsanti "✨ Genera SEO con AI" aggiunti in:
+  - `AdminEvents.jsx` modal edit evento (header)
+  - `AdminLeaguesTeams.jsx` accanto al pulsante Edit lega
+  - `AdminLeaguesTeams.jsx` accanto al pulsante Edit team
+- E2E test verificato: generate → publish team `1-fc-heidenheim` → 39 campi applicati + 15 diretti (`seo_title.it/en/es` + `seo_description.it/en/es` + `seo_h1.it/en/es` + `seo_intro.it/en/es` + `seo_cta.it/en/es`)
 
-**FASE 3 (Editor & UI) – TODO**
-- Form "Crea Football Match Page" con auto-trigger pipeline
-- Editor multi-tab (Basic|Event|Keywords|Content|Meta|Technical|Schema|Internal Links|Audit|Versions|Export)
-- Field locking (per-field {value, is_locked, generated_by_ai, approved})
-
-**FASE 4 (Audit + Export + Auto-publish) – TODO**
-- SEO Audit engine score 0-100 + issues (critical|warning|suggestion)
-- Export JSON/HTML/meta tags clipboard/JSON-LD clipboard
-- Auto-publish toggle: scrive direttamente su `events.seo_meta` (sovrascrive tutti i campi quando approvata, scelta utente)
-- Lifecycle post-event: Archive page o 301 redirect (mai noindex)
+**FASE 2 (Pipeline reale Dual-Engine) – TODO**
+- Service `seo_claude.py` (copy IT)
+- Service `seo_gemini.py` (schema JSON-LD + meta)
+- Service `seo_perplexity.py` (FAQ PAA + live data)
+- Service `seo_dataforseo.py` (keyword volumes)
+- Service `seo_deepl.py` (traduzione IT→EN/ES con glossario)
+- Orchestrator async con state machine
+- Sostituire endpoint `/generate` mock con pipeline reale
 
 ## Original Problem Statement
 Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti per eventi sportivi (principalmente calcio).

@@ -110,6 +110,7 @@ import {
 import SeoDashboard from './pages/admin/seo/SeoDashboard';
 import SeoApiTools from './pages/admin/seo/SeoApiTools';
 import SeoPagesList from './pages/admin/seo/SeoPagesList';
+import SeoTargetEditor from './pages/admin/seo/SeoTargetEditor';
 import NotFound from './pages/NotFound';
 import WhatsAppButton from './components/WhatsAppButton';
 
@@ -190,6 +191,9 @@ function App() {
             } />
             <Route path="/admin/seo/pages/new" element={
               <ProtectedRoute><SeoPagesList /></ProtectedRoute>
+            } />
+            <Route path="/admin/seo/targets/:type/:id" element={
+              <ProtectedRoute><SeoTargetEditor /></ProtectedRoute>
             } />
             <Route path="/admin/translations" element={
               <ProtectedRoute><AdminTranslations /></ProtectedRoute>

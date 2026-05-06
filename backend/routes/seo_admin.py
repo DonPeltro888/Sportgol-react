@@ -247,27 +247,35 @@ async def test_tool(slug: str, _=Depends(verify_admin_token)) -> Dict[str, Any]:
 
 @router.get("/dashboard/stats")
 async def dashboard_stats(_=Depends(verify_admin_token)) -> Dict[str, Any]:
-    """Statistiche rapide per il SEO Dashboard."""
-    total = await db.seo_pages.count_documents({})
-    by_status: Dict[str, int] = {}
-    cursor = db.seo_pages.aggregate([
-        {"$group": {"_id": "$page_status", "n": {"$sum": 1}}}
-    ])
-    async for row in cursor:
-        by_status[row["_id"] or "Draft"] = row["n"]
-
-    # Tool ready count
-    tools = await list_tools()  # type: ignore
-    tools_with_key = sum(1 for t in tools if t["has_key"])
-    tools_active = sum(1 for t in tools if t["active"] and t["has_key"])
-
-    return {
-        "total_pages": total,
-        "by_status": by_status,
+    """Statistiche SEO sulle entity esistenti (events, leagues, teams)."""
+    out: Dict[str, Any] = {
+        "by_type": {},
+        "by_status": {"Draft": 0, "Generated": 0, "Needs Review": 0, "Approved": 0, "Published": 0},
         "tools_total": len(TOOLS_CATALOG),
-        "tools_with_key": tools_with_key,
-        "tools_active": tools_active,
     }
+    for type_, coll in [("event", "events"), ("league", "leagues"), ("team", "teams")]:
+        c = db[coll]
+        total = await c.count_documents({})
+        with_draft = await c.count_documents({"seo_draft": {"$exists": True, "$ne": None}})
+        published = await c.count_documents({"seo_status": "Published"})
+        out["by_type"][type_] = {
+            "total": total,
+            "with_draft": with_draft,
+            "published": published,
+        }
+        # Aggregate status
+        cursor = c.aggregate([{"$group": {"_id": "$seo_status", "n": {"$sum": 1}}}])
+        async for row in cursor:
+            st = row["_id"] or "Draft"
+            out["by_status"][st] = out["by_status"].get(st, 0) + row["n"]
+
+    out["total_pages"] = sum(t["total"] for t in out["by_type"].values())
+
+    # Tool stats
+    tools = await list_tools()  # type: ignore
+    out["tools_with_key"] = sum(1 for t in tools if t["has_key"])
+    out["tools_active"] = sum(1 for t in tools if t["active"] and t["has_key"])
+    return out
 
 
 # ─── Seed (idempotente) ─────────────────────────────────────────────────────

@@ -82,29 +82,30 @@ const SeoDashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <StatCard
             icon={FileText}
-            label="Pagine SEO"
-            value={loading ? '…' : (stats?.total_pages ?? 0)}
-            hint="Total in DB"
+            label="Entity totali"
+            value={loading ? '…' : (stats?.total_pages?.toLocaleString() ?? 0)}
+            hint={loading ? '' : `${stats?.by_type?.event?.total ?? 0} match · ${stats?.by_type?.league?.total ?? 0} leghe · ${stats?.by_type?.team?.total ?? 0} squadre`}
             accent="blue"
           />
           <StatCard
             icon={Wand2}
             label="In Draft"
-            value={loading ? '…' : (stats?.by_status?.Draft ?? 0)}
-            hint="Da generare/rivedere"
+            value={loading ? '…' : (stats?.by_status?.Draft ?? 0).toLocaleString()}
+            hint="Mai generate"
             accent="amber"
           />
           <StatCard
             icon={ShieldCheck}
-            label="Approvate"
-            value={loading ? '…' : (stats?.by_status?.Approved ?? 0)}
+            label="Published"
+            value={loading ? '…' : (stats?.by_status?.Published ?? 0).toLocaleString()}
+            hint="SEO live"
             accent="green"
           />
           <StatCard
             icon={KeyRound}
             label="Tool attivi"
             value={loading ? '…' : `${stats?.tools_active ?? 0}/${stats?.tools_total ?? 0}`}
-            hint={`${stats?.tools_with_key ?? 0} con chiave configurata`}
+            hint={`${stats?.tools_with_key ?? 0} con chiave`}
             accent="purple"
           />
         </div>
@@ -116,9 +117,9 @@ const SeoDashboard = () => {
               <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center">
                 <Bot className="w-5 h-5 text-blue-400" />
               </div>
-              <h3 className="text-white font-semibold">Crea Football Match</h3>
+              <h3 className="text-white font-semibold">Sfoglia Match (1188)</h3>
             </div>
-            <p className="text-xs text-gray-400">Pipeline completa: research → copy → schema → traduzione</p>
+            <p className="text-xs text-gray-400">Genera SEO sui match esistenti — events DB</p>
           </Link>
 
           <Link to="/admin/seo/pages" data-testid="seo-quick-pages" className="group rounded-xl border border-gray-700 bg-gray-800/40 p-5 hover:border-purple-500 hover:bg-gray-800/70 transition-all">
