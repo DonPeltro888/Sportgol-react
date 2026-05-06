@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../contexts/AdminAuthContext';
 import { 
   LayoutDashboard, Calendar, FolderTree, FileText, 
-  Globe, Settings, Languages, LogOut, Menu, X, ChevronDown, Layers, Trophy, RefreshCw, Image as ImageIcon, Key, Database
+  Globe, Settings, Languages, LogOut, Menu, X, ChevronDown, Layers, Trophy, RefreshCw, Image as ImageIcon, Key, Database, Sparkles
 } from 'lucide-react';
 
 const AdminLayout = ({ children }) => {
@@ -34,7 +34,11 @@ const AdminLayout = ({ children }) => {
     navigate('/admin/login');
   };
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    // /admin/seo evidenziato anche su sotto-route /admin/seo/api-tools, /admin/seo/pages, ecc
+    if (path === '/admin/seo') return location.pathname.startsWith('/admin/seo');
+    return location.pathname === path;
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 flex">

@@ -107,6 +107,9 @@ import {
   AdminIntegrations,
   AdminProviders
 } from './pages/admin';
+import SeoDashboard from './pages/admin/seo/SeoDashboard';
+import SeoApiTools from './pages/admin/seo/SeoApiTools';
+import SeoPagesList from './pages/admin/seo/SeoPagesList';
 import NotFound from './pages/NotFound';
 import WhatsAppButton from './components/WhatsAppButton';
 
@@ -177,7 +180,16 @@ function App() {
               <ProtectedRoute><AdminPages /></ProtectedRoute>
             } />
             <Route path="/admin/seo" element={
-              <ProtectedRoute><AdminPages /></ProtectedRoute>
+              <ProtectedRoute><SeoDashboard /></ProtectedRoute>
+            } />
+            <Route path="/admin/seo/api-tools" element={
+              <ProtectedRoute><SeoApiTools /></ProtectedRoute>
+            } />
+            <Route path="/admin/seo/pages" element={
+              <ProtectedRoute><SeoPagesList /></ProtectedRoute>
+            } />
+            <Route path="/admin/seo/pages/new" element={
+              <ProtectedRoute><SeoPagesList /></ProtectedRoute>
             } />
             <Route path="/admin/translations" element={
               <ProtectedRoute><AdminTranslations /></ProtectedRoute>

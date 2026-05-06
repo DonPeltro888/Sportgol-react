@@ -1,18 +1,37 @@
 # GOLEVENTS Clone - Product Requirements Document
 
-## Status (2026-05-03)
+## Status (2026-05-06)
 - ✅ Sito live su https://golevents.com
 - 🟡 Deploy bloccato da bug piattaforma Emergent: "Internal Server Error" al click "Re-deploy changes" (i log non si aggiornano dal 29 aprile)
 - 📧 Ticket aperto a support@emergent.sh con Job ID `66ca3056-867e-4c98-a18c-d6c38c18ecae`, Run ID `1b43ff11-3f0f-4a08-9254-167cf41cdaea`
 - ✅ Tutti i fix code-level deploy-ready applicati (BASE_URL, .gitignore, startup background, requirements.txt, upload.py)
+- 🆕 **SEO Automation Admin – FASE 1 (Foundation) COMPLETATA** integrata sotto `/admin/seo` (no workspace separato)
 
-## Roadmap futura: SEO Automation Admin
-Sviluppato in workspace separato `golevents-seo-admin` (per non rischiare il sito live).
-Una volta validato il P0, sarà integrato qui come modulo isolato sotto:
-- Frontend: route `/admin/seo` con code-splitting (lazy load)
-- Backend: endpoint `/api/seo/*` (nessun conflitto con `/api/events`, `/api/admin/*`)
-- Database: collezioni con prefisso `seo_*` (seo_pages, seo_audits, seo_versions, seo_api_tools, etc.)
-Obiettivo: un solo deploy, un solo costo, due app coese.
+## SEO Automation Admin – Stato (2026-05-06)
+**FASE 1 (Foundation P0) – ✅ DONE**
+- Backend: encryption Fernet (`SEO_ADMIN_FERNET_KEY` in env), routes `/api/seo/*` modulari
+- Catalog 10 tool API (Claude, Gemini+Nano Banana, Perplexity, DataForSEO, SE Ranking, DeepL, Undetectable, GSC, PageSpeed, GA4)
+- Endpoint: `GET /api/seo/tools`, `PUT /api/seo/tools/{slug}`, `POST /api/seo/tools/{slug}/test`, `GET /api/seo/dashboard/stats`
+- Test connection live verificati: **Claude 4.5, Gemini 3, Perplexity Sonar, DataForSEO** tutte ✓ Live
+- Frontend: `/admin/seo` (Dashboard) + `/admin/seo/api-tools` (10 cards) + `/admin/seo/pages` placeholder
+- Sidebar admin aggiornata con voce "SEO Automation"
+- DataForSEO balance attivo $44.138
+
+**FASE 2 (Pipeline Engine) – TODO**
+- Service layer per ogni provider in `backend/services/seo_*` (Claude, Gemini, Perplexity, DeepL, DataForSEO)
+- Orchestratore async pipeline con state machine (pending→researching→writing→translating→auditing→ready)
+- Nano Banana banner hero (solo Lega/Squadra)
+
+**FASE 3 (Editor & UI) – TODO**
+- Form "Crea Football Match Page" con auto-trigger pipeline
+- Editor multi-tab (Basic|Event|Keywords|Content|Meta|Technical|Schema|Internal Links|Audit|Versions|Export)
+- Field locking (per-field {value, is_locked, generated_by_ai, approved})
+
+**FASE 4 (Audit + Export + Auto-publish) – TODO**
+- SEO Audit engine score 0-100 + issues (critical|warning|suggestion)
+- Export JSON/HTML/meta tags clipboard/JSON-LD clipboard
+- Auto-publish toggle: scrive direttamente su `events.seo_meta` (sovrascrive tutti i campi quando approvata, scelta utente)
+- Lifecycle post-event: Archive page o 301 redirect (mai noindex)
 
 ## Original Problem Statement
 Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti per eventi sportivi (principalmente calcio).
