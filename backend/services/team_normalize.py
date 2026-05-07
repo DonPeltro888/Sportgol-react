@@ -184,7 +184,7 @@ SUFFIX_TOKENS = [
     "afc", "ogc", "psg", "rb", "calcio", "football", "fussball",
 ]
 PREFIX_TOKENS = [
-    "fc", "ac", "as", "us", "ss", "ud", "rc", "rcd", "cf", "ca",
+    "fc", "ac", "acf", "as", "us", "ss", "ssc", "ud", "rc", "rcd", "cf", "ca",
     "fk", "bk", "sk", "sv", "vfl", "vfb", "tsg", "afc", "ogc", "rb", "asd",
 ]
 
