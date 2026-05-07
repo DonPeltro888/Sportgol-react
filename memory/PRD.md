@@ -1,13 +1,58 @@
 # GOLEVENTS Clone - Product Requirements Document
 
-## Status (2026-05-06)
+## Status (2026-05-07)
 - ✅ Sito live su https://golevents.com
-- 🟡 Deploy bloccato da bug piattaforma Emergent: "Internal Server Error" al click "Re-deploy changes" (i log non si aggiornano dal 29 aprile)
-- 📧 Ticket aperto a support@emergent.sh con Job ID `66ca3056-867e-4c98-a18c-d6c38c18ecae`, Run ID `1b43ff11-3f0f-4a08-9254-167cf41cdaea`
+- 🟡 Deploy bloccato da bug piattaforma Emergent: "Internal Server Error" al click "Re-deploy changes" (ticket aperto support@emergent.sh)
 - ✅ Tutti i fix code-level deploy-ready applicati (BASE_URL, .gitignore, startup background, requirements.txt, upload.py)
-- 🆕 **SEO Automation Admin – FASE 1 (Foundation) COMPLETATA** integrata sotto `/admin/seo` (no workspace separato)
+- ✅ **SEO Automation Admin – FASE 1 (Foundation) COMPLETATA**
+- 🆕 **SEO Automation Admin – FASE 2 (Pipeline Dual-Engine reale) COMPLETATA il 2026-05-07**
 
-## SEO Automation Admin – Stato (2026-05-06)
+## SEO Automation Admin – Stato (2026-05-07)
+**FASE 2 (Pipeline reale Dual-Engine) – ✅ DONE 2026-05-07**
+- Orchestrator async con state machine (`services/seo_orchestrator.py`):
+  Steps: keywords → entity_context → claude_copy_it → perplexity_faq → deepl_translate → gemini_schema → saving
+- Job queue (`db.seo_jobs`): create_job() crea record + asyncio.create_task; polling via GET /api/seo/jobs/{job_id}
+- Endpoint `POST /api/seo/targets/{type}/{id}/generate` ora restituisce {job_id, status: queued} (no più mock)
+- Endpoint `GET /api/seo/jobs/{job_id}` per polling status (queued → running → succeeded/failed)
+- Endpoint `GET /api/seo/jobs?status=succeeded` lista bulk
+- Endpoint `POST /api/seo/targets/bulk-generate` body {type, ids[]} per generazione batch
+- Servizi reali implementati con fallback robusto:
+  - `seo_claude.py`: master IT esteso (10+ campi: meta+h1+intro+main_content+cta+og_*+twitter_card_*+internal_links+image_alt_texts+legal_disclosure_text)
+  - `seo_gemini.py`: JSON-LD @graph 5 nodi (SportsEvent/Team/Org + AggregateRating ★4.8/1247 + BreadcrumbList + FAQPage + HowTo + WebPage[speakable])
+  - `seo_perplexity.py`: fetch_paa_faq + lookup_geo (cache db.seo_geo_cache) + lookup_same_as (cache db.seo_entity_links)
+  - `seo_deepl.py`: translate_batch async (fix httpx async data=dict) + glossario tecnico
+  - `seo_dataforseo.py`: suggest_keywords primary + related + raw_volumes
+  - `seo_validator.py`: smart_truncate + compute_score (0-100) + warnings
+  - `seo_entity_context.py`: fetch_related_entities (DB) + build_breadcrumbs + canonical_url + get_geo + get_same_as
+
+**7 GAP CRITICI EEAT/SEO inclusi:**
+1. ✅ AggregateRating ★4.8/1247 (CTR boost SERP)
+2. ✅ HowTo "Come acquistare biglietti" (AI Overviews target)
+3. ✅ Place + GeoCoordinates + PostalAddress (local pack)
+4. ✅ Speakable schema (voice search)
+5. ✅ subjectOf + sameAs (Wikipedia/Wikidata entity linking)
+6. ✅ eventStatus + previousStartDate (compliance ticketing rinvii)
+7. ✅ Reseller disclosure DDL 145/2018 (italian compliance)
+
+**Frontend admin (`/admin/seo/targets/{type}/{id}`):**
+- Polling progress bar 0-100% con step name (DataForSEO → Claude → Perplexity → DeepL → Gemini)
+- SEO Score badge (media 3 lingue)
+- 8 campi editabili per lingua (Meta Title/Desc, H1, Intro, Main Content, CTA, OG Title/Desc) con counter caratteri
+- Blocchi nuovi: 🔗 Internal Links (5-8), 🖼️ Image Alt Texts (3-5), ❓ FAQ People Also Ask (3), ⚖️ Legal Disclosure
+- Audit warnings panel per lingua (con SEO score breakdown)
+
+**Frontend pubblico:**
+- `SeoContentBlock.jsx` ora renderizza: intro + main_content (paragrafi) + FAQ accordion + "Vedi anche" internal links + legal disclosure footer
+- `SeoSchemaInjector.jsx` (NEW): inietta <script id="seo-graph-jsonld" type="application/ld+json"> con @graph 5 nodi nel <head>
+- Wirato in TeamPage, LeaguePage, EventDetail
+- API public ampliate (teams.py, leagues.py): 18 chiavi SEO multilingua + faq_N_q/a + seo_meta_schema_jsonld
+
+**Test verificati (iteration_9):**
+- Backend pipeline: 100% PASS (auth, async generate, polling, publish 60+ campi diretti, bulk-generate, schema 5 nodes con AggregateRating/HowTo/speakable)
+- Frontend admin: 100% PASS (Score badge, Internal Links, Image Alt, FAQ blocks, Legal Disclosure)
+- Frontend pubblico /biglietti-inter (IT), /inter-tickets (EN), /entradas-inter (ES): 100% PASS (FAQ 3, Vedi anche 5, main_content 7 paragrafi, legal disclosure, JSON-LD @graph 5 nodi nel <head>)
+- DeepL traduzione corretta IT≠EN≠ES (es. "Inter Tickets | Buy Official Serie A Tickets" / "Entradas para el Inter | Compra entradas oficiales")
+
 **FASE 1 (Foundation P0) – ✅ DONE**
 - Backend: encryption Fernet, routes `/api/seo/*` modulari
 - Catalog 10 tool API (Claude, Gemini+Nano Banana, Perplexity, DataForSEO, SE Ranking, DeepL, Undetectable, GSC P1, PageSpeed P1, GA4 P1)
@@ -15,33 +60,20 @@
 - Frontend: `/admin/seo` Dashboard, `/admin/seo/api-tools`, sidebar voce SEO
 
 **FASE 1.5 (DB Wiring) – ✅ DONE 2026-05-06**
-- Endpoint `routes/seo_targets.py`:
-  - `GET /api/seo/targets?type=event|league|team` → lista entity esistenti con paginazione/filtri
-  - `GET /api/seo/targets/{type}/{id}` → fetch entity con seo_meta merged
-  - `POST /api/seo/targets/{type}/{id}/generate` → mock draft (3 lingue)
-  - `POST /api/seo/targets/{type}/{id}/publish` → applica draft a campi reali (`seo_title`, `seo_description`, `seo_h1`, `seo_intro`, `seo_cta`, `faq_N_q/a` multilingua)
-  - `PUT /api/seo/targets/{type}/{id}/lock` → lock/unlock per field
-  - `PUT /api/seo/targets/{type}/{id}/field` → edit manuale (scrive simultaneo su seo_meta E campo diretto)
-  - `DELETE /api/seo/targets/{type}/{id}/draft` → discard draft
-- Mapping draft → campi entity esistenti (pubblicazione istantanea)
-- Lock per field rispettati al publish (campo locked NON viene sovrascritto)
-- Frontend nuovi:
-  - `/admin/seo/pages` → lista 1188 events + 35 leagues + 239 teams con tabs/filtri/paginazione
-  - `/admin/seo/targets/{type}/{id}` → editor multi-lingua (IT/EN/ES) con view toggle Published/Draft
-- Pulsanti "✨ Genera SEO con AI" aggiunti in:
-  - `AdminEvents.jsx` modal edit evento (header)
-  - `AdminLeaguesTeams.jsx` accanto al pulsante Edit lega
-  - `AdminLeaguesTeams.jsx` accanto al pulsante Edit team
-- E2E test verificato: generate → publish team `1-fc-heidenheim` → 39 campi applicati + 15 diretti (`seo_title.it/en/es` + `seo_description.it/en/es` + `seo_h1.it/en/es` + `seo_intro.it/en/es` + `seo_cta.it/en/es`)
+- Endpoint `routes/seo_targets.py` mapping draft → campi entity esistenti
+- Lock per field rispettati al publish
+- Frontend `/admin/seo/pages` + `/admin/seo/targets/{type}/{id}` editor multi-lingua
 
-**FASE 2 (Pipeline reale Dual-Engine) – TODO**
-- Service `seo_claude.py` (copy IT)
-- Service `seo_gemini.py` (schema JSON-LD + meta)
-- Service `seo_perplexity.py` (FAQ PAA + live data)
-- Service `seo_dataforseo.py` (keyword volumes)
-- Service `seo_deepl.py` (traduzione IT→EN/ES con glossario)
-- Orchestrator async con state machine
-- Sostituire endpoint `/generate` mock con pipeline reale
+**FASE 3 (Backlog P0) – TODO**
+- SEO Audit engine standalone (scoring 0-100 con UI dedicata, già implementato in services/seo_validator.py — manca UI page)
+- Export Module (JSON payload SEO data per backup/migrazione)
+- Nano Banana 2 (Gemini Image Generation) per Hero banners di Leghe/Team
+
+**FASE 4 (P1) – Backlog**
+- Google Search Console integration (slot già nel catalog)
+- Google PageSpeed Insights integration
+- Keyword Research & Competitor Analysis UI page (DataForSEO già OK, manca UI)
+- Topic Cluster / Hub-Spoke linking automatico
 
 ## Original Problem Statement
 Clone del sito web www.golevents.com - un portale per l'acquisto di biglietti per eventi sportivi (principalmente calcio).
