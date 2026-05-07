@@ -82,7 +82,13 @@ async def get_league_by_slug(slug: str):
         "country": league.get("country", ""),
         "type": league.get("type", "league"),
         "logo_url": league.get("logo_url", ""),
-        "teams": teams
+        "teams": teams,
+        # SEO fields multilingua (popolati dal SEO Admin)
+        "seo_title": league.get("seo_title") or {},
+        "seo_description": league.get("seo_description") or {},
+        "seo_h1": league.get("seo_h1") or {},
+        "seo_intro": league.get("seo_intro") or {},
+        "seo_cta": league.get("seo_cta") or {},
     }
 
 # Admin endpoints

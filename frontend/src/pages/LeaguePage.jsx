@@ -7,6 +7,7 @@ import EventListItem from '../components/EventListItem';
 import SEOHead from '../components/SEOHead';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { LeagueSchema, BreadcrumbSchema } from '../components/SchemaOrg';
+import SeoContentBlock, { getSeoMetaTitle, getSeoMetaDescription, getSeoH1 } from '../components/SeoContentBlock';
 import { ArrowLeft, Loader2, Trophy } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -133,10 +134,9 @@ const LeaguePage = ({ urlType }) => {
   const showAsEventList = isCup || (leagueData && (!leagueData.teams || leagueData.teams.length === 0));
   const country = leagueData?.country || '';
   
-  const seoTitle = getSeoTitle('league', leagueName, lang);
-  const seoDescription = getSeoDescription('league', leagueName, lang, { 
-    teamCount: teams.length 
-  });
+  const seoTitle = getSeoMetaTitle(leagueData, lang, getSeoTitle('league', leagueName, lang));
+  const seoDescription = getSeoMetaDescription(leagueData, lang, getSeoDescription('league', leagueName, lang, { teamCount: teams.length }));
+  const customH1 = getSeoH1(leagueData, lang, '');
   const canonicalUrl = `${window.location.origin}${getLeagueUrl(actualLeague, lang)}`;
 
   if (loading) {
@@ -212,7 +212,7 @@ const LeaguePage = ({ urlType }) => {
             </div>
             <div>
               <h1 className="text-lg md:text-xl lg:text-2xl font-black text-white leading-tight">
-                {lang === 'en' ? `${leagueName} ${t('seoTickets')}` : `${t('seoTickets')} ${leagueName}`}
+                {customH1 || (lang === 'en' ? `${leagueName} ${t('seoTickets')}` : `${t('seoTickets')} ${leagueName}`)}
               </h1>
               <p className="text-gray-400 text-xs md:text-sm mt-0.5">
                 {country} 
@@ -313,6 +313,9 @@ const LeaguePage = ({ urlType }) => {
           )}
         </div>
       </div>
+
+      {/* SEO Content (intro/CTA/etc. dal SEO Admin) */}
+      <SeoContentBlock data={leagueData} lang={lang} />
 
       <Footer />
     </div>

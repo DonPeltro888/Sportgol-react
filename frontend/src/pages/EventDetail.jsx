@@ -11,6 +11,7 @@ import TrustBadges from '../components/TrustBadges';
 import { Calendar, MapPin, MessageCircle, ChevronDown, Loader2, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import SEOHead from '../components/SEOHead';
+import SeoContentBlock, { getSeoMetaTitle, getSeoMetaDescription, getSeoH1 } from '../components/SeoContentBlock';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
 import { getSeoTitle, getSeoDescription, getTeamUrl, getLeagueUrl, getEventUrl } from '../utils/seoHelpers';
@@ -156,8 +157,9 @@ const EventDetail = () => {
   const homeTeamLogo = getTeamLogo(event.home_team || event.categories?.[0]);
   const awayTeamLogo = getTeamLogo(event.away_team || event.categories?.[1]);
   
-  const seoTitle = getSeoTitle('event', eventTitle, lang);
-  const seoDescription = getSeoDescription('event', eventTitle, lang, { stadium: event.stadium, date: event.date });
+  const seoTitle = getSeoMetaTitle(event, lang, getSeoTitle('event', eventTitle, lang));
+  const seoDescription = getSeoMetaDescription(event, lang, getSeoDescription('event', eventTitle, lang, { stadium: event.stadium, date: event.date }));
+  const customH1 = getSeoH1(event, lang, '');
   const canonicalUrl = `${window.location.origin}${getEventUrl(event, lang)}`;
 
   return (
@@ -185,7 +187,9 @@ const EventDetail = () => {
               </div>
             </div>
             
-            <h1 className="text-xl md:text-2xl font-bold text-white text-center">{lang === 'en' ? `${eventTitle} Tickets` : `Biglietti ${eventTitle}`}</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-white text-center">
+              {customH1 || (lang === 'en' ? `${eventTitle} Tickets` : `Biglietti ${eventTitle}`)}
+            </h1>
             
             <div className="flex flex-wrap items-center justify-center gap-4 mt-3 text-gray-300 text-sm">
               <span className="flex items-center gap-1"><Calendar className="w-4 h-4" /> {event.date}</span>
@@ -362,6 +366,9 @@ const EventDetail = () => {
           </div>
         )}
       </div>
+
+      {/* SEO Content (intro/CTA/event_info/sectors/pricing/venue/FAQ dal SEO Admin) */}
+      <SeoContentBlock data={event} lang={lang} />
 
       <Footer />
     </div>

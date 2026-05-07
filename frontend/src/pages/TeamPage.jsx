@@ -7,12 +7,15 @@ import EventListItem from '../components/EventListItem';
 import SEOHead from '../components/SEOHead';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { TeamSchema, BreadcrumbSchema } from '../components/SchemaOrg';
+import SeoContentBlock, { getSeoMetaTitle, getSeoMetaDescription, getSeoH1 } from '../components/SeoContentBlock';
 import { ArrowLeft, Loader2, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
 import { getTeamUrl, getSeoTitle, getSeoDescription } from '../utils/seoHelpers';
 import { getTeamLogo } from '../data/teamLogos';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const TeamPage = ({ urlType }) => {
   const { slug, '*': wildcardSlug } = useParams();
@@ -21,6 +24,7 @@ const TeamPage = ({ urlType }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [teamName, setTeamName] = useState('');
+  const [teamData, setTeamData] = useState(null);
   const { lang } = useLanguage();
   const t = (key) => getTranslation(lang, key);
 
@@ -60,12 +64,21 @@ const TeamPage = ({ urlType }) => {
         setLoading(false);
         return;
       }
-      // Search for team name from slug
+      // Fetch team data (con SEO fields)
+      try {
+        const teamRes = await fetch(`${API_URL}/api/teams/${actualSlug}`);
+        if (teamRes.ok) {
+          const td = await teamRes.json();
+          setTeamData(td);
+          setTeamName(td.name || actualSlug);
+        }
+      } catch (e) { /* ignore */ }
+
+      // Fallback name dal slug
       const formattedName = actualSlug.split('-').map(word => 
         word.charAt(0).toUpperCase() + word.slice(1)
       ).join(' ');
-      
-      setTeamName(formattedName);
+      setTeamName(prev => prev || formattedName);
       
       // Search events with team name
       const response = await eventsAPI.getAll({ search: formattedName });
@@ -79,9 +92,12 @@ const TeamPage = ({ urlType }) => {
   };
 
   const actualSlug = extractSlugFromUrl();
-  const teamLogo = getTeamLogo(teamName);
-  const seoTitle = getSeoTitle('team', teamName, lang);
-  const seoDescription = getSeoDescription('team', teamName, lang);
+  const teamLogo = teamData?.logo_url || getTeamLogo(teamName);
+  const fallbackTitle = getSeoTitle('team', teamName, lang);
+  const fallbackDesc = getSeoDescription('team', teamName, lang);
+  const seoTitle = getSeoMetaTitle(teamData, lang, fallbackTitle);
+  const seoDescription = getSeoMetaDescription(teamData, lang, fallbackDesc);
+  const customH1 = getSeoH1(teamData, lang, '');
   const canonicalUrl = `${window.location.origin}${getTeamUrl(actualSlug, lang)}`;
 
   return (
@@ -129,7 +145,7 @@ const TeamPage = ({ urlType }) => {
             )}
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-white leading-tight">
-                {lang === 'en' ? `${teamName} ${t('seoTickets')}` : `${t('seoTickets')} ${teamName}`}
+                {customH1 || (lang === 'en' ? `${teamName} ${t('seoTickets')}` : `${t('seoTickets')} ${teamName}`)}
               </h1>
               <p className="text-gray-300 text-xs md:text-sm mt-1">{t('seoAllMatches')} - {t('seoHomeAway')}</p>
             </div>
@@ -177,6 +193,9 @@ const TeamPage = ({ urlType }) => {
           )}
         </div>
       </div>
+
+      {/* SEO Content (intro/CTA/etc. dal SEO Admin) */}
+      <SeoContentBlock data={teamData} lang={lang} />
 
       <Footer />
     </div>

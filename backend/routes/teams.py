@@ -77,7 +77,13 @@ async def get_team_by_slug(slug: str):
         "league_slug": team.get("league_slug", ""),
         "city": team.get("city", ""),
         "stadium": team.get("stadium", ""),
-        "logo_url": team.get("logo_url", "")
+        "logo_url": team.get("logo_url", ""),
+        # SEO fields multilingua (popolati dal SEO Admin)
+        "seo_title": team.get("seo_title") or {},
+        "seo_description": team.get("seo_description") or {},
+        "seo_h1": team.get("seo_h1") or {},
+        "seo_intro": team.get("seo_intro") or {},
+        "seo_cta": team.get("seo_cta") or {},
     }
 
 # Admin endpoints
