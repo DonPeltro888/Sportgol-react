@@ -148,7 +148,15 @@ const TeamPage = ({ urlType }) => {
                   alt={`Logo ${teamName} - Biglietti calcio ufficiali`}
                   loading="eager"
                   decoding="async"
+                  referrerPolicy="no-referrer"
                   className="w-full h-full object-contain"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.style.display = 'none';
+                    if (e.target.parentElement) {
+                      e.target.parentElement.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-[#FF6B35] to-[#0984E3] rounded flex items-center justify-center text-white font-bold text-lg">${(teamName || '?').slice(0,2).toUpperCase()}</div>`;
+                    }
+                  }}
                 />
               </div>
             ) : (

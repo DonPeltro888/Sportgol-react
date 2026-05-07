@@ -64,6 +64,21 @@
 - Lock per field rispettati al publish
 - Frontend `/admin/seo/pages` + `/admin/seo/targets/{type}/{id}` editor multi-lingua
 
+**FASE 4 (Data Health Check con AI) – ✅ DONE 2026-05-07**
+- **Bug fix critici**:
+  - `/api/events/by-team-slug/{slug}` con match esatto + scope league per evitare data leakage (es. Inter vs Inter Miami)
+  - H1 hero pulito su TeamPage e LeaguePage (rimosso pattern lungo "| Confronta Prezzi e Posti")
+  - Loghi sbagliati (Inter aveva logo Arsenal!) corretti tramite Gemini Vision detection
+- **Servizi nuovi**:
+  - `services/seo_health_check.py`: scan_teams/events/leagues con fuzzy matching (rapidfuzz), name confusion detection, logo collision, missing data
+  - `services/seo_ai_validator.py`: Perplexity validate metadata + Gemini Vision (gemini-2.5-pro con ImageContent) verify logo, find_alternative_logo con multi-candidate validation + Wikimedia Special:FilePath normalization + WIKI_USER_AGENT compliance + download_and_cache_logo (proxy locale per evitare 403 Wikimedia)
+  - `services/seo_health_fix.py`: fix_team(slug, mode='balanced') = Perplexity metadata fill + Gemini Vision logo replace (confidence>=0.7 + cache locale)
+- **Endpoints `/api/seo/health/*`** (9 totali): scan, run, report/latest, reports list, fix-team, fix-bulk (async job queue), fix-jobs status/list, export JSON/CSV
+- **Endpoint `/api/seo/team-logo/{file}`**: serve logo cached da `/app/backend/uploads/team_logos/`, evita 403 Wikimedia nel browser
+- **Frontend `/admin/seo/health`**: dashboard con summary cards (Total/High/Medium/Low), 6 filtri categoria, severity filter, lista issues con bottone Fix per team, bulk fix con progress bar polling, export JSON/CSV
+- **Quick card "Data Health Check"** in `/admin/seo` dashboard
+- **Test verificati (iteration_11)**: Backend 11/11 PASS + Frontend 100% PASS. Inter ora mostra logo ufficiale post-2021 (file `/api/seo/team-logo/inter.png` 31KB), 3 eventi Serie A corretti, ZERO Inter Miami leakage
+
 **FASE 3 (Tools Avanzati) – ✅ DONE 2026-05-07**
 - **Export Module** (`routes/seo_tools.py` `GET /api/seo/export`): formati JSON/CSV/NDJSON con filtro `type` + `only_published`, Content-Disposition per download. UI in `/admin/seo/bulk`.
 - **Nano Banana 2** (`services/seo_image_gen.py`): generazione hero banner 1200x630 via `gemini-3.1-flash-image-preview` + EMERGENT_LLM_KEY. Endpoint `POST /api/seo/hero-image/{type}/{id}` salva PNG in `/app/backend/uploads/seo/` e persiste `seo_hero_image_url` su entity. Servito via `GET /api/seo/uploads/{filename}`.
@@ -75,7 +90,7 @@
 - Editor SEO arricchito con bottone "Genera Hero Image" + preview immagine generata
 - Test verificati (iteration_10): Backend 15/15 PASS + Frontend 3/3 PASS
 
-**FASE 4 (P1) – Backlog**
+**FASE 5 (P1) – Backlog**
 - Google Search Console integration (slot già nel catalog)
 - Google PageSpeed Insights integration
 - Keyword Research & Competitor Analysis UI page (DataForSEO già OK, manca UI)

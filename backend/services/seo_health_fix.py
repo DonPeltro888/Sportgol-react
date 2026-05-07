@@ -58,15 +58,22 @@ async def fix_team(slug: str, mode: str = "balanced") -> Dict[str, Any]:
                 # Cerca alternativa
                 alt = await seo_ai_validator.find_alternative_logo(name)
                 if alt and alt != current_logo:
-                    update["logo_url"] = alt
+                    # Proxy/cache il logo localmente per evitare 403/CORS browser
+                    cached = await seo_ai_validator.download_and_cache_logo(alt, slug)
+                    final_url = cached or alt
+                    update["logo_url"] = final_url
+                    update["logo_url_remote"] = alt
                     update["logo_url_previous"] = current_logo
-                    actions.append(f"~logo: replaced (Gemini detected {logo_check.get('detected_team', 'wrong')}) → {alt[:80]}")
+                    actions.append(f"~logo: replaced (Gemini detected {logo_check.get('detected_team', 'wrong')}) → {final_url[:80]}")
         elif not current_logo:
             # Missing logo: trova nuovo
             alt = await seo_ai_validator.find_alternative_logo(name)
             if alt:
-                update["logo_url"] = alt
-                actions.append(f"+logo: {alt[:80]}")
+                cached = await seo_ai_validator.download_and_cache_logo(alt, slug)
+                final_url = cached or alt
+                update["logo_url"] = final_url
+                update["logo_url_remote"] = alt
+                actions.append(f"+logo: {final_url[:80]}")
 
     if update:
         update["health_fixed_at"] = _now_iso()

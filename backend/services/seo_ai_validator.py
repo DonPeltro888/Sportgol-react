@@ -7,16 +7,19 @@ import re
 import base64
 import logging
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Dict, Any, Optional
 import httpx
 from dotenv import load_dotenv
-from pathlib import Path
 
 from database import db
 from services.seo_keys import get_api_key
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 logger = logging.getLogger(__name__)
+
+LOGO_CACHE_DIR = Path("/app/backend/uploads/team_logos")
+LOGO_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 
 async def validate_team_via_perplexity(team_name: str, league_hint: str = "") -> Dict[str, Any]:
@@ -142,25 +145,133 @@ async def verify_logo_with_gemini(team_name: str, logo_url: str) -> Dict[str, An
     return {"match": "uncertain", "confidence": 0, "reason": "no parseable response"}
 
 
+def _normalize_wikimedia_url(url: str) -> str:
+    """
+    Forza tutti gli URL Wikimedia ad usare Special:FilePath (PNG renderizzato),
+    che ha un'image policy meno restrittiva degli upload.wikimedia.org diretti.
+    """
+    if not url:
+        return url
+    # wiki/File:NAME → Special:FilePath/NAME
+    m = re.match(r"https?://(?:[a-z]+\.)?(?:wikipedia|commons)\.(?:wikimedia\.)?org/wiki/File:(.+?)(?:\?.*)?$", url)
+    if m:
+        return f"https://commons.wikimedia.org/wiki/Special:FilePath/{m.group(1)}?width=400"
+    # upload.wikimedia.org/wikipedia/commons/X/YY/NAME.svg → Special:FilePath/NAME.svg?width=400
+    m = re.match(r"https?://upload\.wikimedia\.org/wikipedia/(?:commons|en|it|es)/(?:thumb/)?[a-f0-9]/[a-f0-9]{2}/([^/?]+?)(?:/\d+px-[^/?]+)?(?:\?.*)?$", url)
+    if m:
+        return f"https://commons.wikimedia.org/wiki/Special:FilePath/{m.group(1)}?width=400"
+    return url
+
+
+WIKI_USER_AGENT = "GoLeventsBot/1.0 (https://golevents.com; admin@golevents.com)"
+
+
+async def _is_valid_image_url(url: str) -> bool:
+    """Verifica che l'URL ritorni un'immagine valida."""
+    if not url or not url.startswith("http"):
+        return False
+    try:
+        async with httpx.AsyncClient(timeout=12, follow_redirects=True) as cx:
+            r = await cx.get(url, headers={"User-Agent": WIKI_USER_AGENT})
+        if r.status_code == 200 and len(r.content) > 1000:
+            ct = (r.headers.get("content-type") or "").lower()
+            if "image" in ct or "octet-stream" in ct:
+                return True
+    except Exception:
+        pass
+    return False
+
+
 async def find_alternative_logo(team_name: str) -> Optional[str]:
     """
-    Cerca un logo URL alternativo:
-    1. Perplexity validate → wikipedia_url + logo_url
-    2. TheSportsDB API search by name
+    Cerca un logo URL alternativo VALIDATO via Perplexity multi-candidate.
+    NB: TheSportsDB free API è bugged (ritorna sempre Arsenal), quindi NON viene usato.
+    Ritorna l'URL ORIGINALE validato (es. Wikimedia Special:FilePath).
+    Per servirlo nel browser, il chiamante deve fare proxy via /api/seo/logo-proxy.
     """
-    val = await validate_team_via_perplexity(team_name)
-    if val.get("logo_url"):
-        return val["logo_url"]
-    # TheSportsDB fallback
+    api_key = await get_api_key("perplexity")
+    if not api_key:
+        return None
+    prompt = (
+        f"Trova il logo ufficiale (badge/stemma) della squadra di calcio '{team_name}'. "
+        "Restituisci SOLO un JSON array di 4-6 URL CANDIDATI (preferibilmente Wikimedia Commons, "
+        "siti ufficiali del club, Wikipedia infobox image). I file devono essere PNG/SVG/JPG "
+        "diretti (non pagine HTML). Esempio formato: "
+        '["https://upload.wikimedia.org/wikipedia/commons/thumb/.../logo.svg/200px-logo.svg.png", '
+        '"https://www.acmilan.com/.../logo.png"]. '
+        "Se non sei sicuro al 100% di un URL, OMETTILO. Nessun markdown."
+    )
+    body = {
+        "model": "sonar",
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": 600,
+        "temperature": 0.1,
+    }
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    candidates: list[str] = []
     try:
-        async with httpx.AsyncClient(timeout=15) as cx:
-            r = await cx.get(f"https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t={team_name}")
-        if r.status_code == 200:
-            d = r.json()
-            for team in (d.get("teams") or []):
-                badge = team.get("strBadge") or team.get("strTeamBadge")
-                if badge and team.get("strSport", "").lower() == "soccer":
-                    return badge
+        async with httpx.AsyncClient(timeout=45) as cx:
+            r = await cx.post("https://api.perplexity.ai/chat/completions", headers=headers, json=body)
+        if r.status_code in (200, 201):
+            text = r.json()["choices"][0]["message"]["content"].strip()
+            if text.startswith("```"):
+                text = re.sub(r"^```\w*\n?", "", text)
+                text = re.sub(r"\n?```$", "", text).strip()
+            m = re.search(r"\[.*\]", text, re.DOTALL)
+            if m:
+                arr = json.loads(m.group(0))
+                if isinstance(arr, list):
+                    candidates = [u for u in arr if isinstance(u, str) and u.startswith("http")][:8]
+                    # Normalize Wikimedia URLs (wiki/File:X → Special:FilePath/X)
+                    candidates = [_normalize_wikimedia_url(u) for u in candidates]
     except Exception as e:
-        logger.warning(f"TheSportsDB lookup fail: {e}")
+        logger.warning(f"perplexity candidates err: {e}")
+
+    # Valida candidati uno per uno fino a trovare il primo che funziona
+    for url in candidates:
+        if await _is_valid_image_url(url):
+            logger.info(f"find_alternative_logo: {team_name} → {url}")
+            return url
+
+    # Fallback: chiedi a validate_team_via_perplexity (ha cache)
+    val = await validate_team_via_perplexity(team_name)
+    candidate = val.get("logo_url")
+    if candidate and await _is_valid_image_url(candidate):
+        return candidate
+
+    logger.warning(f"find_alternative_logo: NO valid logo for '{team_name}'")
     return None
+
+
+async def download_and_cache_logo(remote_url: str, slug: str) -> Optional[str]:
+    """
+    Scarica il logo da remote_url (con UA Wikimedia-compliant) e lo salva
+    in /app/backend/uploads/team_logos/{slug}.png. Ritorna URL pubblico
+    /api/seo/team-logo/{slug}.png da servire nel browser.
+    """
+    if not remote_url or not slug:
+        return None
+    try:
+        async with httpx.AsyncClient(timeout=20, follow_redirects=True) as cx:
+            r = await cx.get(remote_url, headers={"User-Agent": WIKI_USER_AGENT})
+        if r.status_code != 200 or len(r.content) < 1000:
+            return None
+        ct = (r.headers.get("content-type") or "").lower()
+        if "image" not in ct and "octet-stream" not in ct:
+            return None
+        # Determina extension dal content-type
+        ext = "png"
+        if "svg" in ct:
+            ext = "svg"
+        elif "jpeg" in ct or "jpg" in ct:
+            ext = "jpg"
+        elif "webp" in ct:
+            ext = "webp"
+        filename = f"{slug}.{ext}"
+        out_path = LOGO_CACHE_DIR / filename
+        out_path.write_bytes(r.content)
+        logger.info(f"Logo cached: {filename} ({len(r.content)} bytes)")
+        return f"/api/seo/team-logo/{filename}"
+    except Exception as e:
+        logger.warning(f"download_and_cache_logo error for {slug}: {e}")
+        return None

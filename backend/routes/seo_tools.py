@@ -23,6 +23,8 @@ router = APIRouter(prefix="/api/seo", tags=["seo-tools"])
 
 SEO_UPLOAD_DIR = Path("/app/backend/uploads/seo")
 SEO_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+TEAM_LOGO_DIR = Path("/app/backend/uploads/team_logos")
+TEAM_LOGO_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ─── Static File Serving for Hero Images ───────────────────────────────────
@@ -36,6 +38,25 @@ async def serve_seo_upload(filename: str):
     if not file_path.resolve().is_relative_to(SEO_UPLOAD_DIR.resolve()):
         raise HTTPException(403, "Access denied")
     return FileResponse(file_path, media_type="image/png")
+
+
+@router.get("/team-logo/{filename}")
+async def serve_team_logo(filename: str):
+    """Serve cached team logos (proxiati da Wikimedia per evitare 403)."""
+    file_path = TEAM_LOGO_DIR / filename
+    if not file_path.exists():
+        raise HTTPException(404, "Logo not found")
+    if not file_path.resolve().is_relative_to(TEAM_LOGO_DIR.resolve()):
+        raise HTTPException(403, "Access denied")
+    ext = (file_path.suffix or ".png").lstrip(".")
+    media_type = {
+        "svg": "image/svg+xml",
+        "jpg": "image/jpeg",
+        "jpeg": "image/jpeg",
+        "webp": "image/webp",
+        "png": "image/png",
+    }.get(ext, "image/png")
+    return FileResponse(file_path, media_type=media_type)
 
 
 # ─── Hero Image (Nano Banana 2) ────────────────────────────────────────────
