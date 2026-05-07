@@ -64,10 +64,16 @@
 - Lock per field rispettati al publish
 - Frontend `/admin/seo/pages` + `/admin/seo/targets/{type}/{id}` editor multi-lingua
 
-**FASE 3 (Backlog P0) – TODO**
-- SEO Audit engine standalone (scoring 0-100 con UI dedicata, già implementato in services/seo_validator.py — manca UI page)
-- Export Module (JSON payload SEO data per backup/migrazione)
-- Nano Banana 2 (Gemini Image Generation) per Hero banners di Leghe/Team
+**FASE 3 (Tools Avanzati) – ✅ DONE 2026-05-07**
+- **Export Module** (`routes/seo_tools.py` `GET /api/seo/export`): formati JSON/CSV/NDJSON con filtro `type` + `only_published`, Content-Disposition per download. UI in `/admin/seo/bulk`.
+- **Nano Banana 2** (`services/seo_image_gen.py`): generazione hero banner 1200x630 via `gemini-3.1-flash-image-preview` + EMERGENT_LLM_KEY. Endpoint `POST /api/seo/hero-image/{type}/{id}` salva PNG in `/app/backend/uploads/seo/` e persiste `seo_hero_image_url` su entity. Servito via `GET /api/seo/uploads/{filename}`.
+- **Bulk Runner UI** (`/admin/seo/bulk`):
+  - Form Bulk Generate (lega + tipo team/event + limit + only_pending)
+  - Endpoint `POST /api/seo/targets/bulk-generate-league` filtra entity per league_slug
+  - Tabella Jobs con auto-refresh 4s, status badge, progress bar, score, link diretto al target editor
+  - 3 bottoni Export (JSON/CSV/NDJSON) integrati
+- Editor SEO arricchito con bottone "Genera Hero Image" + preview immagine generata
+- Test verificati (iteration_10): Backend 15/15 PASS + Frontend 3/3 PASS
 
 **FASE 4 (P1) – Backlog**
 - Google Search Console integration (slot già nel catalog)
