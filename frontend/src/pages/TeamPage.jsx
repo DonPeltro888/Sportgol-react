@@ -80,10 +80,22 @@ const TeamPage = ({ urlType }) => {
         word.charAt(0).toUpperCase() + word.slice(1)
       ).join(' ');
       setTeamName(prev => prev || formattedName);
-      
-      // Search events with team name
-      const response = await eventsAPI.getAll({ search: formattedName });
-      setEvents(response.events || []);
+
+      // EXACT match per evitare confusione (es. Inter ≠ Inter Miami)
+      try {
+        const r = await fetch(`${API_URL}/api/events/by-team-slug/${actualSlug}?limit=50`);
+        if (r.ok) {
+          const d = await r.json();
+          setEvents(d.events || []);
+        } else {
+          // Fallback: search per nome (legacy)
+          const response = await eventsAPI.getAll({ search: formattedName });
+          setEvents(response.events || []);
+        }
+      } catch (e) {
+        const response = await eventsAPI.getAll({ search: formattedName });
+        setEvents(response.events || []);
+      }
     } catch (error) {
       console.error('Error fetching team events:', error);
       toast.error('Failed to load team events');
@@ -146,7 +158,7 @@ const TeamPage = ({ urlType }) => {
             )}
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-white leading-tight">
-                {customH1 || (lang === 'en' ? `${teamName} ${t('seoTickets')}` : `${t('seoTickets')} ${teamName}`)}
+                {lang === 'en' ? `${teamName} ${t('seoTickets')}` : `${t('seoTickets')} ${teamName}`}
               </h1>
               <p className="text-gray-300 text-xs md:text-sm mt-1">{t('seoAllMatches')} - {t('seoHomeAway')}</p>
             </div>

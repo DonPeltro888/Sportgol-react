@@ -4,7 +4,7 @@ import { useAdminAuth } from '../../../contexts/AdminAuthContext';
 import { Link } from 'react-router-dom';
 import {
   Sparkles, FileText, Settings2, BarChart3, ShieldCheck, History, Download,
-  KeyRound, Wand2, Bot, Languages, Search, Image as ImageIcon, AlertCircle, Loader2
+  KeyRound, Wand2, Bot, Languages, Search, Image as ImageIcon, AlertCircle, Loader2, FileCode
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -194,6 +194,16 @@ const SeoDashboard = () => {
               <h3 className="text-white font-semibold">Bulk Runner & Export</h3>
             </div>
             <p className="text-xs text-gray-400">Genera SEO in batch per intere leghe + export JSON/CSV</p>
+          </Link>
+
+          <Link to="/admin/seo/health" data-testid="seo-quick-health" className="group rounded-xl border border-gray-700 bg-gray-800/40 p-5 hover:border-emerald-500 hover:bg-gray-800/70 transition-all">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-lg bg-emerald-600/20 flex items-center justify-center">
+                <FileCode className="w-5 h-5 text-emerald-400" />
+              </div>
+              <h3 className="text-white font-semibold">Data Health Check</h3>
+            </div>
+            <p className="text-xs text-gray-400">Diagnosi & auto-fix con AI: dati mancanti, loghi sbagliati, duplicati</p>
           </Link>
         </div>
 

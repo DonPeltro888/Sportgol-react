@@ -160,6 +160,76 @@ async def get_event_by_slug(slug: str):
         logger.error(f"Error fetching event by slug: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@router.get("/by-team-slug/{team_slug}", response_model=dict)
+async def get_events_by_team_slug(team_slug: str, limit: int = 50):
+    """
+    Get events of a SPECIFIC team using EXACT name+league match (no regex).
+    Avoids name confusion (es. 'Inter' vs 'Inter Miami').
+    Match: event.home_team == team.name OR event.away_team == team.name,
+    AND event.league_slug == team.league_slug (if available on team).
+    """
+    try:
+        team = await db.teams.find_one({"slug": team_slug}, {"_id": 0})
+        if not team:
+            raise HTTPException(status_code=404, detail="Team not found")
+
+        team_name = team.get("name", "")
+        team_league_slug = team.get("league_slug", "")
+
+        # Resolve league name (events store league name uppercase/titlecase, NOT slug)
+        league_name = ""
+        if team_league_slug:
+            league_doc = await db.leagues.find_one({"slug": team_league_slug}, {"_id": 0, "name": 1})
+            if league_doc:
+                league_name = league_doc.get("name", "")
+
+        # Exact match on home_team OR away_team (CASE-INSENSITIVE for safety)
+        import re as _re
+        team_re = f"^{_re.escape(team_name)}$"
+        query: dict = {"$or": [
+            {"home_team": {"$regex": team_re, "$options": "i"}},
+            {"away_team": {"$regex": team_re, "$options": "i"}},
+        ]}
+        # If team belongs to a league, scope events to same league name (anti name-collision)
+        if league_name:
+            league_re = f"^{_re.escape(league_name)}$"
+            query = {"$and": [query, {"league": {"$regex": league_re, "$options": "i"}}]}
+
+        events = await db.events.find(query).sort("sort_date", 1).limit(limit).to_list(length=limit)
+
+        # Enrich with team logos (batch)
+        team_names = set()
+        for ev in events:
+            if ev.get("home_team"): team_names.add(ev["home_team"])
+            if ev.get("away_team"): team_names.add(ev["away_team"])
+        if team_names:
+            teams_cursor = db.teams.find(
+                {"name": {"$in": list(team_names)}, "logo_url": {"$exists": True, "$ne": ""}},
+                {"_id": 0, "name": 1, "logo_url": 1}
+            )
+            team_logo_map = {t["name"]: t["logo_url"] async for t in teams_cursor}
+        else:
+            team_logo_map = {}
+
+        for event in events:
+            event["_id"] = str(event["_id"])
+            event["id"] = str(event["_id"])
+            event["home_team_logo"] = team_logo_map.get(event.get("home_team"))
+            event["away_team_logo"] = team_logo_map.get(event.get("away_team"))
+
+        return {
+            "team": {"slug": team_slug, "name": team_name, "league_slug": team_league_slug},
+            "events": events,
+            "total": len(events),
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching events by team slug: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/{event_id}", response_model=dict)
 async def get_event(event_id: str):
     """Get single event by ID"""

@@ -112,6 +112,7 @@ import SeoApiTools from './pages/admin/seo/SeoApiTools';
 import SeoPagesList from './pages/admin/seo/SeoPagesList';
 import SeoTargetEditor from './pages/admin/seo/SeoTargetEditor';
 import SeoBulkRunner from './pages/admin/seo/SeoBulkRunner';
+import SeoHealthDashboard from './pages/admin/seo/SeoHealthDashboard';
 import NotFound from './pages/NotFound';
 import WhatsAppButton from './components/WhatsAppButton';
 
@@ -198,6 +199,9 @@ function App() {
             } />
             <Route path="/admin/seo/bulk" element={
               <ProtectedRoute><SeoBulkRunner /></ProtectedRoute>
+            } />
+            <Route path="/admin/seo/health" element={
+              <ProtectedRoute><SeoHealthDashboard /></ProtectedRoute>
             } />
             <Route path="/admin/translations" element={
               <ProtectedRoute><AdminTranslations /></ProtectedRoute>

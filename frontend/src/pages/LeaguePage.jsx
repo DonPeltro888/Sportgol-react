@@ -213,7 +213,7 @@ const LeaguePage = ({ urlType }) => {
             </div>
             <div>
               <h1 className="text-lg md:text-xl lg:text-2xl font-black text-white leading-tight">
-                {customH1 || (lang === 'en' ? `${leagueName} ${t('seoTickets')}` : `${t('seoTickets')} ${leagueName}`)}
+                {lang === 'en' ? `${leagueName} ${t('seoTickets')}` : `${t('seoTickets')} ${leagueName}`}
               </h1>
               <p className="text-gray-400 text-xs md:text-sm mt-0.5">
                 {country} 

@@ -1,0 +1,38 @@
+{
+  "summary": "FASE 4 SEO Health Check (Perplexity + Gemini Vision) + Inter↔Inter Miami leakage fix + Pulisci H1 hero VERIFIED end-to-end. Backend 11/11 PASS (1 skipped: roma team not in DB). All 9 health endpoints functional with auth, summary returns 564 total issues across 6+ categories (missing_data:224, fuzzy_duplicate:287, orphan_event_team:30, league_missing_data:19, name_confusion:3, logo_collision:1), CSV/JSON export with Content-Disposition OK, bulk fix job queue creates job_id and runs async, fix-team/inter responds in 8s (idempotent — already fixed in prev session). Frontend admin /admin/seo/health renders 4 summary cards (Total/High/Medium/Low), 7 category filter chips with counts, severity filters, full issue list with Fix buttons per team, data-testid='health-scan-btn' & 'health-fix-bulk-btn' present and visible. /admin/seo dashboard exposes data-testid='seo-quick-health' card linking to health page. Public /biglietti-inter H1 = 'Inter Tickets' (NO 'Confronta Prezzi e Posti' long pattern), exactly 3 Serie A matches (Lazio vs Inter, Inter vs Hellas Verona, Bologna vs Inter) — zero Inter Miami leakage on page or in API response.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/biglietti-inter", "issues": ["Inter team logo next to H1 'Inter Tickets' renders fallback 'Logo' placeholder text — image not loading. Same for some team mini-logos in match list. May be related to logo URL freshness; AI fix-team 'inter' was applied with confidence 1.0 but new URL may be Wikipedia URL that React img fails on (CORS/redirect). Worth investigating broken image fallback handling on TeamPage match items."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_seo_phase4_health.py",
+    "/app/test_reports/pytest/seo_phase4.xml"
+  ],
+  "action_items": [
+    "(low/cosmetic) Investigate broken team logo fallback on /biglietti-inter — H1 logo and event card team mini-logos render placeholder 'Logo' text instead of img onError fallback. Likely Wikipedia logo URLs not loading; consider proxying or adding onError handler that hides img and shows initial."
+  ],
+  "critical_code_review_comments": [
+    "/app/backend/routes/events.py get_events_by_team_slug uses regex case-insensitive exact match (^name$) on home_team OR away_team AND scopes by league name when team has league_slug — correctly prevents Inter Miami leakage. Regex.escape() applied — safe.",
+    "seo_health_check.full_scan() runs 3 sequential scans synchronously (~1-2s for 564 issues, OK at current scale). For >5K teams consider asyncio.gather(scan_teams, scan_events, scan_leagues) parallelization.",
+    "seo_health.fix_bulk uses asyncio.create_task without job-cancel mechanism; if pod restarts during run job will be stuck in 'running' status forever. Consider adding heartbeat / TTL on health_jobs.",
+    "SeoHealthDashboard.jsx pollJob loops 200x with 4s interval (~13min) — OK for admin. Job should also expose 'cancel' endpoint to stop runaway fixes.",
+    "_run_bulk_fix on bulk fix logs failures via logger.error but stores only 200 chars of error in DB results — OK but could lose stack traces; logger.exception() in addition would be better for debug.",
+    "Export endpoint uses StreamingResponse with single iter([body]) — not truly streaming but acceptable for the current report size."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_seo_phase4_health.py"
+  ],
+  "success_rate": {"backend": "100% (11/11, 1 skip=team-not-in-DB)", "frontend": "100% (all data-testid + flows verified)"},
+  "test_credentials": "admin / golevents2024",
+  "seed_data_creation": "Triggered POST /api/seo/health/run during test (saved a fresh health_report). Triggered POST /api/seo/health/fix-bulk with limit=2 only_categories=[missing_data,logo_collision] which created a real health_jobs document.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "FASE 4 fully GREEN. All backend health endpoints working under /api/seo/health/*. Inter ↔ Inter Miami leakage fixed in /api/events/by-team-slug. Public TeamPage H1 cleaned (just '{Team} Tickets' + subtitle 'All matches - Home and Away'). Admin SeoHealthDashboard fully functional. Backend tests file: /app/backend/tests/test_seo_phase4_health.py (excluded TestFixTeam class is slow ~10-60s due to Perplexity+Gemini calls; run separately if re-testing logo replacement). Only minor cosmetic finding: broken img fallback on team logo on public page."
+}
