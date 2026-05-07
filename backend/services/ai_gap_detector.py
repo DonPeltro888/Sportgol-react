@@ -216,9 +216,12 @@ async def detect_and_fill_gaps_one_league(
     today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     end_str = (datetime.now(timezone.utc) + timedelta(days=days_window)).strftime("%Y-%m-%d")
 
-    # 1. Snapshot DB events nel range
+    # 1. Snapshot DB events nel range (case-insensitive su league per gestire "Coppa Italia" vs "COPPA ITALIA")
+    import re as _re
+    league_re = f"^{_re.escape(league_name)}$"
     db_matches = await db.events.find(
-        {"league": league_name, "sort_date": {"$gte": today_str, "$lte": f"{end_str}T23:59:59"}},
+        {"league": {"$regex": league_re, "$options": "i"},
+         "sort_date": {"$gte": today_str, "$lte": f"{end_str}T23:59:59"}},
         {"_id": 0, "home_team": 1, "away_team": 1, "sort_date": 1},
     ).to_list(500)
 
@@ -255,7 +258,11 @@ async def detect_and_fill_gaps_one_league(
 
 
 async def detect_and_fill_gaps_all(days_window: int = 30, auto_insert: bool = True) -> Dict:
-    """Esegue il check su tutte le leghe in LEAGUES_TO_VERIFY."""
+    """Esegue il check su TUTTE le leghe attive presenti nel DB (non una lista hardcoded).
+    Questo è il flusso "DB-driven AI verification": legge le leghe dal DB
+    (db.leagues active=True) e per ognuna chiede a Perplexity di verificare
+    quali match mancano rispetto alle fonti ufficiali.
+    """
     stats = {
         "source": "ai_gap_detector",
         "leagues_checked": 0,
@@ -266,9 +273,37 @@ async def detect_and_fill_gaps_all(days_window: int = 30, auto_insert: bool = Tr
         "started_at": datetime.now(timezone.utc).isoformat(),
     }
 
-    for db_slug, league_name, country, league_type in LEAGUES_TO_VERIFY:
+    # 1. Leggi TUTTE le leghe attive dal DB (DB-driven)
+    leagues_cursor = db.leagues.find(
+        {"active": True},
+        {"_id": 0, "slug": 1, "name": 1, "country": 1, "type": 1},
+    ).sort("order", 1)
+    leagues_list = await leagues_cursor.to_list(length=200)
+
+    if not leagues_list:
+        # Fallback: usa la lista hardcoded
+        leagues_list = [
+            {"slug": s, "name": n, "country": c, "type": t}
+            for s, n, c, t in LEAGUES_TO_VERIFY
+        ]
+
+    logger.info(f"AI Gap Detector: starting DB-driven check on {len(leagues_list)} active leagues")
+
+    for lg in leagues_list:
+        db_slug = lg.get("slug")
+        league_name = lg.get("name") or ""
+        # Normalizza il nome (DB ha sia "Serie A" che "SERIE A")
+        league_name_clean = league_name.title() if league_name.isupper() else league_name
+        country = lg.get("country") or ""
+        league_type = lg.get("type") or "league"
+
+        if not db_slug or not league_name_clean:
+            continue
+
         try:
-            res = await detect_and_fill_gaps_one_league(db_slug, league_name, country, league_type, days_window, auto_insert)
+            res = await detect_and_fill_gaps_one_league(
+                db_slug, league_name_clean, country, league_type, days_window, auto_insert
+            )
             stats["leagues_checked"] += 1
             stats["total_missing"] += res["missing_count"]
             stats["total_inserted"] += res["inserted"]
@@ -276,11 +311,11 @@ async def detect_and_fill_gaps_all(days_window: int = 30, auto_insert: bool = Tr
                 stats["leagues_with_gaps"] += 1
             stats["per_league"].append(res)
             logger.info(
-                f"AI Gap Detector [{league_name}]: db={res['db_count']}, ai={res['ai_count']}, "
+                f"AI Gap Detector [{league_name_clean}]: db={res['db_count']}, ai={res['ai_count']}, "
                 f"missing={res['missing_count']}, inserted={res['inserted']}"
             )
         except Exception as e:
-            logger.exception(f"AI Gap Detector errore lega {league_name}: {e}")
+            logger.exception(f"AI Gap Detector errore lega {league_name_clean}: {e}")
 
     stats["finished_at"] = datetime.now(timezone.utc).isoformat()
     await db.sync_logs.insert_one({**stats, "log_at": datetime.now(timezone.utc)})

@@ -86,7 +86,10 @@ async def get_events(
                 query["$or"] = search_query
         
         if league:
-            query["league"] = league
+            # Case-insensitive exact match per gestire fonti miste
+            # ("COPPA ITALIA" da matchesio vs "Coppa Italia" da ESPN/APIfootball)
+            import re as _re
+            query["league"] = {"$regex": f"^{_re.escape(league)}$", "$options": "i"}
         
         if featured is not None:
             query["featured"] = featured
