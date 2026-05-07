@@ -1,0 +1,40 @@
+{
+  "summary": "FASE 2 SEO Dual-Engine pipeline tested end-to-end. Backend 14/14 tests PASS (auth, async job queue, generate, polling, publish, bulk-generate, schema @graph >=5 nodes incl. AggregateRating 4.8/1247 + speakable WebPage + FAQPage + BreadcrumbList + SportsTeam, SportsEvent eventStatus + AggregateOffer EUR + PostalAddress, DeepL real translations IT!=EN!=ES). Frontend admin SEO editor /admin/seo/targets/team/inter renders all required blocks (Score=89 badge, Internal Links 5, Image Alt Texts 5, FAQ People Also Ask 3, Legal Disclosure block, Genera SEO/Pubblica/Elimina buttons, IT/EN/ES tabs, Live/Draft toggle). Public team page /biglietti-inter (EN locale) renders translated title + H1 + main_content but DOES NOT render FAQ section, 'Vedi anche' internal links list or legal disclosure footer; published seo_meta_schema_jsonld @graph is also NOT injected into <head> (only legacy SportsTeam/BreadcrumbList/Organization/WebSite/SportsActivityLocation present, no FAQPage/HowTo/speakable WebPage/AggregateRating).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "TeamPage public (/biglietti-inter)", "issue": "FAQ accordion, internal links list ('Vedi anche'), and legal disclosure footer from seo_meta are NOT rendered on the public team page. SeoContentBlock seems missing or mis-wired for team pages.", "selector": "body", "priority": "HIGH"},
+      {"component": "Public team page <head> JSON-LD", "issue": "Published seo_meta_schema_jsonld (@graph with FAQPage, HowTo, WebPage[speakable], embedded AggregateRating) is not injected. Only 5 pre-existing single-type scripts present: Organization, WebSite, SportsActivityLocation, SportsTeam, BreadcrumbList. The 7 GAP CRITICI added in FASE 2 are generated correctly in DB but not surfaced to crawlers.", "selector": "script[type='application/ld+json']", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_seo_pipeline_phase2.py",
+    "/app/test_reports/pytest/seo_phase2.xml"
+  ],
+  "action_items": [
+    "Wire SeoContentBlock (FAQ + Internal Links + Legal Disclosure) into the public team page (/biglietti-:slug) so seo_meta content is visible to users and crawlers.",
+    "Inject seo_meta_schema_jsonld @graph into the <head> of public team / league / event pages (currently only legacy single-node JSON-LD scripts are emitted).",
+    "Mirror the same fix on /entradas-:slug (ES) and /:slug-tickets (EN) routes."
+  ],
+  "critical_code_review_comments": [
+    "Backend pipeline is solid: async job state machine works, DeepL translates correctly (no IT==EN regression), Gemini schema has all 7 GAP CRITICI nodes (AggregateRating 4.8/1247, HowTo, GeoCoordinates available, speakable WebPage, sameAs, eventStatus, Reseller disclosure).",
+    "Publish endpoint correctly writes 60+ direct fields including faq_1_q/a, faq_2_q/a, faq_3_q/a, seo_internal_links, seo_image_alt_texts, seo_legal_disclosure (all multi-language).",
+    "Bulk-generate works and queues job_ids[] correctly.",
+    "Public-page integration is the only gap: FASE 2 generates+publishes data correctly, but the React public pages still use legacy schema/copy and do not consume the new seo_meta_* fields."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_seo_pipeline_phase2.py (new)"
+  ],
+  "success_rate": {"backend": "100% (14/14)", "frontend": "75% (admin OK, public partial)"},
+  "test_credentials": "admin / golevents2024",
+  "seed_data_creation": "Triggered 2 new generate jobs on team/inter (full pipeline, ~60s each) and 1 new bulk-generate job. All completed succeeded. No new entities created.",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend FASE 2 is fully verified. Re-test focus is the FRONTEND public-page rendering of seo_meta and seo_meta_schema_jsonld after E1 wires SeoContentBlock and the JSON-LD injector into TeamPage / LeaguePage / EventPage. Use existing entities team/inter, league/serie-a, event/seattle-sounders-vs-los-angeles-fc which already have published drafts. Test routes: /biglietti-inter (IT), /inter-tickets (EN), /entradas-inter (ES). Validate that <head> contains a JSON-LD script with @graph including FAQPage AND HowTo AND WebPage with speakable AND aggregateRating ratingValue=4.8 ratingCount=1247.",
+  "rca_of_the_issue": "Pipeline (backend) generates and persists seo_draft + seo_meta + seo_meta_schema_jsonld correctly on entity. Publish endpoint writes seo_meta_schema_jsonld into entity. However, the public TeamPage React component does not yet consume seo_meta_schema_jsonld nor render SeoContentBlock (FAQ/InternalLinks/LegalDisclosure), so the FASE 2 enrichments are invisible to end users and search engines."
+}

@@ -1,14 +1,109 @@
 """
-Perplexity Sonar — live research per FAQ "people also ask" + news match.
+Perplexity Sonar — live research per:
+- FAQ "People Also Ask"
+- Geo coordinates stadium (lat/lon + city + postal_code)
+- sameAs Wikipedia/Wikidata URL
 """
 import json
 import logging
 import re
 import httpx
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from services.seo_keys import get_api_key
 
 logger = logging.getLogger(__name__)
+
+
+async def _call_sonar(prompt: str, max_tokens: int = 600) -> str:
+    api_key = await get_api_key("perplexity")
+    if not api_key:
+        return ""
+    body = {
+        "model": "sonar",
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": max_tokens,
+        "temperature": 0.2,
+    }
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    try:
+        async with httpx.AsyncClient(timeout=45) as cx:
+            r = await cx.post("https://api.perplexity.ai/chat/completions", headers=headers, json=body)
+        if r.status_code in (200, 201):
+            return r.json()["choices"][0]["message"]["content"]
+        logger.warning(f"Perplexity HTTP {r.status_code}: {r.text[:200]}")
+    except Exception as e:
+        logger.error(f"Perplexity error: {e}")
+    return ""
+
+
+async def lookup_geo(stadium: str) -> Optional[Dict[str, Any]]:
+    """Restituisce {latitude, longitude, city, country, postal_code} per uno stadio."""
+    if not stadium:
+        return None
+    prompt = (
+        f"Trova le coordinate geografiche dello stadio '{stadium}'. "
+        "Restituisci SOLO un JSON valido senza markdown nel formato esatto: "
+        '{"latitude": 45.4781, "longitude": 9.1240, "city": "Milano", '
+        '"country": "IT", "postal_code": "20151"}. '
+        "Se non sei sicuro al 100% delle coordinate, restituisci {}."
+    )
+    text = await _call_sonar(prompt, max_tokens=300)
+    if not text:
+        return None
+    text = _strip_fences(text)
+    m = re.search(r"\{.*\}", text, re.DOTALL)
+    if not m:
+        return None
+    try:
+        d = json.loads(m.group(0))
+        if isinstance(d, dict) and d.get("latitude") and d.get("longitude"):
+            return {
+                "latitude": float(d["latitude"]),
+                "longitude": float(d["longitude"]),
+                "city": d.get("city"),
+                "country": d.get("country") or "IT",
+                "postal_code": d.get("postal_code"),
+            }
+    except Exception as e:
+        logger.error(f"lookup_geo parse error: {e}")
+    return None
+
+
+async def lookup_same_as(entity_name: str, kind: str = "team") -> List[str]:
+    """Restituisce URL Wikipedia/Wikidata/sito ufficiale per l'entità."""
+    if not entity_name:
+        return []
+    prompt = (
+        f"Per la {'squadra di calcio' if kind=='team' else 'lega/competizione di calcio'} "
+        f"'{entity_name}' restituisci SOLO un JSON array con gli URL ufficiali "
+        "(Wikipedia italiano + Wikidata + sito ufficiale + Twitter ufficiale). "
+        'Esempio: ["https://it.wikipedia.org/wiki/...", "https://www.wikidata.org/wiki/...", '
+        '"https://www.acmilan.com", "https://twitter.com/acmilan"]. '
+        "Se non sei certo di un URL, OMETTILO. Niente markdown."
+    )
+    text = await _call_sonar(prompt, max_tokens=400)
+    if not text:
+        return []
+    text = _strip_fences(text)
+    m = re.search(r"\[.*\]", text, re.DOTALL)
+    if not m:
+        return []
+    try:
+        arr = json.loads(m.group(0))
+        if isinstance(arr, list):
+            urls = [u for u in arr if isinstance(u, str) and u.startswith("http")]
+            return urls[:5]
+    except Exception as e:
+        logger.error(f"lookup_same_as parse error: {e}")
+    return []
+
+
+def _strip_fences(text: str) -> str:
+    text = (text or "").strip()
+    if text.startswith("```"):
+        text = re.sub(r"^```\w*\n?", "", text)
+        text = re.sub(r"\n?```$", "", text)
+    return text.strip()
 
 
 async def fetch_paa_faq(target_type: str, ctx: Dict[str, Any]) -> List[Dict[str, str]]:

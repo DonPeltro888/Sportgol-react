@@ -3,7 +3,7 @@ DeepL — traduzione professionale IT→EN/ES con glossario tecnico.
 Free tier: 500k char/mese (key suffisso :fx → endpoint api-free.deepl.com).
 """
 import logging
-from typing import Dict, List
+from typing import Dict, List, Any
 import httpx
 from services.seo_keys import get_api_key
 
@@ -80,12 +80,13 @@ async def translate_batch(texts: List[str], target: str) -> List[str]:
 
     base = "https://api-free.deepl.com" if api_key.endswith(":fx") else "https://api.deepl.com"
     headers = {"Authorization": f"DeepL-Auth-Key {api_key}"}
-    # DeepL accetta multiple "text" form fields
-    form: List[tuple] = [("text", t or " ") for t in texts] + [
-        ("source_lang", "IT"),
-        ("target_lang", target.upper()),
-        ("tag_handling", "html"),
-    ]
+    # httpx async requires dict (not list of tuples) for form data
+    form: Dict[str, Any] = {
+        "text": [t or " " for t in texts],
+        "source_lang": "IT",
+        "target_lang": target.upper(),
+        "tag_handling": "html",
+    }
     try:
         async with httpx.AsyncClient(timeout=60) as cx:
             r = await cx.post(f"{base}/v2/translate", headers=headers, data=form)

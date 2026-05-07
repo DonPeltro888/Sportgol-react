@@ -15,9 +15,10 @@ const FIELDS = [
   { key: 'meta_description', label: 'Meta Description', max: 160 },
   { key: 'h1', label: 'H1' },
   { key: 'intro_text', label: 'Intro', textarea: true },
-  { key: 'cta_text', label: 'CTA' },
-  { key: 'open_graph_title', label: 'OG Title' },
-  { key: 'open_graph_description', label: 'OG Description', textarea: true },
+  { key: 'main_content', label: 'Main Content (400-600 parole)', textarea: true },
+  { key: 'cta_text', label: 'CTA', max: 80 },
+  { key: 'open_graph_title', label: 'OG Title', max: 70 },
+  { key: 'open_graph_description', label: 'OG Description', textarea: true, max: 200 },
 ];
 
 const FieldRow = ({ lang, field, value, locked, onChange, onLock }) => {
@@ -86,6 +87,7 @@ const SeoTargetEditor = () => {
   const [tab, setTab] = useState('it');
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [jobStatus, setJobStatus] = useState(null); // { id, status, step, progress, error }
   const [publishing, setPublishing] = useState(false);
   const [view, setView] = useState('meta'); // 'meta' = pubblicato, 'draft' = generato
 
@@ -104,16 +106,46 @@ const SeoTargetEditor = () => {
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [type, id]);
 
+  // Poll job status until done
+  const pollJob = async (jobId) => {
+    const maxAttempts = 60; // 60 * 3s = 180s timeout
+    for (let i = 0; i < maxAttempts; i++) {
+      await new Promise(r => setTimeout(r, 3000));
+      try {
+        const r = await authFetch(`${API_URL}/api/seo/jobs/${jobId}`);
+        if (!r.ok) continue;
+        const d = await r.json();
+        setJobStatus({ id: jobId, ...d });
+        if (d.status === 'succeeded') {
+          toast.success(`Pipeline completata! SEO Score: ${d.seo_score}/100`);
+          await load();
+          setView('draft');
+          return;
+        }
+        if (d.status === 'failed') {
+          toast.error(`Pipeline fallita: ${d.error || 'errore sconosciuto'}`);
+          return;
+        }
+      } catch (e) {
+        // continue polling
+      }
+    }
+    toast.warning('Pipeline ancora in esecuzione (timeout polling). Ricarica per vedere lo stato.');
+  };
+
   const generate = async () => {
     setGenerating(true);
+    setJobStatus(null);
     try {
       const r = await authFetch(`${API_URL}/api/seo/targets/${type}/${id}/generate`, { method: 'POST' });
       const d = await r.json();
-      if (r.ok) {
-        toast.success(d.note || 'Draft generato');
-        setView('draft');
-        load();
-      } else toast.error(d.detail || 'Errore generazione');
+      if (r.ok && d.job_id) {
+        toast.info(`Pipeline AI avviata (job ${d.job_id.slice(0, 8)})...`);
+        setJobStatus({ id: d.job_id, status: 'queued', step: 'queued', progress: 0 });
+        await pollJob(d.job_id);
+      } else {
+        toast.error(d.detail || 'Errore generazione');
+      }
     } catch (e) {
       toast.error('Errore di rete');
     } finally {
@@ -249,14 +281,44 @@ const SeoTargetEditor = () => {
           </div>
         </div>
 
-        {/* Notice MOCK */}
-        <div className="mb-4 rounded-lg border border-amber-700/40 bg-amber-900/10 p-3 text-xs text-amber-200 flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-          <div>
-            <strong>P1 – Pipeline mock attiva.</strong> Il bottone "Genera SEO" produce un draft realistico ma non chiama ancora i provider.
-            FASE 2 collegherà Claude (copy IT), Gemini (schema), Perplexity (FAQ PAA), DataForSEO (keywords), DeepL (EN+ES). Tutte le 4 chiavi sono già live.
+        {/* Pipeline progress */}
+        {jobStatus && jobStatus.status !== 'succeeded' && jobStatus.status !== 'failed' && (
+          <div className="mb-4 rounded-lg border border-blue-700/40 bg-blue-900/10 p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-blue-200 inline-flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Pipeline AI in esecuzione: <code className="text-blue-300">{jobStatus.step}</code>
+              </span>
+              <span className="text-xs text-blue-300 font-mono">{jobStatus.progress || 0}%</span>
+            </div>
+            <div className="w-full h-2 bg-gray-800 rounded overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500"
+                style={{ width: `${jobStatus.progress || 0}%` }}
+              />
+            </div>
+            <div className="text-[11px] text-gray-400 mt-1.5">
+              Pipeline: DataForSEO → Claude → Perplexity → DeepL → Gemini → Validator
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Score badge */}
+        {data.seo_score !== undefined && data.seo_score !== null && (
+          <div className="mb-4 rounded-lg border border-emerald-700/40 bg-emerald-900/10 p-3 flex items-center gap-3">
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
+              data.seo_score >= 80 ? 'bg-emerald-600' : data.seo_score >= 60 ? 'bg-amber-600' : 'bg-red-600'
+            } text-white`}>
+              {data.seo_score}
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-white">SEO Score (media 3 lingue)</div>
+              <div className="text-xs text-gray-400">
+                Calcolato da Validator: max-length, keyword presence, internal links, FAQ, alt texts.
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* View toggle (Draft vs Published) */}
         <div className="flex gap-2 mb-4">
@@ -309,6 +371,78 @@ const SeoTargetEditor = () => {
             );
           })}
         </div>
+
+        {/* Internal Links */}
+        {((showing[tab] || {}).internal_links || []).length > 0 && (
+          <details open className="mt-4 rounded-lg border border-purple-700/40 bg-purple-900/10 p-3">
+            <summary className="cursor-pointer text-xs font-semibold text-purple-200 inline-flex items-center gap-2">
+              🔗 Internal Links ({(showing[tab].internal_links || []).length})
+            </summary>
+            <ul className="mt-2 space-y-1 text-xs">
+              {(showing[tab].internal_links || []).map((l, i) => (
+                <li key={i} className="text-gray-300">
+                  <span className="text-purple-300 font-medium">{l.anchor}</span>
+                  <span className="text-gray-500 ml-2">→ <code className="text-blue-300">{l.url}</code></span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
+
+        {/* Image Alt Texts */}
+        {((showing[tab] || {}).image_alt_texts || []).length > 0 && (
+          <details className="mt-3 rounded-lg border border-cyan-700/40 bg-cyan-900/10 p-3">
+            <summary className="cursor-pointer text-xs font-semibold text-cyan-200 inline-flex items-center gap-2">
+              🖼️ Image Alt Texts ({(showing[tab].image_alt_texts || []).length})
+            </summary>
+            <ul className="mt-2 space-y-1 text-xs text-gray-300 list-disc list-inside">
+              {(showing[tab].image_alt_texts || []).map((a, i) => (
+                <li key={i}>{a}</li>
+              ))}
+            </ul>
+          </details>
+        )}
+
+        {/* FAQ Items */}
+        {((showing[tab] || {}).faq_items || []).length > 0 && (
+          <details open className="mt-3 rounded-lg border border-emerald-700/40 bg-emerald-900/10 p-3">
+            <summary className="cursor-pointer text-xs font-semibold text-emerald-200 inline-flex items-center gap-2">
+              ❓ FAQ People Also Ask ({(showing[tab].faq_items || []).length})
+            </summary>
+            <div className="mt-2 space-y-2 text-xs">
+              {(showing[tab].faq_items || []).map((f, i) => (
+                <div key={i} className="border-l-2 border-emerald-500 pl-2">
+                  <div className="text-emerald-200 font-medium">{f.q}</div>
+                  <div className="text-gray-300 mt-0.5">{f.a}</div>
+                </div>
+              ))}
+            </div>
+          </details>
+        )}
+
+        {/* Legal Disclosure */}
+        {(showing[tab] || {}).legal_disclosure_text && (
+          <details className="mt-3 rounded-lg border border-amber-700/40 bg-amber-900/10 p-3">
+            <summary className="cursor-pointer text-xs font-semibold text-amber-200 inline-flex items-center gap-2">
+              ⚖️ Legal Disclosure (DDL 145/2018)
+            </summary>
+            <div className="mt-2 text-xs text-amber-100 italic">
+              {(showing[tab] || {}).legal_disclosure_text}
+            </div>
+          </details>
+        )}
+
+        {/* Score warnings per lingua */}
+        {data.seo_draft_scores && data.seo_draft_scores[tab] && data.seo_draft_scores[tab].warnings && data.seo_draft_scores[tab].warnings.length > 0 && (
+          <details className="mt-3 rounded-lg border border-amber-700/40 bg-amber-900/10 p-3">
+            <summary className="cursor-pointer text-xs font-semibold text-amber-200 inline-flex items-center gap-2">
+              <AlertCircle className="w-3 h-3" /> Audit warnings ({tab.toUpperCase()}) – {data.seo_draft_scores[tab].score}/100
+            </summary>
+            <ul className="mt-2 space-y-1 text-xs text-amber-100 list-disc list-inside">
+              {data.seo_draft_scores[tab].warnings.map((w, i) => <li key={i}>{w}</li>)}
+            </ul>
+          </details>
+        )}
 
         {/* Schema preview */}
         {(data.seo_meta_schema_jsonld || data.seo_draft_schema_jsonld) && (

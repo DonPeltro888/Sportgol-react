@@ -25,22 +25,38 @@ const SeoContentBlock = ({ data, lang = 'it' }) => {
   const sectors = pickLang(data.seo_sectors, lang);
   const pricing = pickLang(data.seo_pricing, lang);
   const venue = pickLang(data.seo_venue, lang);
+  const mainContent = pickLang(data.seo_main_content, lang);
+  const legalDisclosure = pickLang(data.seo_legal_disclosure, lang);
+  const internalLinks = (() => {
+    const v = data.seo_internal_links;
+    if (!v) return [];
+    if (Array.isArray(v)) return v;
+    return v[lang] || v.it || [];
+  })();
 
-  // FAQ items (only events have these)
+  // FAQ items (events + leagues + teams)
   const faqs = [1, 2, 3].map(i => ({
     q: pickLang(data[`faq_${i}_q`], lang),
     a: pickLang(data[`faq_${i}_a`], lang),
   })).filter(f => f.q || f.a);
 
-  const hasContent = intro || cta || eventInfo || ticketsInfo || sectors || pricing || venue || faqs.length > 0;
+  const hasContent = intro || cta || eventInfo || ticketsInfo || sectors || pricing || venue || mainContent || faqs.length > 0;
   if (!hasContent) return null;
 
   return (
     <section className="bg-white py-8 md:py-12 px-4" data-testid="seo-content-block">
       <div className="container mx-auto max-w-4xl space-y-6">
         {intro && (
-          <div className="prose prose-gray max-w-none">
+          <div className="seo-intro prose prose-gray max-w-none">
             <p className="text-base md:text-lg text-gray-700 leading-relaxed">{intro}</p>
+          </div>
+        )}
+
+        {mainContent && (
+          <div className="prose prose-gray max-w-none">
+            {mainContent.split(/\n\n+/).map((para, i) => (
+              <p key={i} className="text-sm md:text-base text-gray-700 leading-relaxed mb-3">{para}</p>
+            ))}
           </div>
         )}
 
@@ -80,7 +96,7 @@ const SeoContentBlock = ({ data, lang = 'it' }) => {
         )}
 
         {faqs.length > 0 && (
-          <div className="space-y-2">
+          <div className="seo-faq space-y-2">
             <h2 className="text-xl font-bold text-gray-900">Domande Frequenti</h2>
             {faqs.map((f, i) => (
               <details key={i} className="rounded-lg border border-gray-200 bg-white p-4 group">
@@ -94,10 +110,37 @@ const SeoContentBlock = ({ data, lang = 'it' }) => {
           </div>
         )}
 
+        {internalLinks.length > 0 && (
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-5">
+            <h2 className="text-base font-bold text-gray-900 mb-3">Vedi anche</h2>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              {internalLinks.map((l, i) => {
+                const url = (l && (l.url || l)) || '';
+                const anchor = (l && (l.anchor || l.url)) || url;
+                if (!url) return null;
+                const path = url.replace(/^https?:\/\/[^/]+/, '');
+                return (
+                  <li key={i}>
+                    <a href={path} className="text-blue-600 hover:text-blue-800 hover:underline">
+                      → {anchor}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+
         {cta && (
           <div className="rounded-lg bg-gradient-to-r from-[#FF6B35] to-[#0984E3] p-6 text-white text-center">
             <p className="text-base md:text-lg font-semibold">{cta}</p>
           </div>
+        )}
+
+        {legalDisclosure && (
+          <p className="text-[11px] text-gray-500 italic border-t border-gray-200 pt-3 mt-4">
+            {legalDisclosure}
+          </p>
         )}
       </div>
     </section>

@@ -59,14 +59,30 @@ DRAFT_FIELD_MAP_EVENT = {
     "meta_description": "seo_description",
     "h1": "seo_h1",
     "intro_text": "seo_intro",
+    "main_content": "seo_main_content",
     "cta_text": "seo_cta",
+    "open_graph_title": "seo_og_title",
+    "open_graph_description": "seo_og_description",
+    "twitter_card_title": "seo_twitter_title",
+    "twitter_card_description": "seo_twitter_description",
+    "internal_links": "seo_internal_links",
+    "image_alt_texts": "seo_image_alt_texts",
+    "legal_disclosure_text": "seo_legal_disclosure",
 }
 DRAFT_FIELD_MAP_GENERIC = {
     "meta_title": "seo_title",
     "meta_description": "seo_description",
     "h1": "seo_h1",
     "intro_text": "seo_intro",
+    "main_content": "seo_main_content",
     "cta_text": "seo_cta",
+    "open_graph_title": "seo_og_title",
+    "open_graph_description": "seo_og_description",
+    "twitter_card_title": "seo_twitter_title",
+    "twitter_card_description": "seo_twitter_description",
+    "internal_links": "seo_internal_links",
+    "image_alt_texts": "seo_image_alt_texts",
+    "legal_disclosure_text": "seo_legal_disclosure",
 }
 
 
@@ -290,91 +306,85 @@ async def update_field(type: str, id: str, payload: DraftFieldUpdate, _=Depends(
     return {"ok": True}
 
 
-# ─── Generate (placeholder pipeline – MOCK in P1, real in FASE 2) ─────────
+# ─── Generate (FASE 2 — pipeline reale Dual-Engine async via job queue) ───
 
 @router.post("/targets/{type}/{id}/generate")
 async def generate_draft(type: str, id: str, _=Depends(verify_admin_token)) -> Dict[str, Any]:
     """
-    Genera draft SEO usando la pipeline AI.
-    P1 mock: scrive un draft fittizio realistico.
-    FASE 2: integrazione completa Claude+Gemini+Perplexity+DataForSEO+DeepL.
+    Avvia un job asincrono che genera il draft SEO usando la pipeline AI:
+    DataForSEO → Claude → Perplexity → DeepL → Gemini → Validator.
+    Restituisce subito {job_id}; il frontend fa polling su /jobs/{job_id}.
     """
     coll_name = COLLECTION_MAP.get(type)
     if not coll_name:
         raise HTTPException(400, "Invalid type")
-    doc = await db[coll_name].find_one(_identifier_field(type, id), {"_id": 0})
+    target_filter = _identifier_field(type, id)
+    doc = await db[coll_name].find_one(target_filter, {"_id": 0})
     if not doc:
         raise HTTPException(404, f"{type} not found")
 
-    # Build mock draft per 3 lingue – P1 placeholder
-    title = doc.get("title") or doc.get("name") or doc.get("slug") or "?"
-    if type == "event":
-        h = doc.get("home_team", "")
-        a = doc.get("away_team", "")
-        title = f"{h} vs {a}" if h and a else title
+    from services.seo_orchestrator import create_job
+    job_id = await create_job(type, id, coll_name, target_filter)
+    # Marca lo stato sull'entity
+    await db[coll_name].update_one(target_filter, {"$set": {"seo_status": "Generating", "seo_current_job": job_id}})
+    return {"ok": True, "job_id": job_id, "status": "queued", "note": "Pipeline reale Dual-Engine avviata in background"}
 
-    draft: Dict[str, Any] = {}
-    for lang in LANGS:
-        if lang == "it":
-            mt = f"Biglietti {title} | Confronta Prezzi e Posti 2025/26"
-            md = f"Biglietti ufficiali {title}. Confronta prezzi, posti disponibili e settori. Acquisto sicuro con garanzia."
-            h1 = f"Biglietti {title}"
-            intro = f"Acquista i biglietti per {title} con garanzia di autenticità. Visualizza la mappa dello stadio, scegli il settore preferito e completa l'ordine in pochi clic."
-            cta = "Confronta i prezzi e prenota subito"
-        elif lang == "en":
-            mt = f"{title} Tickets | Compare Prices & Seats 2025/26"
-            md = f"Official {title} tickets. Compare prices, available seats and sectors. Secure purchase with guarantee."
-            h1 = f"{title} Tickets"
-            intro = f"Buy tickets for {title} with authenticity guarantee. View the stadium map, choose your favourite sector and complete your order in a few clicks."
-            cta = "Compare prices & book now"
-        else:
-            mt = f"Entradas {title} | Compara Precios y Asientos 2025/26"
-            md = f"Entradas oficiales {title}. Compara precios, asientos disponibles y sectores. Compra segura con garantía."
-            h1 = f"Entradas {title}"
-            intro = f"Compra entradas para {title} con garantía de autenticidad. Mira el mapa del estadio, elige tu sector preferido y completa tu pedido en pocos clics."
-            cta = "Compara precios y reserva ya"
 
-        draft[lang] = {
-            "meta_title": mt,
-            "meta_description": md,
-            "h1": h1,
-            "intro_text": intro,
-            "main_content": "",
-            "faq_items": [],
-            "cta_text": cta,
-            "open_graph_title": mt,
-            "open_graph_description": md,
-            "twitter_card_title": mt,
-            "twitter_card_description": md,
-            "image_alt_texts": [],
-            "internal_links": [],
-        }
+@router.get("/jobs/{job_id}")
+async def get_job(job_id: str, _=Depends(verify_admin_token)) -> Dict[str, Any]:
+    """Polling status di un job pipeline."""
+    doc = await db.seo_jobs.find_one({"_id": job_id}, {"target_filter_repr": 0})
+    if not doc:
+        raise HTTPException(404, "Job not found")
+    # _id is string (uuid) → safe to return
+    return doc
 
-    # JSON-LD schema (no lang)
-    schema_jsonld: Dict[str, Any] = {
-        "@context": "https://schema.org",
-        "@type": "SportsEvent" if type == "event" else "SportsTeam" if type == "team" else "SportsOrganization",
-        "name": title,
-    }
-    if type == "event":
-        schema_jsonld.update({
-            "homeTeam": {"@type": "SportsTeam", "name": doc.get("home_team", "")},
-            "awayTeam": {"@type": "SportsTeam", "name": doc.get("away_team", "")},
-            "location": {"@type": "Place", "name": doc.get("stadium", ""), "address": doc.get("location", "")},
-            "startDate": doc.get("sort_date") or doc.get("date"),
-        })
 
-    await db[coll_name].update_one(
-        _identifier_field(type, id),
-        {"$set": {
-            "seo_draft": draft,
-            "seo_draft_schema_jsonld": schema_jsonld,
-            "seo_status": "Generated",
-            "seo_generated_at": _now_iso(),
-            "seo_generation_method": "mock",  # FASE 2: "claude+gemini+perplexity+deepl"
-        }},
-    )
-    return {"ok": True, "status": "Generated", "note": "MOCK draft generated. Real pipeline arriva in FASE 2."}
+@router.get("/jobs")
+async def list_jobs(
+    status: Optional[str] = None,
+    target_type: Optional[str] = None,
+    limit: int = 50,
+    _=Depends(verify_admin_token),
+) -> Dict[str, Any]:
+    """Lista job (per dashboard bulk)."""
+    flt: Dict[str, Any] = {}
+    if status:
+        flt["status"] = status
+    if target_type:
+        flt["target_type"] = target_type
+    cursor = db.seo_jobs.find(flt, {"target_filter_repr": 0}).sort("created_at", -1).limit(limit)
+    items: List[Dict[str, Any]] = []
+    async for d in cursor:
+        items.append(d)
+    return {"items": items, "count": len(items)}
+
+
+@router.post("/targets/bulk-generate")
+async def bulk_generate(
+    payload: Dict[str, Any],
+    _=Depends(verify_admin_token),
+) -> Dict[str, Any]:
+    """
+    Avvia generazione bulk per un set di target.
+    Body: {"type": "team|league|event", "ids": ["slug1", "slug2", ...]}
+    """
+    type_ = payload.get("type")
+    ids = payload.get("ids") or []
+    coll_name = COLLECTION_MAP.get(type_)
+    if not coll_name or not isinstance(ids, list):
+        raise HTTPException(400, "Invalid payload")
+    from services.seo_orchestrator import create_job
+    jobs: List[str] = []
+    for entity_id in ids[:50]:
+        target_filter = _identifier_field(type_, entity_id)
+        doc = await db[coll_name].find_one(target_filter, {"_id": 1})
+        if not doc:
+            continue
+        job_id = await create_job(type_, entity_id, coll_name, target_filter)
+        await db[coll_name].update_one(target_filter, {"$set": {"seo_status": "Generating", "seo_current_job": job_id}})
+        jobs.append(job_id)
+    return {"ok": True, "queued": len(jobs), "job_ids": jobs}
 
 
 # ─── Publish draft → meta (rispettando i lock) ─────────────────────────────
@@ -417,8 +427,8 @@ async def publish_draft(type: str, id: str, _=Depends(verify_admin_token)) -> Di
             mapped = field_map.get(k)
             if mapped:
                 direct_updates[f"{mapped}.{lang}"] = v
-            # FAQ items → mappati su faq_N_q/a per events
-            if type == "event" and k == "faq_items" and isinstance(v, list):
+            # FAQ items → mappati su faq_N_q/a per tutti i type (events/leagues/teams)
+            if k == "faq_items" and isinstance(v, list):
                 for i, item in enumerate(v[:3], start=1):
                     if isinstance(item, dict):
                         if item.get("q"):
