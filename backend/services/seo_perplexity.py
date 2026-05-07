@@ -1,0 +1,109 @@
+"""
+Perplexity Sonar — live research per FAQ "people also ask" + news match.
+"""
+import json
+import logging
+import re
+import httpx
+from typing import List, Dict, Any
+from services.seo_keys import get_api_key
+
+logger = logging.getLogger(__name__)
+
+
+async def fetch_paa_faq(target_type: str, ctx: Dict[str, Any]) -> List[Dict[str, str]]:
+    """
+    Restituisce 3 FAQ {q, a} dalle "People Also Ask" di Google.
+    Default mock realistico se Perplexity non disponibile.
+    """
+    api_key = await get_api_key("perplexity")
+    if not api_key:
+        return _fallback_faq(target_type, ctx)
+
+    title = ctx.get("title") or "?"
+    if target_type == "event":
+        h, a = ctx.get("home_team", ""), ctx.get("away_team", "")
+        topic = f"biglietti {h} vs {a}"
+    elif target_type == "league":
+        topic = f"biglietti {title} stadio prezzi"
+    else:
+        topic = f"biglietti {title} stadio settori"
+
+    prompt = (
+        f"Fornisci le 3 domande più cercate su Google ('People Also Ask') riguardo: '{topic}'. "
+        "Per ognuna scrivi una risposta concisa (max 250 caratteri) in italiano. "
+        "Restituisci SOLO un JSON valido senza markdown nel formato: "
+        '[{"q":"...","a":"..."},{"q":"...","a":"..."},{"q":"...","a":"..."}]'
+    )
+
+    body = {
+        "model": "sonar",
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": 700,
+        "temperature": 0.3,
+    }
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+
+    try:
+        async with httpx.AsyncClient(timeout=45) as cx:
+            r = await cx.post("https://api.perplexity.ai/chat/completions", headers=headers, json=body)
+        if r.status_code in (200, 201):
+            data = r.json()
+            text = data["choices"][0]["message"]["content"]
+            return _parse_faq_array(text) or _fallback_faq(target_type, ctx)
+        logger.warning(f"Perplexity HTTP {r.status_code}: {r.text[:200]}")
+    except Exception as e:
+        logger.error(f"Perplexity error: {e}")
+    return _fallback_faq(target_type, ctx)
+
+
+def _parse_faq_array(text: str) -> List[Dict[str, str]]:
+    text = text.strip()
+    # Strip markdown fences
+    if text.startswith("```"):
+        text = re.sub(r"^```\w*\n", "", text)
+        text = re.sub(r"\n```$", "", text)
+    # Extract first JSON array
+    m = re.search(r"\[\s*\{.*?\}\s*\]", text, re.DOTALL)
+    if m:
+        text = m.group(0)
+    try:
+        arr = json.loads(text)
+        if isinstance(arr, list):
+            return [{"q": x.get("q", ""), "a": x.get("a", "")} for x in arr if isinstance(x, dict)][:3]
+    except Exception as e:
+        logger.error(f"Perplexity JSON parse error: {e}\nText: {text[:200]}")
+    return []
+
+
+def _fallback_faq(target_type: str, ctx: Dict[str, Any]) -> List[Dict[str, str]]:
+    title = ctx.get("title") or "?"
+    if target_type == "event":
+        h = ctx.get("home_team", "")
+        a = ctx.get("away_team", "")
+        return [
+            {"q": f"Quanto costano i biglietti per {h} vs {a}?",
+             "a": f"I prezzi per {h} vs {a} variano in base al settore: si parte dalle tribune popolari (~50€) fino ai posti premium (~200€). Su Golevents puoi confrontare tutte le opzioni disponibili."},
+            {"q": f"Dove si gioca {h} vs {a}?",
+             "a": f"La partita si gioca presso {ctx.get('stadium','lo stadio ufficiale')}. Trovi mappa interattiva e indicazioni sulla pagina dell'evento."},
+            {"q": f"I biglietti per {h} vs {a} sono ancora disponibili?",
+             "a": "Sì, su Golevents trovi i biglietti aggiornati in tempo reale con le migliori offerte verificate. Acquisto sicuro e garantito."},
+        ]
+    if target_type == "league":
+        return [
+            {"q": f"Come comprare biglietti per la {title}?",
+             "a": f"Su Golevents trovi tutti i biglietti ufficiali per la {title} 2025/26 con confronto prezzi e settori in tempo reale."},
+            {"q": f"Quali sono le squadre della {title}?",
+             "a": f"La {title} include i top club del campionato. Sulla nostra pagina trovi la lista completa con link diretti ai biglietti."},
+            {"q": f"I biglietti per la {title} sono garantiti?",
+             "a": "Tutti i biglietti su Golevents sono garantiti al 100% con assicurazione anti-frode e supporto clienti 7/7."},
+        ]
+    # team
+    return [
+        {"q": f"Dove comprare biglietti {title}?",
+         "a": f"Su Golevents trovi tutti i biglietti ufficiali per i match casa e trasferta del {title} con prezzi aggiornati."},
+        {"q": f"Quanto costano i biglietti {title}?",
+         "a": f"I prezzi per i match del {title} partono da ~30€ per le curve fino a ~250€ per i posti premium. Confronta su Golevents."},
+        {"q": f"Posso scegliere il settore per {title}?",
+         "a": "Sì, sulla pagina di ogni match trovi la mappa interattiva dello stadio per scegliere il tuo settore preferito."},
+    ]
