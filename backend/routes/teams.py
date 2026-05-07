@@ -142,9 +142,10 @@ async def admin_create_team(team: TeamCreate):
     team_dict = team.model_dump()
     team_dict["created_at"] = datetime.now(timezone.utc).isoformat()
     team_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
-    
-    result = await db.teams.insert_one(team_dict)
-    
+
+    from services.db_normalize import normalize_team_doc
+    result = await db.teams.insert_one(normalize_team_doc(team_dict))
+
     return {"success": True, "id": str(result.inserted_id), "message": "Team created"}
 
 @router.post("/admin/teams/bulk")
@@ -170,7 +171,8 @@ async def admin_bulk_create_teams(data: BulkTeamCreate):
                 "created_at": datetime.now(timezone.utc).isoformat(),
                 "updated_at": datetime.now(timezone.utc).isoformat()
             }
-            await db.teams.insert_one(team_dict)
+            from services.db_normalize import normalize_team_doc
+            await db.teams.insert_one(normalize_team_doc(team_dict))
             inserted += 1
     
     return {"success": True, "message": f"Created {inserted} teams", "inserted": inserted}
@@ -274,7 +276,8 @@ async def admin_seed_teams():
                     "created_at": datetime.now(timezone.utc).isoformat(),
                     "updated_at": datetime.now(timezone.utc).isoformat()
                 }
-                await db.teams.insert_one(team_dict)
+                from services.db_normalize import normalize_team_doc
+                await db.teams.insert_one(normalize_team_doc(team_dict))
                 total_inserted += 1
     
     return {"success": True, "message": f"Seeded {total_inserted} teams", "inserted": total_inserted}

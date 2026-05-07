@@ -200,7 +200,8 @@ async def run_import():
                 "created_at": datetime.now(timezone.utc),
                 "updated_at": datetime.now(timezone.utc),
             }
-            await db.events.insert_one(event_doc)
+            from services.db_normalize import insert_event
+            await insert_event(event_doc)
             total_inserted += 1
             img_idx += 1
 

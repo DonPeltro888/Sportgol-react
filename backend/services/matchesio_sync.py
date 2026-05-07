@@ -229,7 +229,8 @@ async def ensure_league_in_db(db_slug: str, league_name: str, country: str,
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "auto_created": True,
     }
-    await db.leagues.insert_one(league_doc)
+    from services.db_normalize import insert_league
+    await insert_league(league_doc)
     logger.info(f"sync: lega creata automaticamente: {league_name} (slug={db_slug})")
     return {"created": True, "slug": db_slug, "name": league_name}
 
@@ -366,9 +367,11 @@ async def sync_all_competitions(replace_all: bool = False) -> Dict:
                     "updated_at": datetime.now(timezone.utc),
                 }
 
+                from services.db_normalize import normalize_event_doc
+
                 if replace_all:
                     event_doc["created_at"] = datetime.now(timezone.utc)
-                    await db.events.insert_one(event_doc)
+                    await db.events.insert_one(normalize_event_doc(event_doc))
                     stats["total_inserted"] += 1
                     if len(stats["sample_inserted"]) < 10:
                         stats["sample_inserted"].append({"title": title, "league": league_name, "date": event_doc["date"], "stadium": stadium})
@@ -377,7 +380,7 @@ async def sync_all_competitions(replace_all: bool = False) -> Dict:
                     if matchesio_id:
                         result = await db.events.update_one(
                             {"matchesio_id": matchesio_id},
-                            {"$set": event_doc, "$setOnInsert": {"created_at": datetime.now(timezone.utc)}},
+                            {"$set": normalize_event_doc(event_doc), "$setOnInsert": {"created_at": datetime.now(timezone.utc)}},
                             upsert=True,
                         )
                         if result.upserted_id:
@@ -388,7 +391,7 @@ async def sync_all_competitions(replace_all: bool = False) -> Dict:
                             stats["total_updated"] += 1
                     else:
                         event_doc["created_at"] = datetime.now(timezone.utc)
-                        await db.events.insert_one(event_doc)
+                        await db.events.insert_one(normalize_event_doc(event_doc))
                         stats["total_inserted"] += 1
                         if len(stats["sample_inserted"]) < 10:
                             stats["sample_inserted"].append({"title": title, "league": league_name, "date": event_doc["date"], "stadium": stadium})

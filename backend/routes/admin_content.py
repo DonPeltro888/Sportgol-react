@@ -60,7 +60,8 @@ async def create_event_admin(event: EventCreate, token_data: dict = Depends(veri
     event_dict["updated_at"] = datetime.now(timezone.utc)
     event_dict["sort_date"] = parse_date_to_sortable(event.date)
     
-    result = await db.events.insert_one(event_dict)
+    from services.db_normalize import normalize_event_doc
+    result = await db.events.insert_one(normalize_event_doc(event_dict))
     event_dict["_id"] = str(result.inserted_id)
     event_dict["id"] = event_dict["_id"]
     

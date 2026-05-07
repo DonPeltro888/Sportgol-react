@@ -283,7 +283,8 @@ async def create_event(event: EventCreate):
         event_dict["created_at"] = datetime.now(timezone.utc)
         event_dict["updated_at"] = datetime.now(timezone.utc)
         
-        result = await db.events.insert_one(event_dict)
+        from services.db_normalize import normalize_event_doc
+        result = await db.events.insert_one(normalize_event_doc(event_dict))
         event_dict["_id"] = str(result.inserted_id)
         event_dict["id"] = str(result.inserted_id)
         

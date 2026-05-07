@@ -186,7 +186,8 @@ async def sync_via_apifootball(only_empty_leagues: Optional[List[str]] = None) -
                         updated += 1
                     else:
                         ev["created_at"] = datetime.now(timezone.utc).isoformat()
-                        await db.events.insert_one(ev)
+                        from services.db_normalize import insert_event
+                        await insert_event(ev)
                         inserted += 1
                         if len(stats["sample_inserted"]) < 10:
                             stats["sample_inserted"].append({

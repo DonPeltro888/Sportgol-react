@@ -93,7 +93,14 @@
 - Editor SEO arricchito con bottone "Genera Hero Image" + preview immagine generata
 - Test verificati (iteration_10): Backend 15/15 PASS + Frontend 3/3 PASS
 
-**FASE 5 (P1) – Backlog**
+**FASE 5 (Auto-Normalize Pipeline) – ✅ DONE 2026-05-07**
+- **`services/db_normalize.py`** (NEW): wrapper helpers `insert_event/team/league` + `normalize_event_doc/team_doc/league_doc` + `backstop_normalize_all`. Marker `_normalized=True` + `_normalized_at` su ogni doc.
+- **Refactor 17 punti di insert**: matchesio_sync, logo_fetcher, apifootball_sync, thesportsdb_sync, openfootball_sync, football_data_sync, football_api_sync, import_matchesio, routes/events.py, routes/teams.py (3 punti), routes/leagues.py (2 punti), routes/admin_content.py — tutti ora applicano normalize_team/normalize_league prima dell'insert.
+- **Scheduler arricchito** (`services/scheduler.py`):
+  - `auto_sync` 04:00/19:00 UTC (esistente)
+  - `normalize_backstop` 04:30/19:30 UTC (NEW): cattura qualsiasi doc non normalizzato post-sync
+  - `health_autofix` 03:00 UTC (NEW): bulk fix logo + dati mancanti via Perplexity + Gemini Vision per nuovi team
+- **Retroactive normalize**: lanciato `backstop_normalize_all` su 883 events + 221 teams + 35 leagues esistenti. Re-run `dedup_entities` post-normalize: ZERO duplicati rimasti.
 - Google Search Console integration (slot già nel catalog)
 - Google PageSpeed Insights integration
 - Keyword Research & Competitor Analysis UI page (DataForSEO già OK, manca UI)

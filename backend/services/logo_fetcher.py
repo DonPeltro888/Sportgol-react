@@ -292,7 +292,8 @@ async def populate_team_logos(refresh_existing: bool = False, batch_limit: int =
                     stats.setdefault("archived_at_creation", 0)
                     stats["archived_at_creation"] += 1
 
-                await db.teams.insert_one(doc)
+                from services.db_normalize import insert_team
+                await insert_team(doc)
                 stats["created"] += 1
                 logger.info(f"logo_fetcher: creato team {team_name}{' (ARCHIVED)' if team_archived else ''}")
 

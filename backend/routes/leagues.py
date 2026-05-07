@@ -141,7 +141,8 @@ async def admin_create_league(league: LeagueCreate):
     league_dict["created_at"] = datetime.now(timezone.utc).isoformat()
     league_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
     
-    result = await db.leagues.insert_one(league_dict)
+    from services.db_normalize import normalize_league_doc
+    result = await db.leagues.insert_one(normalize_league_doc(league_dict))
     
     return {"success": True, "id": str(result.inserted_id), "message": "League created"}
 
@@ -210,7 +211,8 @@ async def admin_seed_leagues():
             league["active"] = True
             league["created_at"] = datetime.now(timezone.utc).isoformat()
             league["updated_at"] = datetime.now(timezone.utc).isoformat()
-            await db.leagues.insert_one(league)
+            from services.db_normalize import normalize_league_doc
+            await db.leagues.insert_one(normalize_league_doc(league))
             inserted += 1
     
     return {"success": True, "message": f"Seeded {inserted} leagues", "inserted": inserted}

@@ -67,11 +67,42 @@ async def _run_sync_job():
         logger.exception(f"Scheduler: errore generale: {e}")
 
 
+async def _run_normalize_backstop():
+    """Backstop: normalizza qualsiasi event/team/league con _normalized != True."""
+    try:
+        from services.db_normalize import backstop_normalize_all
+        counters = await backstop_normalize_all(limit=10000)
+        logger.info(f"Backstop normalize: {counters}")
+    except Exception as e:
+        logger.error(f"Backstop normalize error: {e}")
+
+
+async def _run_health_autofix():
+    """Auto-fix scheduler: bulk fix loghi e dati mancanti via Perplexity + Gemini Vision."""
+    try:
+        from scripts.bulk_fix_logos import get_targets, fix_one_with_sem
+        import asyncio as _asyncio
+        targets = await get_targets()
+        if not targets:
+            logger.info("Health autofix: no targets")
+            return
+        logger.info(f"Health autofix: starting on {len(targets)} teams")
+        sem = _asyncio.Semaphore(4)
+        tasks = [fix_one_with_sem(sem, t["slug"], t.get("name", ""), i + 1, len(targets)) for i, t in enumerate(targets)]
+        results = await _asyncio.gather(*tasks, return_exceptions=True)
+        fixed = sum(1 for r in results if isinstance(r, dict) and r.get("applied"))
+        logger.info(f"Health autofix DONE: {fixed}/{len(targets)} fixed")
+    except Exception as e:
+        logger.error(f"Health autofix error: {e}")
+
+
 def start_scheduler():
     """
-    Avvia lo scheduler con sync 2 volte al giorno:
-    - 04:00 UTC (06:00 Italia) - aggiornamento mattina
-    - 19:00 UTC (21:00 Italia) - cattura annunci serali UEFA/Lega
+    Avvia lo scheduler con:
+    - 04:00 UTC (06:00 Italia) - sync matchesio mattina
+    - 19:00 UTC (21:00 Italia) - sync matchesio sera
+    - 04:30 UTC dopo sync mattina) - normalize backstop su nuovi insert
+    - 03:00 UTC ogni notte) - health autofix loghi/dati mancanti
     """
     global _scheduler
     if _scheduler is not None:
@@ -85,8 +116,24 @@ def start_scheduler():
         max_instances=1,
         coalesce=True,
     )
+    _scheduler.add_job(
+        _run_normalize_backstop,
+        CronTrigger(hour="4,19", minute=30),
+        id="normalize_backstop",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
+    _scheduler.add_job(
+        _run_health_autofix,
+        CronTrigger(hour=3, minute=0),
+        id="health_autofix",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
     _scheduler.start()
-    logger.info("AsyncIOScheduler avviato (sync alle 04:00 e 19:00 UTC = 06:00 e 21:00 Italia)")
+    logger.info("AsyncIOScheduler avviato: sync 04:00/19:00, normalize-backstop 04:30/19:30, health-autofix 03:00 (UTC)")
 
 
 def stop_scheduler():
