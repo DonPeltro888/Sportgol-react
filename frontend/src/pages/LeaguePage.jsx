@@ -8,6 +8,7 @@ import SEOHead from '../components/SEOHead';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { LeagueSchema, BreadcrumbSchema } from '../components/SchemaOrg';
 import SeoContentBlock, { getSeoMetaTitle, getSeoMetaDescription, getSeoH1 } from '../components/SeoContentBlock';
+import SeoSchemaInjector from '../components/SeoSchemaInjector';
 import { ArrowLeft, Loader2, Trophy } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -316,6 +317,7 @@ const LeaguePage = ({ urlType }) => {
 
       {/* SEO Content (intro/CTA/etc. dal SEO Admin) */}
       <SeoContentBlock data={leagueData} lang={lang} />
+      <SeoSchemaInjector schema={leagueData?.seo_meta_schema_jsonld} />
 
       <Footer />
     </div>

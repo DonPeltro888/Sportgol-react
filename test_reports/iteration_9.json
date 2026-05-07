@@ -1,0 +1,29 @@
+{
+  "summary": "RETEST FASE 2 SEO Dual-Engine — public pages fix VERIFIED. Backend pipeline regression PASS (team/ac-milan generated in ~90s with seo_draft.it/en/es x14 fields + seo_draft_schema_jsonld @graph 5 nodes incl. SportsTeam aggregateRating 4.8/1247). APIs GET /api/teams/inter and GET /api/leagues/serie-a both expose 18 SEO/FAQ keys (seo_title, seo_description, seo_h1, seo_intro, seo_main_content, seo_cta, seo_og_title, seo_og_description, seo_internal_links, seo_image_alt_texts, seo_legal_disclosure, seo_meta_schema_jsonld, faq_1_q/a, faq_2_q/a, faq_3_q/a) — all multi-lang dicts. Event API exposes same on /api/events/by-slug/{slug}. Public pages: /biglietti-inter (IT), /inter-tickets (EN), /entradas-inter (ES) all render SeoContentBlock with FAQ 'Domande Frequenti' (3 accordion), 'Vedi anche' (5 internal links), main_content (7 paragraphs), legal disclosure (italic), and inject <script id='seo-graph-jsonld' type='application/ld+json'> in <head> with @graph 5 nodes [SportsTeam + BreadcrumbList + FAQPage + HowTo + WebPage], SportsTeam.aggregateRating ratingValue=4.8 ratingCount=1247, WebPage.speakable=true. League /biglietti-serie-a renders same pattern with SportsOrganization (NOT SportsTeam) + 6 internal links. Event /biglietti-seattle-sounders-vs-los-angeles-fc renders same pattern with SportsEvent (eventStatus=EventScheduled, offers=AggregateOffer EUR). Admin /admin/seo/targets/team/inter shows all blocks: Score 89, Internal Links (5), Image Alt Texts (5), FAQ People Also Ask (3), Legal Disclosure (DDL 145/2018), Genera SEO con AI / Pubblica draft / Elimina draft buttons, IT/EN/ES tabs, Pubblicato (live) / Draft (da approvare) toggle.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_seo_pipeline_phase2.py"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Routing note: bare /serie-a returns NotFound per App.js DynamicTeamLeagueRoute (requires /biglietti-, /entradas-, or -tickets prefix). The retest spec mentioned /serie-a but the actual public LeaguePage URL pattern is /biglietti-serie-a (IT), /serie-a-tickets (EN), /entradas-serie-a (ES). This is by design (TopLevel slugs without prefix are treated as 404), but if naked /serie-a should also work, App.js DynamicTeamLeagueRoute needs to recognize bare LEAGUE_SLUGS at root and route to <LeaguePage />.",
+    "SeoSchemaInjector correctly injects + cleans up <script id='seo-graph-jsonld'> via useEffect. Schema rendering tied to data.seo_meta_schema_jsonld which is now exposed on all 3 public APIs (teams, leagues, events).",
+    "SeoContentBlock conditional renders are robust (returns null when no content). FAQ section heading 'Domande Frequenti' is hardcoded in IT (consider localizing if EN/ES audience matters for crawl/UX)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "admin / golevents2024",
+  "seed_data_creation": "Triggered re-generate+publish on league/serie-a, event/seattle-sounders-vs-los-angeles-fc (both 'queued'->'succeeded' in <90s, applied 42 fields, 57 direct fields written). Triggered fresh generate on team/ac-milan (succeeded ~90s) for backend regression check. No new entities created; existing entities now have published seo_meta_schema_jsonld with full @graph.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "FASE 2 SEO Dual-Engine is fully verified end-to-end. Backend pipeline OK, APIs expose all SEO fields, public pages render SeoContentBlock + inject JSON-LD @graph correctly for team / league / event. Admin editor shows all blocks. Only nuance: bare /serie-a returns 404 — public league URL needs /biglietti-, /entradas-, or -tickets prefix.",
+  "rca_of_the_issue": "Previous iteration (8) had backend pipeline OK but public pages did not consume the new seo_meta_* fields nor inject the @graph schema. E1 fix: (1) extended /api/teams/{slug} and /api/leagues/{slug} to surface 11+ new SEO fields, (2) created SeoSchemaInjector component (useEffect to append <script id='seo-graph-jsonld'> in <head>), (3) wired SeoContentBlock + SeoSchemaInjector into TeamPage / LeaguePage / EventDetail. All verified working in this retest."
+}

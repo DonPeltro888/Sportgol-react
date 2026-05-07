@@ -12,6 +12,7 @@ import { Calendar, MapPin, MessageCircle, ChevronDown, Loader2, Info } from 'luc
 import { toast } from 'sonner';
 import SEOHead from '../components/SEOHead';
 import SeoContentBlock, { getSeoMetaTitle, getSeoMetaDescription, getSeoH1 } from '../components/SeoContentBlock';
+import SeoSchemaInjector from '../components/SeoSchemaInjector';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
 import { getSeoTitle, getSeoDescription, getTeamUrl, getLeagueUrl, getEventUrl } from '../utils/seoHelpers';
@@ -369,6 +370,7 @@ const EventDetail = () => {
 
       {/* SEO Content (intro/CTA/event_info/sectors/pricing/venue/FAQ dal SEO Admin) */}
       <SeoContentBlock data={event} lang={lang} />
+      <SeoSchemaInjector schema={event?.seo_meta_schema_jsonld} />
 
       <Footer />
     </div>

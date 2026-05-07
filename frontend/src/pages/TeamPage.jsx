@@ -8,6 +8,7 @@ import SEOHead from '../components/SEOHead';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { TeamSchema, BreadcrumbSchema } from '../components/SchemaOrg';
 import SeoContentBlock, { getSeoMetaTitle, getSeoMetaDescription, getSeoH1 } from '../components/SeoContentBlock';
+import SeoSchemaInjector from '../components/SeoSchemaInjector';
 import { ArrowLeft, Loader2, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -196,6 +197,7 @@ const TeamPage = ({ urlType }) => {
 
       {/* SEO Content (intro/CTA/etc. dal SEO Admin) */}
       <SeoContentBlock data={teamData} lang={lang} />
+      <SeoSchemaInjector schema={teamData?.seo_meta_schema_jsonld} />
 
       <Footer />
     </div>

@@ -88,7 +88,20 @@ async def get_league_by_slug(slug: str):
         "seo_description": league.get("seo_description") or {},
         "seo_h1": league.get("seo_h1") or {},
         "seo_intro": league.get("seo_intro") or {},
+        "seo_main_content": league.get("seo_main_content") or {},
         "seo_cta": league.get("seo_cta") or {},
+        "seo_og_title": league.get("seo_og_title") or {},
+        "seo_og_description": league.get("seo_og_description") or {},
+        "seo_internal_links": league.get("seo_internal_links") or {},
+        "seo_image_alt_texts": league.get("seo_image_alt_texts") or {},
+        "seo_legal_disclosure": league.get("seo_legal_disclosure") or {},
+        "seo_meta_schema_jsonld": league.get("seo_meta_schema_jsonld") or None,
+        "faq_1_q": league.get("faq_1_q") or {},
+        "faq_1_a": league.get("faq_1_a") or {},
+        "faq_2_q": league.get("faq_2_q") or {},
+        "faq_2_a": league.get("faq_2_a") or {},
+        "faq_3_q": league.get("faq_3_q") or {},
+        "faq_3_a": league.get("faq_3_a") or {},
     }
 
 # Admin endpoints
