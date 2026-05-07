@@ -96,6 +96,37 @@ async def _run_health_autofix():
         logger.error(f"Health autofix error: {e}")
 
 
+async def _run_daily_snapshot():
+    """Snapshot giornaliero metriche sync-quality per il trend storico."""
+    try:
+        from datetime import datetime, timezone, timedelta
+        from database import db
+        now = datetime.now(timezone.utc)
+        since_24h = (now - timedelta(hours=24)).isoformat()
+        snap = {
+            "ts": now.replace(microsecond=0).isoformat(),
+            "date": now.date().isoformat(),
+            "events_total": await db.events.count_documents({}),
+            "teams_total": await db.teams.count_documents({}),
+            "leagues_total": await db.leagues.count_documents({}),
+            "normalized_24h_events": await db.events.count_documents({"_normalized_at": {"$gte": since_24h}}),
+            "normalized_24h_teams": await db.teams.count_documents({"_normalized_at": {"$gte": since_24h}}),
+            "fixes_24h": await db.health_fixes.count_documents({"ts": {"$gte": since_24h}}),
+            "logo_proxied": await db.teams.count_documents({"logo_url": {"$regex": "^/api/seo/team-logo/"}}),
+            "logo_missing": await db.teams.count_documents({
+                "$or": [{"logo_url": {"$exists": False}}, {"logo_url": ""}, {"logo_url": None}]
+            }),
+            "events_published": await db.events.count_documents({"seo_status": "Published"}),
+            "teams_published": await db.teams.count_documents({"seo_status": "Published"}),
+        }
+        await db.sync_quality_snapshots.update_one(
+            {"date": snap["date"]}, {"$set": snap}, upsert=True
+        )
+        logger.info(f"Daily snapshot saved: {snap['date']}")
+    except Exception as e:
+        logger.error(f"Daily snapshot error: {e}")
+
+
 def start_scheduler():
     """
     Avvia lo scheduler con:
@@ -132,8 +163,16 @@ def start_scheduler():
         max_instances=1,
         coalesce=True,
     )
+    _scheduler.add_job(
+        _run_daily_snapshot,
+        CronTrigger(hour=2, minute=0),
+        id="daily_snapshot",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
     _scheduler.start()
-    logger.info("AsyncIOScheduler avviato: sync 04:00/19:00, normalize-backstop 04:30/19:30, health-autofix 03:00 (UTC)")
+    logger.info("AsyncIOScheduler avviato: sync 04:00/19:00, normalize-backstop 04:30/19:30, snapshot 02:00, health-autofix 03:00 (UTC)")
 
 
 def stop_scheduler():

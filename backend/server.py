@@ -15,7 +15,7 @@ from routes import events, categories, search
 from routes import admin_auth, admin_content, admin_integrations, admin_providers
 from routes import upload, seo, sectors, leagues, teams, prerender
 from routes import sync as sync_routes
-from routes import seo_admin, seo_targets, seo_tools, seo_health
+from routes import seo_admin, seo_targets, seo_tools, seo_health, seo_sync_quality
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -118,6 +118,7 @@ app.include_router(seo_admin.router)
 app.include_router(seo_targets.router)
 app.include_router(seo_tools.router)
 app.include_router(seo_health.router)
+app.include_router(seo_sync_quality.router)
 
 app.add_middleware(
     CORSMiddleware,

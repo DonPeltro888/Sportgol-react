@@ -99,8 +99,22 @@
 - **Scheduler arricchito** (`services/scheduler.py`):
   - `auto_sync` 04:00/19:00 UTC (esistente)
   - `normalize_backstop` 04:30/19:30 UTC (NEW): cattura qualsiasi doc non normalizzato post-sync
+  - `daily_snapshot` 02:00 UTC (NEW): snapshot metriche per trend storico
   - `health_autofix` 03:00 UTC (NEW): bulk fix logo + dati mancanti via Perplexity + Gemini Vision per nuovi team
 - **Retroactive normalize**: lanciato `backstop_normalize_all` su 883 events + 221 teams + 35 leagues esistenti. Re-run `dedup_entities` post-normalize: ZERO duplicati rimasti.
+
+**FASE 6 (Sync Quality Dashboard) – ✅ DONE 2026-05-07**
+- `routes/seo_sync_quality.py` con 3 endpoint:
+  - `GET /api/seo/sync-quality/stats` - metriche real-time (totals, normalize 24h/7d, health_fixes, logo_coverage, missing_data top 20, trend snapshots)
+  - `POST /api/seo/sync-quality/snapshot` - manual snapshot trigger
+  - `GET /api/seo/sync-quality/sync-runs` - ultimi run di sync matchesio
+- `pages/admin/seo/SeoSyncQuality.jsx`: dashboard interattiva con
+  - 4 stat cards top (Events, Teams, Leagues, Logo Coverage %)
+  - 3 activity panels (Normalize 24h, AI Fixes 7gg, Logo Status)
+  - Trend chart sparkline (4 metriche su ultimi N snapshot)
+  - Top 20 missing data table con bottone "Fix AI" per team
+  - Recent sync runs table (matchesio_sync_runs)
+- Quick card "Sync Quality" (data-testid='seo-quick-sync-quality') in dashboard `/admin/seo`
 - Google Search Console integration (slot già nel catalog)
 - Google PageSpeed Insights integration
 - Keyword Research & Competitor Analysis UI page (DataForSEO già OK, manca UI)

@@ -113,6 +113,7 @@ import SeoPagesList from './pages/admin/seo/SeoPagesList';
 import SeoTargetEditor from './pages/admin/seo/SeoTargetEditor';
 import SeoBulkRunner from './pages/admin/seo/SeoBulkRunner';
 import SeoHealthDashboard from './pages/admin/seo/SeoHealthDashboard';
+import SeoSyncQuality from './pages/admin/seo/SeoSyncQuality';
 import NotFound from './pages/NotFound';
 import WhatsAppButton from './components/WhatsAppButton';
 
@@ -202,6 +203,9 @@ function App() {
             } />
             <Route path="/admin/seo/health" element={
               <ProtectedRoute><SeoHealthDashboard /></ProtectedRoute>
+            } />
+            <Route path="/admin/seo/sync-quality" element={
+              <ProtectedRoute><SeoSyncQuality /></ProtectedRoute>
             } />
             <Route path="/admin/translations" element={
               <ProtectedRoute><AdminTranslations /></ProtectedRoute>
