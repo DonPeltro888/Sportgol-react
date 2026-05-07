@@ -68,7 +68,10 @@
 - **Bug fix critici**:
   - `/api/events/by-team-slug/{slug}` con match esatto + scope league per evitare data leakage (es. Inter vs Inter Miami)
   - H1 hero pulito su TeamPage e LeaguePage (rimosso pattern lungo "| Confronta Prezzi e Posti")
-  - Loghi sbagliati (Inter aveva logo Arsenal!) corretti tramite Gemini Vision detection
+  - Loghi sbagliati (Inter, Heidenheim e altri 47 team avevano logo Arsenal!) corretti tramite Gemini Vision detection
+  - **Massive logo cleanup 2026-05-07**: bulk_fix_logos.py ha processato 94 team (48 Arsenal-bug + 46 missing). 36 team hanno ricevuto logo proxied locale via cache `/api/seo/team-logo/{slug}.png`. 34 placeholder TBD World Cup + 4 nazionali blank-loggati. Solo Arsenal mantiene il logo Arsenal corretto.
+  - **Logo lookup multi-name fix in events**: `routes/events.py` ora usa `normalize_team()` per il batch logo lookup, così "Fc Koln" matcha "1. Fc Köln", "Heidenheim" matcha "1. Fc Heidenheim", "Mainz" matcha "Fsv Mainz 05", ecc.
+  - **Massive event dedup**: 34 eventi duplicati eliminati + 4 team duplicati. Ora "Heidenheim vs Mainz" appare una sola volta (non più anche come "1. Fc Heidenheim vs Fsv Mainz 05").
 - **Servizi nuovi**:
   - `services/seo_health_check.py`: scan_teams/events/leagues con fuzzy matching (rapidfuzz), name confusion detection, logo collision, missing data
   - `services/seo_ai_validator.py`: Perplexity validate metadata + Gemini Vision (gemini-2.5-pro con ImageContent) verify logo, find_alternative_logo con multi-candidate validation + Wikimedia Special:FilePath normalization + WIKI_USER_AGENT compliance + download_and_cache_logo (proxy locale per evitare 403 Wikimedia)

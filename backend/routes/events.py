@@ -96,26 +96,28 @@ async def get_events(
         events = await db.events.find(query).sort([("sort_date", 1), ("created_at", 1)]).skip(skip).limit(limit).to_list(length=limit)
         
         # Enrich events with team logos (single batch query for performance)
+        from services.team_normalize import normalize_team
         team_names = set()
         for ev in events:
             if ev.get("home_team"): team_names.add(ev["home_team"])
             if ev.get("away_team"): team_names.add(ev["away_team"])
-        
+
+        team_logo_map: dict = {}
         if team_names:
-            teams_cursor = db.teams.find(
-                {"name": {"$in": list(team_names)}, "logo_url": {"$exists": True, "$ne": ""}},
+            async for t in db.teams.find(
+                {"logo_url": {"$exists": True, "$ne": ""}},
                 {"_id": 0, "name": 1, "logo_url": 1}
-            )
-            team_logo_map = {t["name"]: t["logo_url"] async for t in teams_cursor}
-        else:
-            team_logo_map = {}
-        
+            ):
+                norm = normalize_team(t.get("name", ""))
+                if norm and norm not in team_logo_map:
+                    team_logo_map[norm] = t["logo_url"]
+
         # Convert ObjectId to string + attach logos
         for event in events:
             event["_id"] = str(event["_id"])
             event["id"] = str(event["_id"])
-            event["home_team_logo"] = team_logo_map.get(event.get("home_team"))
-            event["away_team_logo"] = team_logo_map.get(event.get("away_team"))
+            event["home_team_logo"] = team_logo_map.get(normalize_team(event.get("home_team", "")))
+            event["away_team_logo"] = team_logo_map.get(normalize_team(event.get("away_team", "")))
             # slug already stored in DB via backfill; fallback if missing
             if not event.get("slug"):
                 from services.event_slug import compute_base_slug
@@ -143,15 +145,19 @@ async def get_event_by_slug(slug: str):
         event["_id"] = str(event["_id"])
         event["id"] = str(event["_id"])
 
-        # Enrich with team logos
+        # Enrich with team logos (normalized lookup)
+        from services.team_normalize import normalize_team
         for team_field, logo_field in [("home_team", "home_team_logo"), ("away_team", "away_team_logo")]:
             team_name = event.get(team_field)
             if team_name:
-                team_doc = await db.teams.find_one(
-                    {"name": team_name},
-                    {"_id": 0, "logo_url": 1},
-                )
-                event[logo_field] = team_doc.get("logo_url") if team_doc else None
+                norm = normalize_team(team_name)
+                # find any team whose normalized name matches
+                logo: str = ""
+                async for t in db.teams.find({"logo_url": {"$exists": True, "$ne": ""}}, {"_id": 0, "name": 1, "logo_url": 1}):
+                    if normalize_team(t.get("name", "")) == norm:
+                        logo = t["logo_url"]
+                        break
+                event[logo_field] = logo or None
 
         return event
     except HTTPException:
@@ -198,25 +204,29 @@ async def get_events_by_team_slug(team_slug: str, limit: int = 50):
 
         events = await db.events.find(query).sort("sort_date", 1).limit(limit).to_list(length=limit)
 
-        # Enrich with team logos (batch)
+        # Enrich with team logos (batch with normalized matching)
+        from services.team_normalize import normalize_team
         team_names = set()
         for ev in events:
             if ev.get("home_team"): team_names.add(ev["home_team"])
             if ev.get("away_team"): team_names.add(ev["away_team"])
+
+        # Build team_logo_map keyed BY NORMALIZED name → logo
+        team_logo_map: dict = {}
         if team_names:
-            teams_cursor = db.teams.find(
-                {"name": {"$in": list(team_names)}, "logo_url": {"$exists": True, "$ne": ""}},
+            async for t in db.teams.find(
+                {"logo_url": {"$exists": True, "$ne": ""}},
                 {"_id": 0, "name": 1, "logo_url": 1}
-            )
-            team_logo_map = {t["name"]: t["logo_url"] async for t in teams_cursor}
-        else:
-            team_logo_map = {}
+            ):
+                norm = normalize_team(t.get("name", ""))
+                if norm and norm not in team_logo_map:
+                    team_logo_map[norm] = t["logo_url"]
 
         for event in events:
             event["_id"] = str(event["_id"])
             event["id"] = str(event["_id"])
-            event["home_team_logo"] = team_logo_map.get(event.get("home_team"))
-            event["away_team_logo"] = team_logo_map.get(event.get("away_team"))
+            event["home_team_logo"] = team_logo_map.get(normalize_team(event.get("home_team", "")))
+            event["away_team_logo"] = team_logo_map.get(normalize_team(event.get("away_team", "")))
 
         return {
             "team": {"slug": team_slug, "name": team_name, "league_slug": team_league_slug},
