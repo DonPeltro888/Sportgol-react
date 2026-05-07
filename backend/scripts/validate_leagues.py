@@ -48,30 +48,17 @@ OPENFOOTBALL_LEAGUES = {
 
 
 async def fetch_openfootball_teams(league_slug: str) -> List[str]:
-    path = OPENFOOTBALL_LEAGUES.get(league_slug)
-    if not path:
-        return []
-    url = f"https://raw.githubusercontent.com/openfootball/football.json/master/{path}"
-    async with httpx.AsyncClient(timeout=20) as cx:
-        r = await cx.get(url)
-    if r.status_code != 200:
-        return []
-    d = r.json()
-    teams: Set[str] = set()
-    for m in d.get("matches", []):
-        for k in ("team1", "team2"):
-            t = m.get(k)
-            if isinstance(t, dict):
-                teams.add(t.get("name") or "")
-            elif isinstance(t, str):
-                teams.add(t)
-    return [t for t in teams if t]
+    """Wrapper retrocompatibile — usa il runtime validator (OpenFootball + Perplexity fallback)."""
+    from services.league_validator import get_canonical_teams  # noqa
+    norm_set = await get_canonical_teams(league_slug)
+    # Restituisce direttamente i nomi normalizzati (lo script li ri-normalizza ma è idempotente)
+    return list(norm_set)
 
 
 async def validate_league(db, league_slug: str, dry_run: bool = True) -> Dict:
     canonical_names = await fetch_openfootball_teams(league_slug)
     if not canonical_names:
-        return {"error": f"OpenFootball: league {league_slug} not available", "league": league_slug}
+        return {"error": f"Canonical source: league {league_slug} not available", "league": league_slug}
 
     canonical_norm: Set[str] = {normalize_team(n) for n in canonical_names}
     canonical_norm.discard("")

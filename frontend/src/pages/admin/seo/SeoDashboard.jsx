@@ -101,6 +101,25 @@ const SeoDashboard = () => {
           >
             Esegui Dedup ora
           </button>
+          <button
+            onClick={async () => {
+              if (!window.confirm('Valido tutte le leghe contro OpenFootball + Perplexity? Le squadre obsolete (es. Venezia in Serie A 2024/25) saranno archiviate.')) return;
+              try {
+                const token = localStorage.getItem('admin_token');
+                const r = await fetch(`${API_URL}/api/seo/maintenance/validate-leagues`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+                const d = await r.json();
+                if (r.ok) {
+                  const total_orphans = (d.results || []).reduce((s, x) => s + (x.orphans?.length || 0), 0);
+                  toast.success(`Validazione OK: ${total_orphans} squadre archiviate`);
+                  load();
+                } else toast.error('Errore validazione');
+              } catch (e) { toast.error('Errore di rete'); }
+            }}
+            data-testid="seo-validate-leagues-btn"
+            className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold whitespace-nowrap"
+          >
+            Valida Composizione Leghe
+          </button>
         </div>
 
         {/* Stats */}

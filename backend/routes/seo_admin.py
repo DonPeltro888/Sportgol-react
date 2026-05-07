@@ -302,6 +302,27 @@ async def run_dedup(_=Depends(verify_admin_token)) -> Dict[str, Any]:
     }
 
 
+@router.post("/maintenance/validate-leagues")
+async def run_validate_leagues(_=Depends(verify_admin_token)) -> Dict[str, Any]:
+    """
+    Valida composizione di tutte le leghe contro fonti canoniche
+    (OpenFootball + Perplexity fallback).
+    Squadre obsolete vengono archiviate (league_slug=null, league_slug_archive=<old>).
+    """
+    sys.path.insert(0, "/app/backend")
+    from scripts.validate_leagues import validate_league, OPENFOOTBALL_LEAGUES  # type: ignore
+
+    out: Dict[str, Any] = {"results": []}
+    for lg in OPENFOOTBALL_LEAGUES:
+        try:
+            r = await validate_league(db, lg, dry_run=False)
+            out["results"].append(r)
+        except Exception as e:
+            out["results"].append({"league": lg, "error": str(e)[:200]})
+    out["ran_at"] = datetime.now(timezone.utc).isoformat()
+    return out
+
+
 # ─── Seed (idempotente) ─────────────────────────────────────────────────────
 
 @router.post("/_seed_keys")

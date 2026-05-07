@@ -264,17 +264,37 @@ async def populate_team_logos(refresh_existing: bool = False, batch_limit: int =
                 ) if primary_league else None
                 league_slug = league_doc.get("slug") if league_doc else None
 
-                await db.teams.insert_one({
+                # Validazione: il team appartiene davvero alla lega in stagione corrente?
+                # Usa OpenFootball + Perplexity (cache 30g) per prevenire team obsoleti
+                # in lega sbagliata (es. Venezia in Serie A 2025/26).
+                team_archived = False
+                if league_slug:
+                    try:
+                        from services.league_validator import is_team_in_league
+                        if not await is_team_in_league(team_name, league_slug):
+                            logger.info(f"logo_fetcher: {team_name} non in {league_slug} 2025/26 → archive")
+                            team_archived = True
+                    except Exception as e:
+                        logger.warning(f"league_validator failed for {team_name}: {e}")
+
+                doc = {
                     "name": team_name,
                     "slug": team_slug,
                     "logo_url": logo,
-                    "league_slug": league_slug,
+                    "league_slug": None if team_archived else league_slug,
                     "active": True,
                     "auto_created": True,
                     "order": 999,
-                })
+                }
+                if team_archived:
+                    doc["league_slug_archive"] = league_slug
+                    doc["season_archive"] = "before-2025-26"
+                    stats.setdefault("archived_at_creation", 0)
+                    stats["archived_at_creation"] += 1
+
+                await db.teams.insert_one(doc)
                 stats["created"] += 1
-                logger.info(f"logo_fetcher: creato team {team_name} con logo")
+                logger.info(f"logo_fetcher: creato team {team_name}{' (ARCHIVED)' if team_archived else ''}")
 
     return stats
 
