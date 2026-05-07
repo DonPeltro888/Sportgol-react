@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
+import SeoTargetSelector from '../../../components/admin/SeoTargetSelector';
 import { useAdminAuth } from '../../../contexts/AdminAuthContext';
-import { Loader2, Play, Download, RefreshCw, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Loader2, Play, Download, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -21,24 +22,22 @@ const StatusBadge = ({ status }) => (
 
 const SeoBulkRunner = () => {
   const { authFetch } = useAdminAuth();
-  const [leagues, setLeagues] = useState([]);
-  const [selectedLeague, setSelectedLeague] = useState('serie-a');
-  const [bulkType, setBulkType] = useState('team');
+  const [target, setTarget] = useState({ leagueSlug: '', teamSlug: '', eventSlug: '' });
+  // scope = "teams_of_league" | "events_of_league" | "events_of_team" | "single_event" | "single_team" | "single_league"
+  const [scope, setScope] = useState('teams_of_league');
   const [onlyPending, setOnlyPending] = useState(true);
-  const [bulkLimit, setBulkLimit] = useState(20);
+  const [bulkLimit, setBulkLimit] = useState(50);
   const [launching, setLaunching] = useState(false);
   const [jobs, setJobs] = useState([]);
   const [autoRefresh, setAutoRefresh] = useState(true);
 
-  const loadLeagues = async () => {
-    try {
-      const r = await fetch(`${API_URL}/api/leagues/active-slugs`);
-      if (r.ok) {
-        const d = await r.json();
-        setLeagues(d.slugs || d.leagues || []);
-      }
-    } catch (e) { /* ignore */ }
-  };
+  // Auto-suggest scope based on selection
+  useEffect(() => {
+    if (target.eventSlug) setScope('single_event');
+    else if (target.teamSlug) setScope('events_of_team');
+    else if (target.leagueSlug) setScope(s => (s === 'events_of_league' ? 'events_of_league' : 'teams_of_league'));
+    else setScope('teams_of_league');
+  }, [target.leagueSlug, target.teamSlug, target.eventSlug]);
 
   const loadJobs = useCallback(async () => {
     try {
@@ -50,40 +49,64 @@ const SeoBulkRunner = () => {
     } catch (e) { /* ignore */ }
   }, [authFetch]);
 
-  useEffect(() => {
-    loadLeagues();
-    loadJobs();
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, []);
-
+  useEffect(() => { loadJobs(); /* eslint-disable-next-line */ }, []);
   useEffect(() => {
     if (!autoRefresh) return;
     const t = setInterval(loadJobs, 4000);
     return () => clearInterval(t);
   }, [autoRefresh, loadJobs]);
 
-  const launchBulk = async () => {
-    if (!selectedLeague) return toast.error('Scegli una lega');
-    if (!window.confirm(`Avvio generazione SEO bulk per ${bulkType === 'team' ? 'tutte le squadre' : 'tutti gli eventi'} di ${selectedLeague}? Ogni entity richiede ~60-90s.`)) return;
+  const launchSingle = async (type, id) => {
+    const r = await authFetch(`${API_URL}/api/seo/targets/${type}/${id}/generate`, { method: 'POST' });
+    const d = await r.json().catch(() => ({}));
+    if (r.ok) {
+      toast.success(`Job avviato: ${d.job_id?.slice(0, 8)}`);
+      loadJobs();
+    } else toast.error(d.detail || 'Errore avvio');
+  };
+
+  const launchBulkLeague = async (type, extra = {}) => {
+    if (!target.leagueSlug) return toast.error('Seleziona una lega');
+    const r = await authFetch(`${API_URL}/api/seo/targets/bulk-generate-league`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        league_slug: target.leagueSlug,
+        type,
+        only_pending: onlyPending,
+        limit: parseInt(bulkLimit, 10) || 50,
+        ...extra,
+      }),
+    });
+    const d = await r.json().catch(() => ({}));
+    if (r.ok) {
+      toast.success(`Avviati ${d.queued} job in parallelo`);
+      loadJobs();
+    } else toast.error(d.detail || 'Errore avvio');
+  };
+
+  const launch = async () => {
     setLaunching(true);
     try {
-      const r = await authFetch(`${API_URL}/api/seo/targets/bulk-generate-league`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          league_slug: selectedLeague,
-          type: bulkType,
-          only_pending: onlyPending,
-          limit: parseInt(bulkLimit, 10) || 20,
-        }),
-      });
-      const d = await r.json();
-      if (r.ok) {
-        toast.success(`Avviati ${d.queued} job in parallelo`);
-        loadJobs();
-      } else toast.error(d.detail || 'Errore avvio');
-    } catch (e) { toast.error('Errore di rete'); }
-    finally { setLaunching(false); }
+      if (scope === 'single_event' && target.eventSlug) {
+        await launchSingle('event', target.eventSlug);
+      } else if (scope === 'single_team' && target.teamSlug) {
+        await launchSingle('team', target.teamSlug);
+      } else if (scope === 'single_league' && target.leagueSlug) {
+        await launchSingle('league', target.leagueSlug);
+      } else if (scope === 'events_of_team' && target.leagueSlug && target.teamSlug) {
+        if (!window.confirm(`Avvio generazione SEO per tutti gli eventi di "${target.teamSlug}" (max ${bulkLimit})?`)) return;
+        await launchBulkLeague('event', { team_slug: target.teamSlug });
+      } else if (scope === 'events_of_league' && target.leagueSlug) {
+        if (!window.confirm(`Avvio generazione SEO per tutti gli eventi di "${target.leagueSlug}" (max ${bulkLimit})?`)) return;
+        await launchBulkLeague('event');
+      } else if (scope === 'teams_of_league' && target.leagueSlug) {
+        if (!window.confirm(`Avvio generazione SEO per tutte le squadre di "${target.leagueSlug}" (max ${bulkLimit})?`)) return;
+        await launchBulkLeague('team');
+      } else {
+        toast.error('Selezione incompleta per lo scope scelto');
+      }
+    } finally { setLaunching(false); }
   };
 
   const downloadExport = async (format) => {
@@ -102,11 +125,22 @@ const SeoBulkRunner = () => {
     } catch (e) { toast.error('Errore download'); }
   };
 
-  // Stats
-  const stats = jobs.reduce((acc, j) => {
-    acc[j.status] = (acc[j.status] || 0) + 1;
-    return acc;
-  }, {});
+  const stats = jobs.reduce((acc, j) => { acc[j.status] = (acc[j.status] || 0) + 1; return acc; }, {});
+
+  // Available scope options based on current selection
+  const scopeOptions = [];
+  if (target.leagueSlug) {
+    scopeOptions.push({ value: 'teams_of_league', label: '🏟️ Tutte le squadre della lega' });
+    scopeOptions.push({ value: 'events_of_league', label: '📅 Tutti gli eventi della lega' });
+    scopeOptions.push({ value: 'single_league', label: '🏆 Solo la lega' });
+  }
+  if (target.teamSlug) {
+    scopeOptions.push({ value: 'events_of_team', label: '📅 Tutti gli eventi della squadra' });
+    scopeOptions.push({ value: 'single_team', label: '👥 Solo la squadra' });
+  }
+  if (target.eventSlug) {
+    scopeOptions.push({ value: 'single_event', label: '🎯 Solo questo evento' });
+  }
 
   return (
     <AdminLayout>
@@ -114,7 +148,7 @@ const SeoBulkRunner = () => {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-white">SEO Bulk Runner & Export</h1>
           <p className="text-sm text-gray-400 mt-1">
-            Avvia la pipeline AI in batch su intere leghe e scarica i payload SEO per backup/migrazione.
+            Filtra a cascata Lega → Squadra → Evento e scegli lo scope di generazione AI.
           </p>
         </div>
 
@@ -123,31 +157,21 @@ const SeoBulkRunner = () => {
           <h2 className="text-lg font-bold text-white mb-3 inline-flex items-center gap-2">
             <Play className="w-5 h-5 text-blue-400" /> Bulk Generate
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+
+          <SeoTargetSelector value={target} onChange={setTarget} />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
             <div className="md:col-span-2">
-              <label className="text-xs text-gray-400 mb-1 block">Lega (slug)</label>
-              <input
-                value={selectedLeague}
-                onChange={e => setSelectedLeague(e.target.value)}
-                list="leagues-list"
-                placeholder="es. serie-a"
-                data-testid="bulk-league-input"
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-white text-sm focus:border-blue-500 focus:outline-none"
-              />
-              <datalist id="leagues-list">
-                {leagues.map(s => <option key={s} value={s} />)}
-              </datalist>
-            </div>
-            <div>
-              <label className="text-xs text-gray-400 mb-1 block">Tipo</label>
+              <label className="text-xs text-gray-400 mb-1 block">Cosa generare</label>
               <select
-                value={bulkType}
-                onChange={e => setBulkType(e.target.value)}
-                data-testid="bulk-type-select"
+                value={scope}
+                onChange={e => setScope(e.target.value)}
+                data-testid="bulk-scope-select"
                 className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-white text-sm focus:border-blue-500 focus:outline-none"
+                disabled={!target.leagueSlug}
               >
-                <option value="team">Squadre</option>
-                <option value="event">Eventi</option>
+                {scopeOptions.length === 0 && <option value="">Seleziona almeno una lega…</option>}
+                {scopeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
             <div>
@@ -157,31 +181,27 @@ const SeoBulkRunner = () => {
                 value={bulkLimit}
                 onChange={e => setBulkLimit(e.target.value)}
                 min="1"
-                max="50"
+                max="200"
                 className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-white text-sm focus:border-blue-500 focus:outline-none"
               />
             </div>
-            <div className="flex items-end">
-              <label className="text-xs text-gray-300 inline-flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={onlyPending}
-                  onChange={e => setOnlyPending(e.target.checked)}
-                  className="w-4 h-4"
-                />
-                Solo non pubblicati
-              </label>
-            </div>
           </div>
-          <button
-            onClick={launchBulk}
-            disabled={launching}
-            data-testid="bulk-launch-btn"
-            className="mt-4 px-5 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-semibold inline-flex items-center gap-2 disabled:opacity-50"
-          >
-            {launching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-            Avvia Bulk Generation
-          </button>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
+            <label className="text-xs text-gray-300 inline-flex items-center gap-2">
+              <input type="checkbox" checked={onlyPending} onChange={e => setOnlyPending(e.target.checked)} className="w-4 h-4" />
+              Solo non pubblicati
+            </label>
+            <button
+              onClick={launch}
+              disabled={launching || !target.leagueSlug}
+              data-testid="bulk-launch-btn"
+              className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-semibold inline-flex items-center gap-2 disabled:opacity-50"
+            >
+              {launching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+              Avvia Generazione
+            </button>
+          </div>
         </div>
 
         {/* Export */}
@@ -193,27 +213,16 @@ const SeoBulkRunner = () => {
             Scarica i dati SEO di tutte le entity pubblicate (events + leagues + teams) per backup o migrazione.
           </p>
           <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => downloadExport('json')}
-              data-testid="export-json-btn"
-              className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold inline-flex items-center gap-2"
-            >
-              <Download className="w-4 h-4" /> JSON
-            </button>
-            <button
-              onClick={() => downloadExport('csv')}
-              data-testid="export-csv-btn"
-              className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold inline-flex items-center gap-2"
-            >
-              <Download className="w-4 h-4" /> CSV
-            </button>
-            <button
-              onClick={() => downloadExport('ndjson')}
-              data-testid="export-ndjson-btn"
-              className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold inline-flex items-center gap-2"
-            >
-              <Download className="w-4 h-4" /> NDJSON
-            </button>
+            {['json', 'csv', 'ndjson'].map(fmt => (
+              <button
+                key={fmt}
+                onClick={() => downloadExport(fmt)}
+                data-testid={`export-${fmt}-btn`}
+                className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold inline-flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" /> {fmt.toUpperCase()}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -223,33 +232,21 @@ const SeoBulkRunner = () => {
             <h2 className="text-lg font-bold text-white">Jobs ({jobs.length})</h2>
             <div className="flex items-center gap-3">
               <label className="text-xs text-gray-300 inline-flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={autoRefresh}
-                  onChange={e => setAutoRefresh(e.target.checked)}
-                  className="w-4 h-4"
-                />
+                <input type="checkbox" checked={autoRefresh} onChange={e => setAutoRefresh(e.target.checked)} className="w-4 h-4" />
                 Auto-refresh
               </label>
-              <button
-                onClick={loadJobs}
-                className="px-3 py-1.5 rounded bg-gray-700 hover:bg-gray-600 text-xs text-white inline-flex items-center gap-1"
-              >
+              <button onClick={loadJobs} className="px-3 py-1.5 rounded bg-gray-700 hover:bg-gray-600 text-xs text-white inline-flex items-center gap-1">
                 <RefreshCw className="w-3 h-3" /> Refresh
               </button>
             </div>
           </div>
 
-          {/* Stats */}
           <div className="flex flex-wrap gap-2 mb-4">
             {Object.entries(stats).map(([k, v]) => (
-              <span key={k} className={`px-3 py-1 rounded text-xs font-bold ${STATUS_BADGE[k]}`}>
-                {k}: {v}
-              </span>
+              <span key={k} className={`px-3 py-1 rounded text-xs font-bold ${STATUS_BADGE[k]}`}>{k}: {v}</span>
             ))}
           </div>
 
-          {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -270,10 +267,7 @@ const SeoBulkRunner = () => {
                     <td className="py-2 px-2 font-mono text-[11px]">{(j._id || '').slice(0, 8)}</td>
                     <td className="py-2 px-2">{j.target_type}</td>
                     <td className="py-2 px-2">
-                      <a
-                        href={`/admin/seo/targets/${j.target_type}/${j.target_id}`}
-                        className="text-blue-400 hover:text-blue-300"
-                      >
+                      <a href={`/admin/seo/targets/${j.target_type}/${j.target_id}`} className="text-blue-400 hover:text-blue-300">
                         {j.target_id}
                       </a>
                     </td>

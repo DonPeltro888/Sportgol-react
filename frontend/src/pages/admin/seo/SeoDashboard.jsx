@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
+import SeoFilterStatusPanel from '../../../components/admin/SeoFilterStatusPanel';
 import { useAdminAuth } from '../../../contexts/AdminAuthContext';
 import { Link } from 'react-router-dom';
 import {
@@ -196,6 +197,9 @@ const SeoDashboard = () => {
             <p className="text-xs text-gray-400">Genera SEO in batch per intere leghe + export JSON/CSV</p>
           </Link>
         </div>
+
+        {/* Filter & Status Panel (cascading: lega → squadra → evento) */}
+        <SeoFilterStatusPanel />
 
         {/* Pipeline Map */}
         <div className="rounded-xl border border-gray-700 bg-gray-800/40 p-6">

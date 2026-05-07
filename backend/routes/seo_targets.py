@@ -157,17 +157,24 @@ async def list_targets(
     type: str = Query("event"),
     q: Optional[str] = None,
     status: Optional[str] = None,
+    league_slug: Optional[str] = None,
+    team_slug: Optional[str] = None,
     limit: int = 50,
     offset: int = 0,
     _=Depends(verify_admin_token),
 ) -> Dict[str, Any]:
-    """Lista entity esistenti (events/leagues/teams) con stato SEO."""
+    """Lista entity esistenti (events/leagues/teams) con stato SEO.
+    Filtri opzionali:
+    - league_slug: per type=team filtra per `league_slug`; per type=event filtra per nome lega.
+    - team_slug: per type=event filtra per home_team/away_team del team (con scope di lega per anti-collision Inter vs Inter Miami).
+    """
     coll_name = COLLECTION_MAP.get(type)
     if not coll_name:
         raise HTTPException(400, "type must be event|league|team")
 
     coll = db[coll_name]
     flt: Dict[str, Any] = {}
+    extra_and: List[Dict[str, Any]] = []
     if q:
         flt["$or"] = [
             {"title": {"$regex": q, "$options": "i"}},
@@ -178,6 +185,49 @@ async def list_targets(
         ]
     if status:
         flt["seo_status"] = status
+
+    # League filter
+    if league_slug:
+        if type == "team":
+            flt["league_slug"] = league_slug
+        elif type == "event":
+            league_doc = await db.leagues.find_one({"slug": league_slug}, {"_id": 0, "name": 1})
+            if league_doc:
+                import re as _re
+                league_re = f"^{_re.escape(league_doc.get('name', ''))}$"
+                extra_and.append({"$or": [
+                    {"league": {"$regex": league_re, "$options": "i"}},
+                    {"league_slug": league_slug},
+                ]})
+            else:
+                # league not found → return empty
+                extra_and.append({"_id": {"$exists": False}})
+        elif type == "league":
+            flt["slug"] = league_slug
+
+    # Team filter (only events)
+    if team_slug and type == "event":
+        team_doc = await db.teams.find_one({"slug": team_slug}, {"_id": 0, "name": 1, "league_slug": 1})
+        if team_doc:
+            import re as _re
+            team_re = f"^{_re.escape(team_doc.get('name', ''))}$"
+            team_clause: Dict[str, Any] = {"$or": [
+                {"home_team": {"$regex": team_re, "$options": "i"}},
+                {"away_team": {"$regex": team_re, "$options": "i"}},
+            ]}
+            # scope league name to avoid Inter vs Inter Miami leakage
+            t_league_slug = team_doc.get("league_slug")
+            if t_league_slug:
+                t_league_doc = await db.leagues.find_one({"slug": t_league_slug}, {"_id": 0, "name": 1})
+                if t_league_doc:
+                    league_re = f"^{_re.escape(t_league_doc.get('name', ''))}$"
+                    team_clause = {"$and": [team_clause, {"league": {"$regex": league_re, "$options": "i"}}]}
+            extra_and.append(team_clause)
+        else:
+            extra_and.append({"_id": {"$exists": False}})
+
+    if extra_and:
+        flt = {"$and": [flt, *extra_and]} if flt else {"$and": extra_and}
 
     total = await coll.count_documents(flt)
     sort = [("sort_date", -1)] if type == "event" else [("name", 1)]

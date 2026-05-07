@@ -17,6 +17,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
 import { getSeoTitle, getSeoDescription, getTeamUrl, getLeagueUrl, getEventUrl } from '../utils/seoHelpers';
 import { getTeamLogo } from '../data/teamLogos';
+import { resolveSeoHeroUrl } from '../utils/seoHero';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -162,18 +163,26 @@ const EventDetail = () => {
   const seoDescription = getSeoMetaDescription(event, lang, getSeoDescription('event', eventTitle, lang, { stadium: event.stadium, date: event.date }));
   const customH1 = getSeoH1(event, lang, '');
   const canonicalUrl = `${window.location.origin}${getEventUrl(event, lang)}`;
+  const heroImageUrl = resolveSeoHeroUrl(event.seo_hero_image_url);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <SEOHead title={seoTitle} description={seoDescription} canonicalUrl={canonicalUrl} ogImage={event.imageUrl || event.image} />
+      <SEOHead title={seoTitle} description={seoDescription} canonicalUrl={canonicalUrl} ogImage={heroImageUrl || event.imageUrl || event.image} />
       <EventSchema event={event} lang={lang} />
       <BreadcrumbSchema items={[{ name: 'Home', url: '/' }, { name: event.league, url: getLeagueUrl(event.league?.toLowerCase().replace(/\s+/g, '-'), lang) }, { name: eventTitle, url: null }]} />
       
       <Header />
       
       {/* Hero Section */}
-      <div className="bg-[#2D3436] py-6 px-4">
-        <div className="container mx-auto">
+      <div
+        className="relative bg-[#2D3436] py-6 px-4 overflow-hidden"
+        style={heroImageUrl ? { backgroundImage: `url(${heroImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+        data-testid="event-hero-section"
+      >
+        {heroImageUrl && (
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40 pointer-events-none" data-testid="event-hero-overlay" />
+        )}
+        <div className="container mx-auto relative z-10">
           <Breadcrumbs items={[{ name: event.league, url: getLeagueUrl(event.league?.toLowerCase().replace(/\s+/g, '-'), lang) }, { name: eventTitle, url: null }]} />
           
           <div className="flex flex-col items-center mt-4">

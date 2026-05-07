@@ -15,6 +15,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
 import { getLeagueUrl, getTeamUrl, getSeoTitle, getSeoDescription } from '../utils/seoHelpers';
 import { getTeamLogo, getLeagueLogo } from '../data/teamLogos';
+import { resolveSeoHeroUrl } from '../utils/seoHero';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -139,6 +140,7 @@ const LeaguePage = ({ urlType }) => {
   const seoDescription = getSeoMetaDescription(leagueData, lang, getSeoDescription('league', leagueName, lang, { teamCount: teams.length }));
   const customH1 = getSeoH1(leagueData, lang, '');
   const canonicalUrl = `${window.location.origin}${getLeagueUrl(actualLeague, lang)}`;
+  const heroImageUrl = resolveSeoHeroUrl(leagueData?.seo_hero_image_url);
 
   if (loading) {
     return (
@@ -172,7 +174,7 @@ const LeaguePage = ({ urlType }) => {
         title={seoTitle}
         description={seoDescription}
         canonicalUrl={canonicalUrl}
-        ogImage="https://images.unsplash.com/photo-1574629810360-7efbbe195018"
+        ogImage={heroImageUrl || "https://images.unsplash.com/photo-1574629810360-7efbbe195018"}
       />
       <LeagueSchema leagueName={leagueName} teams={teams.map(getTeamName)} lang={lang} />
       <BreadcrumbSchema items={[
@@ -183,8 +185,15 @@ const LeaguePage = ({ urlType }) => {
       <Header />
       
       {/* Hero Section */}
-      <div className="relative py-6 md:py-8 px-4 bg-[#2D3436]">
-        <div className="container mx-auto">
+      <div
+        className="relative py-6 md:py-8 px-4 bg-[#2D3436] overflow-hidden"
+        style={heroImageUrl ? { backgroundImage: `url(${heroImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+        data-testid="league-hero-section"
+      >
+        {heroImageUrl && (
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40 pointer-events-none" data-testid="league-hero-overlay" />
+        )}
+        <div className="container mx-auto relative z-10">
           <Breadcrumbs items={[
             { name: leagueName, url: null }
           ]} />

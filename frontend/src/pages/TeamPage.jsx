@@ -15,6 +15,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
 import { getTeamUrl, getSeoTitle, getSeoDescription } from '../utils/seoHelpers';
 import { getTeamLogo } from '../data/teamLogos';
+import { resolveSeoHeroUrl } from '../utils/seoHero';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -112,6 +113,7 @@ const TeamPage = ({ urlType }) => {
   const seoDescription = getSeoMetaDescription(teamData, lang, fallbackDesc);
   const customH1 = getSeoH1(teamData, lang, '');
   const canonicalUrl = `${window.location.origin}${getTeamUrl(actualSlug, lang)}`;
+  const heroImageUrl = resolveSeoHeroUrl(teamData?.seo_hero_image_url);
 
   return (
     <div className="min-h-screen bg-white">
@@ -119,7 +121,7 @@ const TeamPage = ({ urlType }) => {
         title={seoTitle}
         description={seoDescription}
         canonicalUrl={canonicalUrl}
-        ogImage={teamLogo || "https://images.unsplash.com/photo-1574629810360-7efbbe195018"}
+        ogImage={heroImageUrl || teamLogo || "https://images.unsplash.com/photo-1574629810360-7efbbe195018"}
       />
       <TeamSchema teamName={teamName} lang={lang} />
       <BreadcrumbSchema items={[
@@ -130,8 +132,15 @@ const TeamPage = ({ urlType }) => {
       <Header />
       
       {/* Hero Section - Compact */}
-      <div className="relative py-8 md:py-12 px-4 bg-[#2D3436]">
-        <div className="container mx-auto max-w-4xl">
+      <div
+        className="relative py-8 md:py-12 px-4 bg-[#2D3436] overflow-hidden"
+        style={heroImageUrl ? { backgroundImage: `url(${heroImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+        data-testid="team-hero-section"
+      >
+        {heroImageUrl && (
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40 pointer-events-none" data-testid="team-hero-overlay" />
+        )}
+        <div className="container mx-auto max-w-4xl relative z-10">
           <button
             onClick={() => navigate('/')}
             className="text-gray-300 hover:text-white flex items-center gap-1 mb-4 transition-colors"

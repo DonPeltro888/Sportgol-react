@@ -214,6 +214,7 @@ class BulkLeagueRequest(BaseModel):
     type: str = "team"   # team|event
     only_pending: bool = True   # salta entity con seo_status == 'Published'
     limit: int = 50
+    team_slug: Optional[str] = None  # se settato e type='event' → filtra eventi della squadra
 
 
 @router.post("/targets/bulk-generate-league")
@@ -222,16 +223,43 @@ async def bulk_generate_for_league(
     _=Depends(verify_admin_token),
 ) -> Dict[str, Any]:
     """
-    Avvia generazione bulk per tutte le entity di una lega.
-    Esempio: bulk-generate-league {league_slug:'serie-a', type:'team'} → genera tutte le 20 squadre.
+    Avvia generazione bulk per tutte le entity di una lega (o di una squadra dentro una lega).
+    Esempi:
+      - {league_slug:'serie-a', type:'team'} → genera tutte le 20 squadre.
+      - {league_slug:'serie-a', type:'event'} → genera tutti gli eventi della Serie A.
+      - {league_slug:'serie-a', type:'event', team_slug:'inter'} → genera tutti gli eventi dell'Inter (con scope lega).
     """
     coll_name = COLLECTION_MAP.get(payload.type)
     if not coll_name or payload.type not in ("team", "event"):
         raise HTTPException(400, "type must be 'team' or 'event'")
 
-    flt: Dict[str, Any] = {"league_slug": payload.league_slug}
+    flt: Dict[str, Any] = {}
+    if payload.type == "team":
+        flt["league_slug"] = payload.league_slug
+    else:  # event
+        # Resolve league name (events store league name, not slug)
+        league_doc = await db.leagues.find_one({"slug": payload.league_slug}, {"_id": 0, "name": 1})
+        if not league_doc:
+            raise HTTPException(404, f"League '{payload.league_slug}' not found")
+        import re as _re
+        league_re = f"^{_re.escape(league_doc.get('name', ''))}$"
+        flt = {"$or": [
+            {"league": {"$regex": league_re, "$options": "i"}},
+            {"league_slug": payload.league_slug},
+        ]}
+        # Filter events for a specific team (with same league scope)
+        if payload.team_slug:
+            team_doc = await db.teams.find_one({"slug": payload.team_slug}, {"_id": 0, "name": 1})
+            if not team_doc:
+                raise HTTPException(404, f"Team '{payload.team_slug}' not found")
+            team_re = f"^{_re.escape(team_doc.get('name', ''))}$"
+            flt = {"$and": [flt, {"$or": [
+                {"home_team": {"$regex": team_re, "$options": "i"}},
+                {"away_team": {"$regex": team_re, "$options": "i"}},
+            ]}]}
+
     if payload.only_pending:
-        flt["seo_status"] = {"$ne": "Published"}
+        flt = {"$and": [flt, {"seo_status": {"$ne": "Published"}}]} if flt else {"seo_status": {"$ne": "Published"}}
 
     cursor = db[coll_name].find(flt, {"_id": 0, "slug": 1, "name": 1, "home_team": 1, "away_team": 1}).limit(payload.limit)
     from services.seo_orchestrator import create_job

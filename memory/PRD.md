@@ -6,6 +6,23 @@
 - ✅ Tutti i fix code-level deploy-ready applicati (BASE_URL, .gitignore, startup background, requirements.txt, upload.py)
 - ✅ **SEO Automation Admin – FASE 1 (Foundation) COMPLETATA**
 - 🆕 **SEO Automation Admin – FASE 2 (Pipeline Dual-Engine reale) COMPLETATA il 2026-05-07**
+- 🆕 **FASE 8 (Cascading Filter + Hero Image Public Render) COMPLETATA il 2026-05-07**
+
+## FASE 8 – Cascading Filter + Hero Image Public Render (2026-05-07)
+- **`SeoTargetSelector.jsx`** (NEW): componente riusabile con 3 dropdown a cascata Lega → Squadra → Evento. Carica leagues da `/api/leagues`, teams da `/api/leagues/{slug}`, events da `/api/events/by-team-slug/{slug}`.
+- **`SeoFilterStatusPanel.jsx`** (NEW): pannello per SEO Dashboard con cascading filter + tabella 50 entity filtrate con badge stato (Draft/Generated/Live/Needs Review/Approved) + bottoni "Genera"/"Apri" per ogni riga.
+- **Bulk Runner refactored** (`SeoBulkRunner.jsx`):
+  - Rimossi i campi liberi (input slug + select tipo statico)
+  - 3 dropdown a cascata + dropdown "Cosa generare" (auto-suggested in base alla selezione)
+  - Scope possibili: tutte le squadre della lega / tutti gli eventi della lega / tutti gli eventi della squadra / solo evento singolo / solo squadra singola / solo lega singola
+  - Bottone unico contestuale "Avvia Generazione"
+- **Backend `/api/seo/targets`**: aggiunti query params `league_slug` e `team_slug` (con scope di lega anti-collision Inter vs Inter Miami).
+- **Backend `/api/seo/targets/bulk-generate-league`**: aggiunto opzionale `team_slug` per filtrare gli eventi della lega ad una squadra specifica (con scope nome lega per anti-collision).
+- **Hero Image rendering pubblico** (Nano Banana 2):
+  - `LeaguePage.jsx`, `TeamPage.jsx`, `EventDetail.jsx` ora renderizzano `seo_hero_image_url` come background hero section + gradient overlay nero-trasparente per leggibilità testo
+  - Stesso `seo_hero_image_url` usato anche come `og:image` in `SEOHead`
+  - Helper `utils/seoHero.js` con `resolveSeoHeroUrl()` che antepone `REACT_APP_BACKEND_URL` ai path relativi (`/api/seo/uploads/...`)
+- **Test verificato**: Serie A hero (1MB PNG) appare correttamente su `/biglietti-serie-a` come background del titolo "Serie A Tickets". Filtro "Inter" su Bulk Runner produce 3 eventi correttamente scopati a Serie A (no Inter Miami leakage).
 
 ## SEO Automation Admin – Stato (2026-05-07)
 **FASE 2 (Pipeline reale Dual-Engine) – ✅ DONE 2026-05-07**
