@@ -90,6 +90,7 @@ async def get_team_by_slug(slug: str):
         "seo_internal_links": team.get("seo_internal_links") or {},
         "seo_image_alt_texts": team.get("seo_image_alt_texts") or {},
         "seo_legal_disclosure": team.get("seo_legal_disclosure") or {},
+        "seo_hero_image_url": team.get("seo_hero_image_url") or "",
         "seo_meta_schema_jsonld": team.get("seo_meta_schema_jsonld") or None,
         "faq_1_q": team.get("faq_1_q") or {},
         "faq_1_a": team.get("faq_1_a") or {},

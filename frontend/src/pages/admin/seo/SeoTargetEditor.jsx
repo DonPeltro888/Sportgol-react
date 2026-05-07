@@ -4,7 +4,7 @@ import { useAdminAuth } from '../../../contexts/AdminAuthContext';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Sparkles, Lock, Unlock, Save, Trash2, Loader2, CheckCircle2,
-  Languages, FileCode, AlertCircle, Wand2, Eye
+  Languages, FileCode, AlertCircle, Wand2, Eye, Image as ImageIcon
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -87,6 +87,7 @@ const SeoTargetEditor = () => {
   const [tab, setTab] = useState('it');
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [generatingImage, setGeneratingImage] = useState(false);
   const [jobStatus, setJobStatus] = useState(null); // { id, status, step, progress, error }
   const [publishing, setPublishing] = useState(false);
   const [view, setView] = useState('meta'); // 'meta' = pubblicato, 'draft' = generato
@@ -150,6 +151,29 @@ const SeoTargetEditor = () => {
       toast.error('Errore di rete');
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const generateHeroImage = async () => {
+    if (!window.confirm('Genera un nuovo hero banner via Nano Banana 2 (Gemini)? Richiede ~15-30s e aggiorna il campo seo_hero_image_url.')) return;
+    setGeneratingImage(true);
+    try {
+      const r = await authFetch(`${API_URL}/api/seo/hero-image/${type}/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ save_to_entity: true }),
+      });
+      const d = await r.json();
+      if (r.ok && d.status === 'success') {
+        toast.success(`Hero image generata: ${d.filename}`);
+        load();
+      } else {
+        toast.error(d.error || d.detail || 'Errore generazione immagine');
+      }
+    } catch (e) {
+      toast.error('Errore di rete');
+    } finally {
+      setGeneratingImage(false);
     }
   };
 
@@ -257,6 +281,15 @@ const SeoTargetEditor = () => {
                 {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
                 Genera SEO con AI
               </button>
+              <button
+                onClick={generateHeroImage}
+                disabled={generatingImage}
+                data-testid="seo-target-hero-btn"
+                className="px-4 py-2 rounded-lg bg-pink-600 hover:bg-pink-700 text-white text-sm font-semibold inline-flex items-center gap-2 disabled:opacity-50"
+              >
+                {generatingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
+                Genera Hero Image
+              </button>
               {hasDraft && (
                 <>
                   <button
@@ -280,6 +313,25 @@ const SeoTargetEditor = () => {
             </div>
           </div>
         </div>
+
+        {/* Hero image preview */}
+        {data.seo_hero_image_url && (
+          <div className="mb-4 rounded-lg border border-pink-700/40 bg-pink-900/10 p-3">
+            <div className="text-xs font-semibold text-pink-200 mb-2 inline-flex items-center gap-2">
+              <ImageIcon className="w-4 h-4" /> Hero Image (Nano Banana 2)
+              {data.seo_hero_image_generated_at && (
+                <span className="text-[10px] text-gray-400 font-normal">
+                  generata: {new Date(data.seo_hero_image_generated_at).toLocaleString('it-IT')}
+                </span>
+              )}
+            </div>
+            <img
+              src={`${API_URL}${data.seo_hero_image_url.startsWith('/') ? '' : '/'}${data.seo_hero_image_url}`}
+              alt="Hero banner"
+              className="rounded w-full max-h-64 object-cover border border-pink-700/30"
+            />
+          </div>
+        )}
 
         {/* Pipeline progress */}
         {jobStatus && jobStatus.status !== 'succeeded' && jobStatus.status !== 'failed' && (

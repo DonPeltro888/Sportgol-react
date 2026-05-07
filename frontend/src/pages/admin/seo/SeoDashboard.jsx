@@ -185,6 +185,16 @@ const SeoDashboard = () => {
             </div>
             <p className="text-xs text-gray-400">Configura Claude, Gemini, DataForSEO, Perplexity, DeepL</p>
           </Link>
+
+          <Link to="/admin/seo/bulk" data-testid="seo-quick-bulk" className="group rounded-xl border border-gray-700 bg-gray-800/40 p-5 hover:border-orange-500 hover:bg-gray-800/70 transition-all">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-lg bg-orange-600/20 flex items-center justify-center">
+                <Wand2 className="w-5 h-5 text-orange-400" />
+              </div>
+              <h3 className="text-white font-semibold">Bulk Runner & Export</h3>
+            </div>
+            <p className="text-xs text-gray-400">Genera SEO in batch per intere leghe + export JSON/CSV</p>
+          </Link>
         </div>
 
         {/* Pipeline Map */}

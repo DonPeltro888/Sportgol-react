@@ -1,0 +1,38 @@
+{
+  "summary": "FASE 3 SEO Admin (Export + Nano Banana 2 + Bulk Runner) fully verified. Backend 15/15 pytest PASS (export JSON/CSV/NDJSON with auth & content-disposition, hero image generation via Nano Banana 2 ~22s producing 800-1200KB PNG saved on /app/backend/uploads/seo and seo_hero_image_url persisted on team entity, static file serving /api/seo/uploads/{filename} with image/png MIME, bulk-generate-league for type=team and type=event with proper job creation in /api/seo/jobs, auth enforcement on all 3 endpoints, 400 on invalid type, 404 on missing entity). Frontend 3/3 PASS: SeoDashboard exposes data-testid='seo-quick-bulk' card linking to /admin/seo/bulk; SeoBulkRunner page shows all 6 controls (bulk-league-input, bulk-type-select, bulk-launch-btn, export-json-btn, export-csv-btn, export-ndjson-btn) plus auto-refresh jobs table — confirm dialog accepted then toast 'Avviati 19 job in parallelo' shown and 17+ jobs visible (running/succeeded badges); SeoTargetEditor /admin/seo/targets/team/inter exposes data-testid='seo-target-hero-btn', click triggers confirm → POST /api/seo/hero-image/team/inter → ~22s wait → hero PNG (sunset stadium, crowd silhouettes, cinematic) rendered in 'Hero Image (Nano Banana 2)' section with timestamp.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/admin/seo/bulk", "issues": ["Minor React hydration warning in console: '<span> cannot be a child of <tbody>' / '<tr> cannot be a child of <span>' — likely a stray Stats span rendered alongside table. Visually OK but worth tidying StatusBadge / Stats wrapper to suppress hydration warning."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_seo_phase3.py",
+    "/app/test_reports/pytest/seo_phase3.xml"
+  ],
+  "action_items": [
+    "(low) Clean up SeoBulkRunner.jsx Stats span hydration warning — wrap stats in div outside table or fix StatusBadge nesting."
+  ],
+  "critical_code_review_comments": [
+    "seo_image_gen.generate_hero correctly uses emergentintegrations LlmChat with gemini-3.1-flash-image-preview and modalities=['image','text']; saves PNG with uuid suffix preventing collisions. EMERGENT_LLM_KEY pulled via os.getenv with explicit error if missing — good.",
+    "/api/seo/uploads/{filename} guards path-traversal via resolve().is_relative_to(SEO_UPLOAD_DIR.resolve()) — safe.",
+    "Export endpoint uses StreamingResponse with iter([...]) rather than true streaming — fine for current dataset size but if export grows >10K rows consider AsyncIterable/yield to avoid memory build-up.",
+    "Bulk-generate-league only supports type='team' or 'event' (raises 400 for 'league') — explicit and documented.",
+    "_flatten_doc strips empty/None fields but keeps nested dicts (multilingual fields) — CSV stringifies via json.dumps(ensure_ascii=False) which is correct for re-import.",
+    "Hero image generation is synchronous and blocks the request thread for ~15-30s; under load consider moving to a background task / job queue similar to seo_orchestrator pattern (e.g. POST returns 202 + job_id, polling endpoint). Acceptable for admin-only usage."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_seo_phase3.py"
+  ],
+  "success_rate": {"backend": "100% (15/15)", "frontend": "100% (3/3 flows)"},
+  "test_credentials": "admin / golevents2024",
+  "seed_data_creation": "Triggered POST /api/seo/hero-image/team/inter (saved inter-f855922f.png, ~860KB) and POST /api/seo/targets/bulk-generate-league for serie-a (queued 19 team jobs, multiple completed during test). team/inter now has seo_hero_image_url=/api/seo/uploads/inter-f855922f.png.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "FASE 3 fully GREEN end-to-end. All 4 SEO tools endpoints (uploads, hero-image, export, bulk-generate-league) working with auth. Frontend SeoBulkRunner + SeoTargetEditor hero button + SeoDashboard quick card all functional. Only minor cosmetic React hydration warning in console on /admin/seo/bulk (table stats wrapper) — non-blocking. Backend tests: pytest /app/backend/tests/test_seo_phase3.py."
+}
