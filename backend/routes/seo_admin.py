@@ -6,6 +6,7 @@ Le API keys sono cifrate con Fernet (services/seo_crypto) e non vengono mai
 restituite in chiaro al frontend (solo masked).
 """
 import os
+import sys
 import time
 import asyncio
 from datetime import datetime, timezone
@@ -276,6 +277,29 @@ async def dashboard_stats(_=Depends(verify_admin_token)) -> Dict[str, Any]:
     out["tools_with_key"] = sum(1 for t in tools if t["has_key"])
     out["tools_active"] = sum(1 for t in tools if t["active"] and t["has_key"])
     return out
+
+
+# ─── Maintenance: Re-run dedup (pulsante admin) ────────────────────────────
+
+@router.post("/maintenance/dedup")
+async def run_dedup(_=Depends(verify_admin_token)) -> Dict[str, Any]:
+    """
+    Esegue la deduplica events+teams+leagues riusando lo script.
+    Da usare dopo un MIX sync per ripulire eventuali nuovi duplicati.
+    """
+    sys.path.insert(0, "/app/backend")
+    from scripts.dedup_entities import dedup_events, dedup_teams, dedup_leagues  # type: ignore
+
+    res_e = await dedup_events(db, dry_run=False)
+    res_t = await dedup_teams(db, dry_run=False)
+    res_l = await dedup_leagues(db, dry_run=False)
+    return {
+        "ok": True,
+        "events": res_e,
+        "teams": res_t,
+        "leagues": res_l,
+        "ran_at": datetime.now(timezone.utc).isoformat(),
+    }
 
 
 # ─── Seed (idempotente) ─────────────────────────────────────────────────────
