@@ -19,7 +19,7 @@ from routes.admin_auth import verify_admin_token
 from services import seo_health_check, seo_health_fix
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/api/seo/health", tags=["seo-health"])
+router = APIRouter(prefix="/api/data-tools/health", tags=["data-tools-health"])
 
 
 def _now_iso() -> str:

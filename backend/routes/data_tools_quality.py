@@ -16,7 +16,7 @@ from database import db
 from routes.admin_auth import verify_admin_token
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/api/seo/sync-quality", tags=["seo-sync-quality"])
+router = APIRouter(prefix="/api/data-tools/sync-quality", tags=["data-tools-sync-quality"])
 
 
 def _iso(dt: datetime) -> str:

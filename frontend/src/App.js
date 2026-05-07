@@ -112,8 +112,9 @@ import SeoApiTools from './pages/admin/seo/SeoApiTools';
 import SeoPagesList from './pages/admin/seo/SeoPagesList';
 import SeoTargetEditor from './pages/admin/seo/SeoTargetEditor';
 import SeoBulkRunner from './pages/admin/seo/SeoBulkRunner';
-import SeoHealthDashboard from './pages/admin/seo/SeoHealthDashboard';
-import SeoSyncQuality from './pages/admin/seo/SeoSyncQuality';
+import DataToolsDashboard from './pages/admin/data-tools/DataToolsDashboard';
+import DataHealthDashboard from './pages/admin/data-tools/DataHealthDashboard';
+import SyncQualityDashboard from './pages/admin/data-tools/SyncQualityDashboard';
 import NotFound from './pages/NotFound';
 import WhatsAppButton from './components/WhatsAppButton';
 
@@ -201,11 +202,14 @@ function App() {
             <Route path="/admin/seo/bulk" element={
               <ProtectedRoute><SeoBulkRunner /></ProtectedRoute>
             } />
-            <Route path="/admin/seo/health" element={
-              <ProtectedRoute><SeoHealthDashboard /></ProtectedRoute>
+            <Route path="/admin/data-tools" element={
+              <ProtectedRoute><DataToolsDashboard /></ProtectedRoute>
             } />
-            <Route path="/admin/seo/sync-quality" element={
-              <ProtectedRoute><SeoSyncQuality /></ProtectedRoute>
+            <Route path="/admin/data-tools/health" element={
+              <ProtectedRoute><DataHealthDashboard /></ProtectedRoute>
+            } />
+            <Route path="/admin/data-tools/sync-quality" element={
+              <ProtectedRoute><SyncQualityDashboard /></ProtectedRoute>
             } />
             <Route path="/admin/translations" element={
               <ProtectedRoute><AdminTranslations /></ProtectedRoute>

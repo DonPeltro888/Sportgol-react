@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../contexts/AdminAuthContext';
 import { 
   LayoutDashboard, Calendar, FolderTree, FileText, 
-  Globe, Settings, Languages, LogOut, Menu, X, ChevronDown, Layers, Trophy, RefreshCw, Image as ImageIcon, Key, Database, Sparkles
+  Globe, Settings, Languages, LogOut, Menu, X, ChevronDown, Layers, Trophy, RefreshCw, Image as ImageIcon, Key, Database, Sparkles, Wrench
 } from 'lucide-react';
 
 const AdminLayout = ({ children }) => {
@@ -25,6 +25,7 @@ const AdminLayout = ({ children }) => {
     { path: '/admin/categories', label: 'Categorie Menu', icon: FolderTree },
     { path: '/admin/pages', label: 'Pagine & Testi', icon: FileText },
     { path: '/admin/seo', label: 'SEO', icon: Globe },
+    { path: '/admin/data-tools', label: 'Data Tools', icon: Wrench },
     { path: '/admin/translations', label: 'Traduzioni', icon: Languages },
     { path: '/admin/settings', label: 'Impostazioni', icon: Settings },
   ];
@@ -37,6 +38,7 @@ const AdminLayout = ({ children }) => {
   const isActive = (path) => {
     // /admin/seo evidenziato anche su sotto-route /admin/seo/api-tools, /admin/seo/pages, ecc
     if (path === '/admin/seo') return location.pathname.startsWith('/admin/seo');
+    if (path === '/admin/data-tools') return location.pathname.startsWith('/admin/data-tools');
     return location.pathname === path;
   };
 

@@ -29,8 +29,8 @@ const SeoSyncQuality = () => {
     setLoading(true);
     try {
       const [s, sr] = await Promise.all([
-        authFetch(`${API_URL}/api/seo/sync-quality/stats`),
-        authFetch(`${API_URL}/api/seo/sync-quality/sync-runs`),
+        authFetch(`${API_URL}/api/data-tools/sync-quality/stats`),
+        authFetch(`${API_URL}/api/data-tools/sync-quality/sync-runs`),
       ]);
       if (s.ok) setStats(await s.json());
       if (sr.ok) setSyncRuns((await sr.json()).items || []);
@@ -43,7 +43,7 @@ const SeoSyncQuality = () => {
   const takeSnapshot = async () => {
     setSnapshotting(true);
     try {
-      const r = await authFetch(`${API_URL}/api/seo/sync-quality/snapshot`, { method: 'POST' });
+      const r = await authFetch(`${API_URL}/api/data-tools/sync-quality/snapshot`, { method: 'POST' });
       if (r.ok) { toast.success('Snapshot salvato'); load(); }
     } catch (e) { toast.error('Errore'); }
     finally { setSnapshotting(false); }
@@ -52,7 +52,7 @@ const SeoSyncQuality = () => {
   const fixOne = async (slug) => {
     setFixingSlug(slug);
     try {
-      const r = await authFetch(`${API_URL}/api/seo/health/fix-team/${slug}`, {
+      const r = await authFetch(`${API_URL}/api/data-tools/health/fix-team/${slug}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: 'balanced' }),

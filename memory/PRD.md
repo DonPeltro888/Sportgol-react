@@ -104,6 +104,21 @@
 - **Retroactive normalize**: lanciato `backstop_normalize_all` su 883 events + 221 teams + 35 leagues esistenti. Re-run `dedup_entities` post-normalize: ZERO duplicati rimasti.
 
 **FASE 6 (Sync Quality Dashboard) – ✅ DONE 2026-05-07**
+- `routes/seo_sync_quality.py` (poi rinominato in `routes/data_tools_quality.py` in FASE 7) con 3 endpoint: `/stats`, `/snapshot`, `/sync-runs`
+- `pages/admin/seo/SeoSyncQuality.jsx` (poi rinominato in `pages/admin/data-tools/SyncQualityDashboard.jsx`): 4 stat cards top (Events/Teams/Leagues/Logo Coverage), 3 activity panels (Normalize 24h, AI Fixes 7gg, Logo Status), trend chart sparkline 4 metriche, top 20 missing data table con bottone "Fix AI", recent sync runs table.
+- Scheduler: nuovo cron 02:00 UTC per snapshot automatico giornaliero (popola trend chart nel tempo).
+
+**FASE 7 (Refactor SEO/Data Tools split) – ✅ DONE 2026-05-07**
+- **Modulo SEO portatile** sotto `/admin/seo/*`: contiene SOLO le funzioni riusabili in qualsiasi portale ticketing calcio (Dashboard, ApiTools, PagesList, TargetEditor, BulkRunner). API endpoints prefixed `/api/seo/*`. README `services/SEO_MODULE_README.md` documenta come trasferire in altri progetti.
+- **Modulo Data Tools golevents-specifico** sotto `/admin/data-tools/*`: contiene Health Check + Sync Quality (specifici per cleanup/monitoring di portali con dati legacy). API endpoints prefixed `/api/data-tools/*`.
+- **Sidebar admin**: nuova voce "Data Tools" (icona Wrench) separata da "SEO" (icona Globe).
+- **Files spostati**:
+  - `routes/seo_health.py` → `routes/data_tools_health.py` (prefix `/api/data-tools/health`)
+  - `routes/seo_sync_quality.py` → `routes/data_tools_quality.py` (prefix `/api/data-tools/sync-quality`)
+  - `pages/admin/seo/SeoHealthDashboard.jsx` → `pages/admin/data-tools/DataHealthDashboard.jsx`
+  - `pages/admin/seo/SeoSyncQuality.jsx` → `pages/admin/data-tools/SyncQualityDashboard.jsx`
+- **Nuovi**: `pages/admin/data-tools/DataToolsDashboard.jsx` (hub con 2 quick cards + box "Automazione attiva").
+- **SEO Dashboard pulito**: rimosse cards Health/SyncQuality, restano 4 cards SEO core.
 - `routes/seo_sync_quality.py` con 3 endpoint:
   - `GET /api/seo/sync-quality/stats` - metriche real-time (totals, normalize 24h/7d, health_fixes, logo_coverage, missing_data top 20, trend snapshots)
   - `POST /api/seo/sync-quality/snapshot` - manual snapshot trigger

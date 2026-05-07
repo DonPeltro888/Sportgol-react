@@ -35,7 +35,7 @@ const SeoHealthDashboard = () => {
 
   const loadLatest = useCallback(async () => {
     try {
-      const r = await authFetch(`${API_URL}/api/seo/health/report/latest`);
+      const r = await authFetch(`${API_URL}/api/data-tools/health/report/latest`);
       if (r.ok) {
         const d = await r.json();
         if (!d.error) setReport(d);
@@ -48,7 +48,7 @@ const SeoHealthDashboard = () => {
   const runScan = async () => {
     setScanning(true);
     try {
-      const r = await authFetch(`${API_URL}/api/seo/health/run`, { method: 'POST' });
+      const r = await authFetch(`${API_URL}/api/data-tools/health/run`, { method: 'POST' });
       if (r.ok) {
         const d = await r.json();
         toast.success(`Scan completato: ${d.summary.total_issues} issue trovati`);
@@ -60,7 +60,7 @@ const SeoHealthDashboard = () => {
 
   const downloadExport = async (format) => {
     try {
-      const r = await authFetch(`${API_URL}/api/seo/health/export?format=${format}`);
+      const r = await authFetch(`${API_URL}/api/data-tools/health/export?format=${format}`);
       if (!r.ok) return toast.error('Errore export (esegui prima scan)');
       const blob = await r.blob();
       const url = URL.createObjectURL(blob);
@@ -77,7 +77,7 @@ const SeoHealthDashboard = () => {
   const fixOne = async (slug) => {
     setFixingSlug(slug);
     try {
-      const r = await authFetch(`${API_URL}/api/seo/health/fix-team/${slug}`, {
+      const r = await authFetch(`${API_URL}/api/data-tools/health/fix-team/${slug}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: 'balanced' }),
@@ -96,7 +96,7 @@ const SeoHealthDashboard = () => {
     if (!window.confirm(`Avviare bulk fix con AI Vision?\nVerranno processati i team con issue nelle categorie: ${categories.join(', ')}.\nUsa Perplexity (metadati) + Gemini Vision (loghi).`)) return;
     setBulkLaunching(true);
     try {
-      const r = await authFetch(`${API_URL}/api/seo/health/fix-bulk`, {
+      const r = await authFetch(`${API_URL}/api/data-tools/health/fix-bulk`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: 'balanced', only_categories: categories, limit: 100 }),
@@ -114,7 +114,7 @@ const SeoHealthDashboard = () => {
     for (let i = 0; i < 200; i++) {
       await new Promise(r => setTimeout(r, 4000));
       try {
-        const r = await authFetch(`${API_URL}/api/seo/health/fix-jobs/${jobId}`);
+        const r = await authFetch(`${API_URL}/api/data-tools/health/fix-jobs/${jobId}`);
         if (r.ok) {
           const d = await r.json();
           setJob(d);
