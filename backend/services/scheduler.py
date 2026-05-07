@@ -25,10 +25,19 @@ async def _has_football_api_configured() -> bool:
 
 
 async def _run_sync_job():
-    """Esegue il MIX 5-fonti programmato (OpenFootball + matchesio + APIfootball + TheSportsDB)."""
+    """Esegue il MIX multi-fonte programmato. ESPN è la fonte primaria (matchesio.com 404 da 2026-05)."""
     try:
-        logger.info("Scheduler: avvio MIX 5-fonti")
-        # OpenFootball
+        logger.info("Scheduler: avvio MIX multi-fonte")
+
+        # 1. ESPN — fonte PRIMARIA (gratis, no auth, copertura globale)
+        try:
+            from services.espn_sync import sync_via_espn
+            s = await sync_via_espn(days_forward=90)
+            logger.info(f"ESPN: +{s.get('total_inserted',0)} insert, ~{s.get('total_updated',0)} update, {len(s.get('leagues_empty',[]))} leghe vuote")
+        except Exception as e:
+            logger.error(f"ESPN errore: {e}")
+
+        # 2. OpenFootball (GitHub stable JSON) — fallback ridondante top leghe
         try:
             from services.openfootball_sync import sync_via_openfootball
             s = await sync_via_openfootball()
@@ -36,14 +45,14 @@ async def _run_sync_job():
         except Exception as e:
             logger.error(f"OpenFootball errore: {e}")
 
-        # matchesio
+        # 3. matchesio (probabilmente 404 ma fail-safe)
         try:
             stats = await sync_all_competitions(replace_all=False)
-            logger.info(f"matchesio: +{stats.get('total_inserted',0)} eventi, leghe vuote={len(stats.get('leagues_empty',[]))}")
+            logger.info(f"matchesio: +{stats.get('total_inserted',0)} eventi (likely dead source)")
         except Exception as e:
             logger.error(f"matchesio errore: {e}")
 
-        # APIfootball.com (se key)
+        # 4. APIfootball.com (se key)
         settings_doc = await db.settings.find_one({"_id": "integrations"}, {"_id": 0}) or {}
         af_cfg = settings_doc.get("apifootball", {})
         if af_cfg.get("enabled") and af_cfg.get("api_key"):
@@ -54,13 +63,30 @@ async def _run_sync_job():
             except Exception as e:
                 logger.error(f"APIfootball errore: {e}")
 
-        # TheSportsDB
+        # 5. TheSportsDB — fallback eventi + loghi
         try:
             from services.thesportsdb_sync import sync_via_thesportsdb
             s = await sync_via_thesportsdb()
             logger.info(f"TheSportsDB: +{s.get('total_inserted',0)} eventi, {s.get('logos_added',0)} loghi")
         except Exception as e:
             logger.error(f"TheSportsDB errore: {e}")
+
+        # 6. AI Gap Detector con Perplexity (Step C) — trova match mancanti residui
+        try:
+            from services.ai_gap_detector import detect_and_fill_gaps_all
+            gap_stats = await detect_and_fill_gaps_all(days_window=30, auto_insert=True)
+            logger.info(f"AI Gap Detector: +{gap_stats.get('total_inserted',0)} eventi recuperati, "
+                        f"{gap_stats.get('leagues_with_gaps',0)} leghe con buchi su "
+                        f"{gap_stats.get('leagues_checked',0)} controllate")
+        except Exception as e:
+            logger.error(f"AI Gap Detector errore: {e}")
+
+        # Cancella eventi passati
+        from datetime import datetime, timezone
+        today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        deleted = await db.events.delete_many({"sort_date": {"$lt": today_str}})
+        if deleted.deleted_count:
+            logger.info(f"Past events cleanup: -{deleted.deleted_count}")
 
         logger.info("Scheduler: MIX completato")
     except Exception as e:

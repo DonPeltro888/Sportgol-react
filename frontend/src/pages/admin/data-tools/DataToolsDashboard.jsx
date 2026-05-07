@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import AdminLayout from '../../../components/admin/AdminLayout';
-import { ShieldCheck, TrendingUp, Wrench } from 'lucide-react';
+import { ShieldCheck, TrendingUp, Wrench, Database } from 'lucide-react';
 
 const DataToolsDashboard = () => {
   return (
@@ -16,7 +16,7 @@ const DataToolsDashboard = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <Link to="/admin/data-tools/health" data-testid="dt-quick-health" className="group rounded-xl border border-gray-700 bg-gray-800/40 p-6 hover:border-emerald-500 hover:bg-gray-800/70 transition-all">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-12 h-12 rounded-lg bg-emerald-600/20 flex items-center justify-center">
@@ -43,14 +43,29 @@ const DataToolsDashboard = () => {
               logo coverage %, top team con dati mancanti, trend storico (snapshot giornalieri).
             </p>
           </Link>
+
+          <Link to="/admin/data-tools/data-recovery" data-testid="dt-quick-data-recovery" className="group rounded-xl border border-gray-700 bg-gray-800/40 p-6 hover:border-blue-500 hover:bg-gray-800/70 transition-all">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 rounded-lg bg-blue-600/20 flex items-center justify-center">
+                <Database className="w-6 h-6 text-blue-400" />
+              </div>
+              <h3 className="text-lg text-white font-semibold">Data Recovery</h3>
+            </div>
+            <p className="text-sm text-gray-400">
+              Multi-source aggregator: <strong className="text-blue-300">ESPN</strong> (primary, no auth),
+              OpenFootball, TheSportsDB + AI Gap Detector via Perplexity. Resync on-demand per lega.
+            </p>
+          </Link>
         </div>
 
         <div className="mt-6 rounded-xl border border-gray-700 bg-gray-800/30 p-5">
           <h3 className="text-base font-bold text-white mb-2">🤖 Automazione attiva</h3>
           <ul className="text-xs text-gray-400 space-y-1 list-disc list-inside">
-            <li><strong className="text-gray-300">Sync matchesio</strong>: ogni giorno alle 04:00 e 19:00 UTC</li>
-            <li><strong className="text-gray-300">Normalize backstop</strong>: 04:30 e 19:30 UTC (cattura miss post-sync)</li>
-            <li><strong className="text-gray-300">Daily snapshot</strong>: 02:00 UTC (popola trend storico)</li>
+            <li><strong className="text-blue-300">ESPN multi-source sync</strong>: 04:00 e 19:00 UTC (PRIMARY, no auth)</li>
+            <li><strong className="text-purple-300">OpenFootball + TheSportsDB</strong>: stesso slot (fallback ridondanti)</li>
+            <li><strong className="text-emerald-300">AI Gap Detector (Perplexity)</strong>: in coda al sync (recupera match mancanti residui)</li>
+            <li><strong className="text-gray-300">Normalize backstop</strong>: 04:30 e 19:30 UTC</li>
+            <li><strong className="text-gray-300">Daily snapshot</strong>: 02:00 UTC (trend storico)</li>
             <li><strong className="text-gray-300">Health autofix AI</strong>: 03:00 UTC (Perplexity + Gemini Vision per loghi/dati mancanti)</li>
           </ul>
         </div>

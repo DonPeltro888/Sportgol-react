@@ -7,8 +7,31 @@
 - ✅ **SEO Automation Admin – FASE 1 (Foundation) COMPLETATA**
 - 🆕 **SEO Automation Admin – FASE 2 (Pipeline Dual-Engine reale) COMPLETATA il 2026-05-07**
 - 🆕 **FASE 8 (Cascading Filter + Hero Image Public Render) COMPLETATA il 2026-05-07**
+- 🆕 **FASE 9 (Multi-Source Data Recovery + AI Gap Detector) COMPLETATA il 2026-05-07**
 
-## FASE 8 – Cascading Filter + Hero Image Public Render (2026-05-07)
+## FASE 9 – Multi-Source Data Recovery + AI Gap Detector (2026-05-07)
+**🚨 Root cause discovered:** matchesio.com ha rimosso completamente i JSON di export pubblici (tutti 404). Il cron schedulato falliva silenziosamente da settimane → mancavano semifinali/finali CL e altri eventi.
+
+**Soluzione "Defense in Depth":**
+- **`services/espn_sync.py`** (NEW): adapter per ESPN public API gratis senza auth. 30 competizioni mappate (top 7 + cup nazionali + UEFA + WC + MLS + Liga MX + J1). Endpoint `site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard?dates=YYYYMMDD-YYYYMMDD`. Chunk 30gg × 3 → 90gg coverage. Upsert idempotente su `espn_id`.
+- **`services/ai_gap_detector.py`** (NEW): cross-validation con Perplexity Sonar Pro. Per ogni lega chiede "calendario ufficiale prossimi 30gg" via web search live, confronta con DB usando rapidfuzz fuzzy matching (threshold 80%, tolleranza ±1 giorno per fuso orario). Match mancanti vengono auto-inseriti con `source='ai_perplexity'` e `_multi_source_verified=False`.
+- **`routes/data_tools_recovery.py`** (NEW, prefix `/api/data-tools/data-recovery`):
+  - `GET /sources-status` → matrice per-lega × per-fonte di eventi futuri, flag `is_at_risk` se < 3
+  - `POST /run-espn` (`days_forward=90`) → sync ESPN globale
+  - `POST /run-openfootball`, `POST /run-thesportsdb` → fallback ridondanti
+  - `POST /run-ai-gap` (`days_window=30`, `auto_insert=true`) → Perplexity gap detector
+  - `POST /run-league/{slug}` → resync mirato single-league (ESPN + AI)
+  - `GET /logs` → ultimi sync_logs aggregati
+- **`pages/admin/data-tools/DataRecoveryDashboard.jsx`** (NEW): 4 bottoni bulk (ESPN/OpenFootball/TheSportsDB/AI), alert "leghe a rischio", matrice fonti per lega con badge per-source, bottone Resync per ogni lega, stream ultimi log con contatori. Card "Data Recovery" aggiunta a `/admin/data-tools`.
+- **Scheduler aggiornato**: ESPN è ora la **fonte primaria** del cron 04:00/19:00 UTC, seguito da OpenFootball + matchesio (legacy fail-safe) + APIfootball (se key) + TheSportsDB + **AI Gap Detector finale** (Perplexity recupera buchi residui).
+
+**Test on first run (2026-05-07):**
+- ESPN: ✅ +548 eventi nuovi inseriti in un singolo run (MLS 111, FIFA WC 104, La Liga 40, Copa Libertadores 37, Premier 31, J1 31, Serie A 30, Jupiler 26, Liga Portugal 25…)
+- Champions League finale corretta recuperata: PSG vs Arsenal a Puskás Aréna (sourced=`espn`, era assente dal DB)
+- Sources matrix: 25 leghe attive, 6 a rischio (giustificato: fine stagione cup nazionali con 1-2 finali residue)
+- Costi: ESPN ZERO, AI Gap Detector ~$0.15/giorno (Perplexity Sonar Pro), totale stack $0/mese aggiuntivi
+
+
 - **`SeoTargetSelector.jsx`** (NEW): componente riusabile con 3 dropdown a cascata Lega → Squadra → Evento. Carica leagues da `/api/leagues`, teams da `/api/leagues/{slug}`, events da `/api/events/by-team-slug/{slug}`.
 - **`SeoFilterStatusPanel.jsx`** (NEW): pannello per SEO Dashboard con cascading filter + tabella 50 entity filtrate con badge stato (Draft/Generated/Live/Needs Review/Approved) + bottoni "Genera"/"Apri" per ogni riga.
 - **Bulk Runner refactored** (`SeoBulkRunner.jsx`):

@@ -115,6 +115,7 @@ import SeoBulkRunner from './pages/admin/seo/SeoBulkRunner';
 import DataToolsDashboard from './pages/admin/data-tools/DataToolsDashboard';
 import DataHealthDashboard from './pages/admin/data-tools/DataHealthDashboard';
 import SyncQualityDashboard from './pages/admin/data-tools/SyncQualityDashboard';
+import DataRecoveryDashboard from './pages/admin/data-tools/DataRecoveryDashboard';
 import NotFound from './pages/NotFound';
 import WhatsAppButton from './components/WhatsAppButton';
 
@@ -210,6 +211,9 @@ function App() {
             } />
             <Route path="/admin/data-tools/sync-quality" element={
               <ProtectedRoute><SyncQualityDashboard /></ProtectedRoute>
+            } />
+            <Route path="/admin/data-tools/data-recovery" element={
+              <ProtectedRoute><DataRecoveryDashboard /></ProtectedRoute>
             } />
             <Route path="/admin/translations" element={
               <ProtectedRoute><AdminTranslations /></ProtectedRoute>
