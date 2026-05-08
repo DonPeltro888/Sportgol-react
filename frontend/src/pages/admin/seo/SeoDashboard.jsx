@@ -79,50 +79,6 @@ const SeoDashboard = () => {
           </Link>
         </div>
 
-        {/* Maintenance: dedup runner */}
-        <div className="rounded-xl border border-amber-700/40 bg-amber-900/10 p-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
-          <div className="flex-1 text-xs text-amber-200">
-            <strong>Manutenzione DB:</strong> rilancia la deduplicazione dopo un MIX sync per rimuovere automaticamente i duplicati provenienti da provider diversi (es. "AC Milan" vs "Milan", "Atalanta" vs "Atalanta Bc").
-          </div>
-          <button
-            onClick={async () => {
-              if (!window.confirm('Eseguo la deduplicazione su events/teams/leagues? Verrà creato un backup automatico.')) return;
-              try {
-                const token = localStorage.getItem('admin_token');
-                const r = await fetch(`${API_URL}/api/seo/maintenance/dedup`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
-                const d = await r.json();
-                if (r.ok) {
-                  toast.success(`Dedup OK: events=${d.events?.duplicates}, teams=${d.teams?.duplicates}, leagues=${d.leagues?.duplicates}`);
-                  load();
-                } else toast.error('Errore dedup');
-              } catch (e) { toast.error('Errore di rete'); }
-            }}
-            data-testid="seo-dedup-btn"
-            className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold whitespace-nowrap"
-          >
-            Esegui Dedup ora
-          </button>
-          <button
-            onClick={async () => {
-              if (!window.confirm('Valido tutte le leghe contro OpenFootball + Perplexity? Le squadre obsolete (es. Venezia in Serie A 2024/25) saranno archiviate.')) return;
-              try {
-                const token = localStorage.getItem('admin_token');
-                const r = await fetch(`${API_URL}/api/seo/maintenance/validate-leagues`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
-                const d = await r.json();
-                if (r.ok) {
-                  const total_orphans = (d.results || []).reduce((s, x) => s + (x.orphans?.length || 0), 0);
-                  toast.success(`Validazione OK: ${total_orphans} squadre archiviate`);
-                  load();
-                } else toast.error('Errore validazione');
-              } catch (e) { toast.error('Errore di rete'); }
-            }}
-            data-testid="seo-validate-leagues-btn"
-            className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold whitespace-nowrap"
-          >
-            Valida Composizione Leghe
-          </button>
-        </div>
-
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <StatCard
