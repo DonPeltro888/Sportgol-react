@@ -90,16 +90,16 @@ def _build_main_schema(
     canonical = ctx.get("canonical_url") or ""
     same_as_clean = [s for s in (same_as or []) if s and s.startswith("http")]
 
-    # AggregateRating default realistico (può essere override da utente o sostituito da Trustpilot in futuro)
-    rating_node = aggregate_rating or {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "1247",
-        "bestRating": "5",
-        "worstRating": "1",
-    }
-    if "@type" not in rating_node:
-        rating_node["@type"] = "AggregateRating"
+    # AggregateRating: solo se passato esplicitamente da fonte reale (Trustpilot/recensioni DB).
+    # NESSUN valore di default — Google Manual Action policy: rating fittizi sono penalizzati.
+    rating_node = None
+    if aggregate_rating and isinstance(aggregate_rating, dict):
+        rv = aggregate_rating.get("ratingValue")
+        rc = aggregate_rating.get("ratingCount") or aggregate_rating.get("reviewCount")
+        if rv and rc:  # accept only if both fields present
+            rating_node = {**aggregate_rating}
+            if "@type" not in rating_node:
+                rating_node["@type"] = "AggregateRating"
 
     if target_type == "event":
         home = ctx.get("home_team", "")
@@ -126,9 +126,10 @@ def _build_main_schema(
             "awayTeam": {"@type": "SportsTeam", "name": away},
             "location": location_node,
             "offers": offers,
-            "aggregateRating": rating_node,
             "url": canonical,
         }
+        if rating_node:
+            node["aggregateRating"] = rating_node
         if ctx.get("previous_start_date"):
             node["previousStartDate"] = _iso(ctx["previous_start_date"])
         if same_as_clean:
@@ -146,8 +147,9 @@ def _build_main_schema(
             "areaServed": ctx.get("country", ""),
             "description": ctx.get("description") or f"Biglietti ufficiali {title} 2025/26",
             "url": canonical,
-            "aggregateRating": rating_node,
         }
+        if rating_node:
+            node["aggregateRating"] = rating_node
         if same_as_clean:
             node["sameAs"] = same_as_clean
         if ctx.get("logo_url"):
@@ -163,8 +165,9 @@ def _build_main_schema(
         "sport": "Football",
         "description": ctx.get("description") or f"Biglietti {title} casa e trasferta",
         "url": canonical,
-        "aggregateRating": rating_node,
     }
+    if rating_node:
+        node["aggregateRating"] = rating_node
     if location_node and location_node.get("name"):
         node["location"] = location_node
     if same_as_clean:
