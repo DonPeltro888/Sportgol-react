@@ -1,0 +1,49 @@
+{
+  "summary": "FASE 12 (API Cost Observatory + Resend/SMTP alerts) FULL re-validation. Backend: 22/22 pytest passing across 19 endpoints (overview/chart/providers/entities top+by-type/logs +filters provider+status/latency/pricing GET+POST override/budgets GET+POST/alerts open+run-checks/balance/backfill/alert-config GET+POST hides smtp_pass/export CSV) + auth-required gate + resend in tools catalog. Regression: 31/31 passing (test_seo_intelligence + test_event_slugs cover topic clusters, cannibalization, hreflang, faq, jsonld, trust-score, coppa italia case-insensitive league filter, sitemap, prerender, slug integrity). Total backend: 53/53 (100%). Frontend: /admin/seo/cost-observatory loads cleanly with H1 'API Cost Observatory'. All 8 stat cards visible AND now exposing data-testid (stat-today $0.0840 / stat-week $2.07 / stat-month $2.07 / stat-forecast $7.75 / stat-calls 5 / stat-success 89.7% / stat-latency 2227 ms / stat-top-provider deepl) — fix applied this iteration. Provider table renders 5 rows (deepl/claude/gemini/perplexity/dataforseo) with cost/budget bar (4.2%/1.2%/1.1%/0.5%/0.1%) + colored success rate (perplexity 69.6% RED with 7 fails) + avg latency + last used. 6 header buttons functional via testids: Refresh, cost-run-checks (Run alert check → toast 'Check completato: 0 nuovi alert'), cost-check-balance (renders balance section), Export CSV, cost-alert-config (Email/SMTP modal opens with SMTP fields + 5 trigger checkboxes), Backfill 30g. Budget modal lists 5 configured budgets (claude=$50, perplexity=$30, deepl=$20, gemini=$40, dataforseo=$10) + 'Aggiungi/Modifica' form (provider/limit/warn). Pricing button visible. Daily spend chart and Latency p50/p95 panel render. Quick card seo-quick-cost-observatory present on /admin/seo dashboard.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/seo/cost-observatory/overview", "issue": "Returns field 'forecast_month_usd' (frontend consumes correctly via overview?.forecast_month_usd). Problem statement mentioned 'forecast' — consider adding alias for external consumers."},
+      {"endpoint": "/api/seo/cost-observatory/alerts/run-checks", "issue": "Returns new_alerts_count=0 against current backfilled mock data. API_INTERMITTENT threshold (30% fail rate) uses 24h window but mock perplexity 7-fail data is spread across ~10 days, so daily share <30%. Verify if engine should also evaluate monthly aggregate or seed fresh 24h failures to demo path."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/admin/seo/cost-observatory (and other admin pages)", "issues": ["Pre-existing React hydration warnings persist (<span> in <select>/<option>/<tr>/<tbody>). Already documented in iteration_12. Cosmetic — not blocking. Source: shared admin layout, not Cost Observatory."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_cost_observatory.py",
+    "/app/backend/tests/test_seo_intelligence.py",
+    "/app/backend/tests/test_event_slugs.py",
+    "/app/test_reports/pytest/cost_observatory_iter14.xml",
+    "/app/test_reports/pytest/regression_iter14.xml"
+  ],
+  "action_items": [
+    "(LOW) Consider alias 'forecast' → 'forecast_month_usd' on /overview for external consumers.",
+    "(LOW/VERIFY) Alert engine produces 0 new alerts on mock data: confirm intent of API_INTERMITTENT 24h window vs monthly aggregate. If dispatch demo desired, seed >3 perplexity failures in last 24h or widen window in api_alerts.py.",
+    "(LOW) Hydration warnings (<span> wrappers in tables/selects) in admin layout — not in Cost Observatory itself but visible in console here. Already documented in iter_12.",
+    "(LOW) Resend key not configured (resend_key_set=false). Expected per agent context — user must paste Resend API key in Resend slot at /admin/seo/api-tools to enable email dispatch path. SMTP fallback OK."
+  ],
+  "critical_code_review_comments": [
+    "Cost Observatory backend split is clean: routes/cost_observatory.py thin, services/api_cost_observatory.py for aggregations, services/api_alerts.py for dispatch, services/api_balance_checker.py for real polling, services/api_pricing.py for cost mapping. Good separation of concerns.",
+    "Alert-config GET correctly omits smtp_pass and exposes smtp_pass_set + resend_key_set boolean flags — proper secret hygiene. POST doesn't overwrite smtp_pass on empty input — good.",
+    "Pricing POST accepts arbitrary provider/op_type strings — consider Pydantic Literal/Enum to prevent typos seeding bad pricing rows.",
+    "Backfill endpoint capped at days<=90 (good) but returns full result synchronously — for large seo_jobs collections consider 202 + background task.",
+    "Export CSV uses io.StringIO buffered (not true streaming). For 30+ days × N providers consider async generator yielding rows.",
+    "CostObservatory.jsx is 603 lines and contains 3 nested modals (BudgetsModal, PricingModal, AlertConfigModal). Approaching the 700-line guideline; consider extracting modals to /components/admin/seo/cost-observatory/* once next feature lands.",
+    "Resend send_email is graceful: if no resend_key AND no smtp creds, alert is logged in db.api_alerts but no crash — verified via /alerts/run-checks returning 200 in this scenario."
+  ],
+  "updated_files": [
+    "/app/frontend/src/pages/admin/seo/CostObservatory.jsx (added 5 missing data-testid props: stat-week, stat-calls, stat-success, stat-latency, stat-top-provider — verified all 8 cards now testable)"
+  ],
+  "success_rate": {"backend": "100% (53/53 pytest: 22 cost-obs + 31 regression)", "frontend": "100% (8/8 stat testids + all modals + all action buttons functional)"},
+  "test_credentials": "admin / golevents2024",
+  "seed_data_creation": "Reused iteration_13 seed: perplexity budget $30/80%, claude pricing override (sub_type=test_sonnet, TEST_pricing_override note), alert-config saved with sample SMTP. Backfill ?days=1 executed during test. No destructive changes.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "FASE 12 fully GREEN. Backend 53/53 pytest, frontend 100% with all 8 stat-* testids in place after this iteration's fix. Test suite at /app/backend/tests/test_cost_observatory.py (22 tests) reusable for regression. Two LOW-priority follow-ups: (1) alert engine 0-alerts on mock data (intentional? widen window or seed fresh 24h fails to demo); (2) forecast field naming alias. Hydration warnings are pre-existing/cosmetic from shared admin layout, not in Cost Observatory code itself.",
+  "rca_of_the_issue": "Iteration_13 noted 5 missing data-testid on stat cards in CostObservatory.jsx. Root cause: testid prop pattern was added incrementally to only 3 of 8 <Stat /> instances at line 172-179. Fix: propagated testid={'stat-...'} to remaining 5 instances (lines 173,176,177,178,179). Verified via Playwright that all 8 [data-testid='stat-*'] selectors now resolve."
+}

@@ -170,13 +170,13 @@ const CostObservatory = () => {
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-3 mb-6">
             <Stat label="Today" value={fmtUsd(overview?.today?.cost)} sub={`${overview?.today?.calls || 0} calls`} icon={Activity} color="text-emerald-300" testid="stat-today" />
-            <Stat label="Week" value={fmtUsd(overview?.week?.cost)} sub={`${overview?.week?.calls || 0} calls`} icon={Activity} color="text-blue-300" />
+            <Stat label="Week" value={fmtUsd(overview?.week?.cost)} sub={`${overview?.week?.calls || 0} calls`} icon={Activity} color="text-blue-300" testid="stat-week" />
             <Stat label="Month" value={fmtUsd(overview?.month?.cost)} sub={`${overview?.month?.calls || 0} calls`} icon={Activity} color="text-purple-300" testid="stat-month" />
             <Stat label="Forecast" value={fmtUsd(overview?.forecast_month_usd)} sub="run-rate × 30d" icon={TrendingUp} color="text-amber-300" testid="stat-forecast" />
-            <Stat label="Calls today" value={(overview?.today?.calls || 0).toLocaleString()} icon={Zap} color="text-cyan-300" />
-            <Stat label="Success rate" value={`${(overview?.month?.success_rate || 100).toFixed(1)}%`} sub={`${overview?.month?.fails || 0} fails / mo`} icon={CheckCircle2} color={(overview?.month?.success_rate || 100) > 95 ? 'text-emerald-300' : 'text-red-300'} />
-            <Stat label="Avg latency" value={`${overview?.month?.avg_latency_ms || 0} ms`} icon={Clock} color="text-blue-300" />
-            <Stat label="Top provider" value={overview?.top_provider || '—'} icon={DollarSign} color="text-pink-300" />
+            <Stat label="Calls today" value={(overview?.today?.calls || 0).toLocaleString()} icon={Zap} color="text-cyan-300" testid="stat-calls" />
+            <Stat label="Success rate" value={`${(overview?.month?.success_rate || 100).toFixed(1)}%`} sub={`${overview?.month?.fails || 0} fails / mo`} icon={CheckCircle2} color={(overview?.month?.success_rate || 100) > 95 ? 'text-emerald-300' : 'text-red-300'} testid="stat-success" />
+            <Stat label="Avg latency" value={`${overview?.month?.avg_latency_ms || 0} ms`} icon={Clock} color="text-blue-300" testid="stat-latency" />
+            <Stat label="Top provider" value={overview?.top_provider || '—'} icon={DollarSign} color="text-pink-300" testid="stat-top-provider" />
           </div>
         )}
 
