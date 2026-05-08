@@ -11,6 +11,31 @@
 - 🆕 **FASE 10 (SEO Intelligence Hub: 7 tools) COMPLETATA il 2026-05-08**
 - 🆕 **FASE 11 (SEO Portable Module Documentation v2.0 + bash copy script per ticketgol.com) COMPLETATA il 2026-05-08**
 - 🆕 **FASE 12 (API Cost Observatory + Resend/SMTP alerts) COMPLETATA il 2026-05-08** — 53/53 backend pytest, 100% frontend E2E (iter_14)
+- 🆕 **FASE 13 (Event Conflict Resolver + trust hierarchy) COMPLETATA il 2026-05-08**
+
+## FASE 13 – Event Conflict Resolver (2026-05-08)
+**Problema rilevato:** un team poteva apparire in due eventi nello stesso giorno (es. "Inter vs Como" 19:00 + "Lazio vs Inter" 21:00 in Coppa Italia 13/5/2026), perché AI Gap Detector inseriva match allucinati e nessun controllo cross-source verificava la coerenza. Inoltre `league` salvato in case diverse (`Coppa Italia` vs `COPPA ITALIA`).
+
+**Soluzione definitiva:**
+- **`services/event_conflict_resolver.py`** (NEW): `is_safe_to_insert(doc)` (pre-insert guard), `find_team_conflicts()`, `resolve_all_conflicts()` (cleanup retroattivo), `canonicalize_league_names()`. Trust hierarchy `matchesio > apifootball > espn > football_data > thesportsdb > openfootball > ai_perplexity > unknown`. Window default ±12h.
+- **`services/db_normalize.py`**: `insert_event()` e `upsert_event()` ora chiamano `is_safe_to_insert` prima di scrivere; se fonte concorrente è più affidabile e già esiste un evento conflittuale, l'insert viene SKIPPATO (non si crea il duplicato). Se esiste un evento meno affidabile, viene marcato `_dropped_conflict=True`.
+- **`services/ai_gap_detector.py`**: gating del Perplexity insert tramite `is_safe_to_insert` → niente più match AI in conflitto con apifootball/espn.
+- **`services/team_normalize.py`**: aggiunti alias mancanti (Atl. Madrid, Ath Bilbao, Dortmund, B. Monchengladbach, Newcastle, Manchester Utd, Sc Braga, Nottingham) → fixture deduplication funziona anche cross-source.
+- **`routes/data_tools_maintenance.py`**: 3 nuovi endpoint `POST /api/data-tools/maintenance/resolve-conflicts` (dry_run/live), `GET /conflicts/list`, `POST /conflicts/restore/{id}`.
+- **`services/scheduler.py`**: nuovo cron `04:45/19:45 UTC` per esecuzione automatica post-sync.
+- **Public reads**: `routes/events.py`, `prerender.py`, `categories.py`, `search.py`, `seo.py` (sitemap) ora filtrano `_dropped_conflict !== True` → eventi conflittuali nascosti dal pubblico ma conservati per audit/undo.
+- **Tests**: `tests/test_event_conflict_resolver.py` (4 test sync sull'hierarchy + alias matching, 100% PASS).
+
+**Test risultati (esecuzione live 2026-05-08):**
+- DB scansionato: 1064 eventi futuri
+- Conflict groups identificati: 155 (148 duplicati cross-source + 7 vere doppie prenotazioni)
+- Eventi marcati `_dropped_conflict`: **152**
+- Inter vs Como Coppa Italia 13/5 (Perplexity hallucination): ✅ DROPPED (winner: apifootball Lazio vs Inter)
+- Atl. Madrid / Atletico Madrid duplicati La Liga: ✅ deduplicati
+- Borussia Dortmund / Dortmund Bundesliga: ✅ deduplicati
+- API pubblica `/api/events?league=Coppa Italia` ora ritorna 1 evento (era 2)
+- Tutti i sync futuri (matchesio/apifootball/espn/AI) passano dal conflict guard prima dell'insert.
+
 
 ## FASE 12 – API Cost Observatory + Email Alerts (2026-05-08)
 **Scopo:** dashboard enterprise per tracciare spesa, latency, failure rate e budget di tutte le API LLM/SEO; alert via Resend (primary) + SMTP (fallback).

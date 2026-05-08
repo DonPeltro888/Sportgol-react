@@ -118,7 +118,7 @@ footer {{ background: #2D3436; color: #ccc; padding: 20px; text-align: center; f
 async def prerender_home(lang: str = "it"):
     """HTML pre-renderizzato per la homepage con lista eventi prossimi."""
     events = await db.events.find(
-        {}, {"_id": 1, "slug": 1, "title": 1, "home_team": 1, "away_team": 1, "stadium": 1, "location": 1, "league": 1, "date": 1, "sort_date": 1}
+        {"_dropped_conflict": {"$ne": True}}, {"_id": 1, "slug": 1, "title": 1, "home_team": 1, "away_team": 1, "stadium": 1, "location": 1, "league": 1, "date": 1, "sort_date": 1}
     ).sort("sort_date", 1).limit(50).to_list(50)
 
     leagues = await db.leagues.find(
@@ -333,7 +333,7 @@ async def prerender_league(slug: str, lang: str = "it"):
 
     # Find events for this league
     events = await db.events.find(
-        {"league": {"$regex": f"^{name}$", "$options": "i"}},
+        {"league": {"$regex": f"^{name}$", "$options": "i"}, "_dropped_conflict": {"$ne": True}},
         {"_id": 1, "slug": 1, "title": 1, "home_team": 1, "away_team": 1, "stadium": 1, "date": 1, "sort_date": 1}
     ).sort("sort_date", 1).limit(30).to_list(30)
 
@@ -394,9 +394,12 @@ async def prerender_team(slug: str, lang: str = "it"):
 
     # Find events with this team
     events = await db.events.find(
-        {"$or": [
-            {"home_team": {"$regex": f"^{team_name}$", "$options": "i"}},
-            {"away_team": {"$regex": f"^{team_name}$", "$options": "i"}},
+        {"$and": [
+            {"$or": [
+                {"home_team": {"$regex": f"^{team_name}$", "$options": "i"}},
+                {"away_team": {"$regex": f"^{team_name}$", "$options": "i"}},
+            ]},
+            {"_dropped_conflict": {"$ne": True}},
         ]},
         {"_id": 1, "slug": 1, "title": 1, "home_team": 1, "away_team": 1, "stadium": 1, "date": 1, "sort_date": 1, "league": 1}
     ).sort("sort_date", 1).limit(30).to_list(30)

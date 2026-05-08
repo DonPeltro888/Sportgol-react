@@ -88,11 +88,33 @@ def normalize_event_doc(doc: Dict[str, Any]) -> Dict[str, Any]:
 
 
 async def insert_event(doc: Dict[str, Any]):
-    return await db.events.insert_one(normalize_event_doc(doc))
+    """Insert event with conflict guard. Returns None se l'evento è bloccato (team già impegnato)."""
+    norm = normalize_event_doc(doc)
+    try:
+        from services.event_conflict_resolver import is_safe_to_insert
+        safe, reason = await is_safe_to_insert(norm)
+        if not safe:
+            logger.warning(f"insert_event SKIPPED: {norm.get('home_team')} vs {norm.get('away_team')} @ {norm.get('sort_date','')[:16]} — {reason}")
+            return None
+    except Exception as e:
+        logger.error(f"conflict check error (insert anyway): {e}")
+    return await db.events.insert_one(norm)
 
 
 async def upsert_event(filter_q: Dict[str, Any], doc: Dict[str, Any], **kw):
+    """Upsert event with conflict guard on INSERT path (existing match update is allowed)."""
     norm = normalize_event_doc(dict(doc))
+    # Only check conflict if document does not already exist (upsert insert path)
+    existing = await db.events.find_one(filter_q, {"_id": 1})
+    if not existing:
+        try:
+            from services.event_conflict_resolver import is_safe_to_insert
+            safe, reason = await is_safe_to_insert(norm)
+            if not safe:
+                logger.warning(f"upsert_event SKIPPED: {norm.get('home_team')} vs {norm.get('away_team')} @ {norm.get('sort_date','')[:16]} — {reason}")
+                return None
+        except Exception as e:
+            logger.error(f"conflict check error (upsert anyway): {e}")
     return await db.events.update_one(filter_q, {"$set": norm}, upsert=True, **kw)
 
 

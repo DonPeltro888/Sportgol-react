@@ -103,6 +103,21 @@ async def _run_normalize_backstop():
         logger.error(f"Backstop normalize error: {e}")
 
 
+async def _run_conflict_resolver():
+    """Risolve conflitti scheduling (stesso team in 2 match nello stesso giorno) post-sync."""
+    try:
+        from services.event_conflict_resolver import resolve_all_conflicts, canonicalize_league_names
+        canon = await canonicalize_league_names(dry_run=False)
+        res = await resolve_all_conflicts(window_hours=12, dry_run=False, days_forward=365)
+        logger.info(
+            f"Conflict resolver: canonicalized={canon.get('events_canonicalized',0)} leagues, "
+            f"groups={res.get('conflict_groups',0)}, dropped={res.get('dropped',0)} "
+            f"of {res.get('scanned_events',0)} scanned"
+        )
+    except Exception as e:
+        logger.error(f"Conflict resolver error: {e}")
+
+
 async def _run_health_autofix():
     """Auto-fix scheduler: bulk fix loghi e dati mancanti via Perplexity + Gemini Vision."""
     try:
@@ -182,6 +197,14 @@ def start_scheduler():
         coalesce=True,
     )
     _scheduler.add_job(
+        _run_conflict_resolver,
+        CronTrigger(hour="4,19", minute=45),  # post-sync + post-normalize
+        id="conflict_resolver",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
+    _scheduler.add_job(
         _run_health_autofix,
         CronTrigger(hour=3, minute=0),
         id="health_autofix",
@@ -238,8 +261,8 @@ def start_scheduler():
 
     _scheduler.start()
     logger.info("AsyncIOScheduler avviato: sync 04:00/19:00, normalize-backstop 04:30/19:30, "
-                "snapshot 02:00, health-autofix 03:00, team-verifier weekly mon 05:00, "
-                "alert-checks ogni 30min (UTC)")
+                "conflict-resolver 04:45/19:45, snapshot 02:00, health-autofix 03:00, "
+                "team-verifier weekly mon 05:00, alert-checks ogni 30min (UTC)")
 
 
 def stop_scheduler():

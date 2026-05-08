@@ -45,7 +45,7 @@ async def get_events(
     """Get all events with pagination and filtering"""
     try:
         skip = (page - 1) * limit
-        query = {}
+        query = {"_dropped_conflict": {"$ne": True}}
         
         # Filter out past events (event visible until midnight of match day)
         if not include_past:
@@ -141,7 +141,7 @@ async def get_events(
 async def get_event_by_slug(slug: str):
     """Get single event by SEO slug (e.g. 'inter-vs-parma')."""
     try:
-        event = await db.events.find_one({"slug": slug})
+        event = await db.events.find_one({"slug": slug, "_dropped_conflict": {"$ne": True}})
         if not event:
             raise HTTPException(status_code=404, detail="Event not found")
 
@@ -205,7 +205,7 @@ async def get_events_by_team_slug(team_slug: str, limit: int = 50):
             league_re = f"^{_re.escape(league_name)}$"
             query = {"$and": [query, {"league": {"$regex": league_re, "$options": "i"}}]}
 
-        events = await db.events.find(query).sort("sort_date", 1).limit(limit).to_list(length=limit)
+        events = await db.events.find({"$and": [query, {"_dropped_conflict": {"$ne": True}}]}).sort("sort_date", 1).limit(limit).to_list(length=limit)
 
         # Enrich with team logos (batch with normalized matching)
         from services.team_normalize import normalize_team

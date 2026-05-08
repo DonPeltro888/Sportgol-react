@@ -45,7 +45,7 @@ async def get_category_with_events(slug: str):
         
         # Find events with this category, sorted by sort_date ascending (upcoming first)
         events = await db.events.find(
-            {"categories": {"$regex": category["name"], "$options": "i"}}
+            {"categories": {"$regex": category["name"], "$options": "i"}, "_dropped_conflict": {"$ne": True}}
         ).sort([("sort_date", 1)]).to_list(length=100)
         
         for event in events:

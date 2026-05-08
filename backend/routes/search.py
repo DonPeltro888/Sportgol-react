@@ -11,6 +11,7 @@ async def search_events(q: str = Query(..., min_length=1)):
     """Global search across events"""
     try:
         query = {
+            "_dropped_conflict": {"$ne": True},
             "$or": [
                 {"title": {"$regex": q, "$options": "i"}},
                 {"location": {"$regex": q, "$options": "i"}},

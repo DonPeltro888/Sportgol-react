@@ -199,9 +199,16 @@ async def _insert_ai_match(ai_match: Dict, league_name: str, country: str, leagu
     }
 
     from services.db_normalize import normalize_event_doc
+    from services.event_conflict_resolver import is_safe_to_insert
+    norm = normalize_event_doc(event_doc)
+    # Conflict guard: skip se uno dei team è già impegnato (e la fonte concorrente è più affidabile)
+    safe, reason = await is_safe_to_insert(norm)
+    if not safe:
+        logger.warning(f"AI Gap Detector SKIP: {home} vs {away} @ {date_str} — {reason}")
+        return False
     result = await db.events.update_one(
         {"ai_match_id": ai_id},
-        {"$set": normalize_event_doc(event_doc),
+        {"$set": norm,
          "$setOnInsert": {"created_at": datetime.now(timezone.utc)}},
         upsert=True,
     )

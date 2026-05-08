@@ -75,7 +75,7 @@ async def sitemap():
     </url>""")
     
     # Events from DB - multilingual URLs with SEO slug
-    events = await db.events.find({"slug": {"$exists": True, "$ne": ""}}, {"_id": 0, "slug": 1}).to_list(5000)
+    events = await db.events.find({"slug": {"$exists": True, "$ne": ""}, "_dropped_conflict": {"$ne": True}}, {"_id": 0, "slug": 1}).to_list(5000)
     for event in events:
         slug = event.get("slug")
         if not slug:
