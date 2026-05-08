@@ -143,7 +143,7 @@ def _check_each(soup: BeautifulSoup, html: str, url: str) -> Dict[str, Dict[str,
 
     # CWV-9: scripts in <head> without async/defer
     head_scripts = [s for s in scripts if s.find_parent("head") and s.get("src")
-                    and not (s.get("async") or s.get("defer") or (s.get("type") or "") == "module")]
+                    and not (s.has_attr("async") or s.has_attr("defer") or (s.get("type") or "") == "module")]
     out["CWV-9"] = {
         "detected": bool(head_scripts),
         "count": len(head_scripts),

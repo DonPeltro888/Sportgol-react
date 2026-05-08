@@ -11,6 +11,34 @@
 - 🆕 **FASE 15 (Google Suite: Search Console + Indexing API + GA4 + PageSpeed) COMPLETATA il 2026-05-08**
 - 🆕 **FASE 16 (SEO Module → 100% Emergent-free) COMPLETATA il 2026-05-08**
 - 🆕 **FASE 17 (CWV Automation Center) COMPLETATA il 2026-05-08**
+- 🆕 **FASE 18 (CWV Self-Optimization su golevents) COMPLETATA il 2026-05-08 — Score 64 → 100/100**
+
+## FASE 18 – CWV Self-Optimization su golevents (2026-05-08)
+**Scopo:** applicare a golevents.com prima del prossimo deploy tutti i 12 fix Core Web Vitals che il modulo SEO suggerisce per terzi. Score iniziale (scan reale): 64/100.
+
+**Fix applicati:**
+- **CWV-2** Lazy load admin routes — refactor `App.js`: 30 admin imports (AdminDashboard, AdminEvents, SEO Hub, Data Tools, ecc.) convertiti in `React.lazy()`. `AdminLogin` mantenuto sync (LCP). `ProtectedRoute` ora wrappa children in `<Suspense fallback={spinner}>`. Visitatori pubblici risparmiano ~150KB di bundle admin.
+- **CWV-4** Preload font bold — aggiunto `<link rel="preload">` per Inter Bold (700) in `index.html` accanto al Regular esistente.
+- **CWV-9** Defer scripts — `<script src="assets.emergent.sh/...emergent-main.js">` ora ha attributo `defer`. + fix bug analyzer: BeautifulSoup parsea attributi boolean come `''` (falsy) → cambiato `s.get("defer")` in `s.has_attr("defer")`.
+- **CWV-10** aspect-ratio CSS — aggiunto `index.css`: classi globali `.hero-img` (1200/630), `.team-logo` (1/1), `.card-thumb` (16/9) + `img[width][height]{height:auto}`.
+- **CWV-11** Critical CSS inline — blocco `<style>` minimo in `<head>` di `index.html` per above-fold (body, root, skeleton, preconnect-friendly defaults). Evita FOUC durante caricamento bundle CSS.
+- **CWV-12** Service Worker — creato `/public/sw.js` (network-first per HTML, cache-first per asset, stale-while-revalidate per /api, skip /admin). Registration inline in `index.html` con guard host (skip localhost + preview.emergent per evitare hot-reload conflicts). Anche register condizionale in `index.js` per `process.env.NODE_ENV === 'production'`.
+
+**Già OK pre-fase (verificato):**
+- CWV-1 Hero WebP/AVIF (6 PNG con sibling .webp+.avif)
+- CWV-3 img width/height (56 img con dim attribute)
+- CWV-5 PageSpeed weekly cron (scheduler.py)
+- CWV-6 SSR JSON-LD prerender (route registrato)
+- CWV-7 Lazy below-fold (loading="lazy" su 56 img)
+- CWV-8 Preconnect (4 origins in index.html)
+
+**Risultato scan finale:**
+- 🎯 **Score 100/100** (era 64) — 0/12 problemi rilevati
+- ✅ BONUS-VIEWPORT OK, ✅ BONUS-CANONICAL OK
+- Homepage e admin verificati funzionanti post-fix (lazy loading testato su /admin/seo/automation-center, 18 event links visibili in home).
+
+**Memo per il prossimo deploy:** Servire i bot crawler via `routes/prerender.py` richiede config nginx separata. Modulo CWV next-steps salvato in `/app/memory/CWV_NEXT_STEPS.md` (4 opzioni proposte per applicare i patch CWV anche al codice ticketgol).
+
 
 ## FASE 17 – CWV Automation Center (2026-05-08)
 **Scopo:** dashboard `/admin/seo/automation-center` per scansionare URL pubblici (golevents.com, ticketgol.com) sui 12 controlli Core Web Vitals e proporre 4 auto-fix + 8 manual patches pronti da copiare.

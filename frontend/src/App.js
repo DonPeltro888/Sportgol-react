@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
@@ -90,42 +90,40 @@ const DynamicRouter = () => {
   return <TeamPage />;
 };
 
-// Admin imports
+// Admin imports — AdminLogin stays sync (first paint critical), rest lazy-loaded (CWV-2)
 import { AdminAuthProvider, useAdminAuth } from './contexts/AdminAuthContext';
-import {
-  AdminLogin,
-  AdminDashboard,
-  AdminEvents,
-  AdminCategories,
-  AdminPages,
-  AdminTranslations,
-  AdminSettings,
-  AdminSectors,
-  AdminLeaguesTeams,
-  AdminSync,
-  AdminTeams,
-  AdminIntegrations,
-  AdminProviders
-} from './pages/admin';
-import SeoDashboard from './pages/admin/seo/SeoDashboard';
-import SeoApiTools from './pages/admin/seo/SeoApiTools';
-import SeoPagesList from './pages/admin/seo/SeoPagesList';
-import SeoTargetEditor from './pages/admin/seo/SeoTargetEditor';
-import SeoBulkRunner from './pages/admin/seo/SeoBulkRunner';
-import CostObservatory from './pages/admin/seo/CostObservatory';
-import SeoIntelligenceHub from './pages/admin/seo/intelligence/SeoIntelligenceHub';
-import SeoIntTopicCluster from './pages/admin/seo/intelligence/TopicCluster';
-import SeoIntCannibalization from './pages/admin/seo/intelligence/Cannibalization';
-import SeoIntHreflang from './pages/admin/seo/intelligence/Hreflang';
-import SeoIntFaqGenerator from './pages/admin/seo/intelligence/FaqGenerator';
-import SeoIntJsonLdValidator from './pages/admin/seo/intelligence/JsonLdValidator';
-import GoogleSuite from './pages/admin/seo/GoogleSuite';
-import CwvAutomation from './pages/admin/seo/CwvAutomation';
-import DataToolsDashboard from './pages/admin/data-tools/DataToolsDashboard';
-import DataHealthDashboard from './pages/admin/data-tools/DataHealthDashboard';
-import SyncQualityDashboard from './pages/admin/data-tools/SyncQualityDashboard';
-import DataRecoveryDashboard from './pages/admin/data-tools/DataRecoveryDashboard';
-import DataToolsTeamVerifier from './pages/admin/data-tools/TeamVerifier';
+import { AdminLogin } from './pages/admin';
+const AdminDashboard      = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminEvents         = lazy(() => import('./pages/admin/AdminEvents'));
+const AdminCategories     = lazy(() => import('./pages/admin/AdminCategories'));
+const AdminPages          = lazy(() => import('./pages/admin/AdminPages'));
+const AdminTranslations   = lazy(() => import('./pages/admin/AdminTranslations'));
+const AdminSettings       = lazy(() => import('./pages/admin/AdminSettings'));
+const AdminSectors        = lazy(() => import('./pages/admin/AdminSectors'));
+const AdminLeaguesTeams   = lazy(() => import('./pages/admin/AdminLeaguesTeams'));
+const AdminSync           = lazy(() => import('./pages/admin/AdminSync'));
+const AdminTeams          = lazy(() => import('./pages/admin/AdminTeams'));
+const AdminIntegrations   = lazy(() => import('./pages/admin/AdminIntegrations'));
+const AdminProviders      = lazy(() => import('./pages/admin/AdminProviders'));
+const SeoDashboard        = lazy(() => import('./pages/admin/seo/SeoDashboard'));
+const SeoApiTools         = lazy(() => import('./pages/admin/seo/SeoApiTools'));
+const SeoPagesList        = lazy(() => import('./pages/admin/seo/SeoPagesList'));
+const SeoTargetEditor     = lazy(() => import('./pages/admin/seo/SeoTargetEditor'));
+const SeoBulkRunner       = lazy(() => import('./pages/admin/seo/SeoBulkRunner'));
+const CostObservatory     = lazy(() => import('./pages/admin/seo/CostObservatory'));
+const SeoIntelligenceHub  = lazy(() => import('./pages/admin/seo/intelligence/SeoIntelligenceHub'));
+const SeoIntTopicCluster  = lazy(() => import('./pages/admin/seo/intelligence/TopicCluster'));
+const SeoIntCannibalization = lazy(() => import('./pages/admin/seo/intelligence/Cannibalization'));
+const SeoIntHreflang      = lazy(() => import('./pages/admin/seo/intelligence/Hreflang'));
+const SeoIntFaqGenerator  = lazy(() => import('./pages/admin/seo/intelligence/FaqGenerator'));
+const SeoIntJsonLdValidator = lazy(() => import('./pages/admin/seo/intelligence/JsonLdValidator'));
+const GoogleSuite         = lazy(() => import('./pages/admin/seo/GoogleSuite'));
+const CwvAutomation       = lazy(() => import('./pages/admin/seo/CwvAutomation'));
+const DataToolsDashboard  = lazy(() => import('./pages/admin/data-tools/DataToolsDashboard'));
+const DataHealthDashboard = lazy(() => import('./pages/admin/data-tools/DataHealthDashboard'));
+const SyncQualityDashboard = lazy(() => import('./pages/admin/data-tools/SyncQualityDashboard'));
+const DataRecoveryDashboard = lazy(() => import('./pages/admin/data-tools/DataRecoveryDashboard'));
+const DataToolsTeamVerifier = lazy(() => import('./pages/admin/data-tools/TeamVerifier'));
 import NotFound from './pages/NotFound';
 import WhatsAppButton from './components/WhatsAppButton';
 
@@ -145,7 +143,15 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/admin/login" replace />;
   }
   
-  return children;
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+      </div>
+    }>
+      {children}
+    </Suspense>
+  );
 };
 
 function App() {
