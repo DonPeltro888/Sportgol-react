@@ -24,8 +24,16 @@ const TIER_META = {
   P2: { label: 'P2', color: 'blue' },
 };
 
+const PILL_TONES = {
+  red:     'bg-red-600/20 text-red-300 border-red-700/40',
+  amber:   'bg-amber-600/20 text-amber-300 border-amber-700/40',
+  blue:    'bg-blue-600/20 text-blue-300 border-blue-700/40',
+  emerald: 'bg-emerald-600/20 text-emerald-300 border-emerald-700/40',
+  violet:  'bg-violet-600/20 text-violet-300 border-violet-700/40',
+};
+
 const Pill = ({ tone, children, testId }) => (
-  <span data-testid={testId} className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide bg-${tone}-600/20 text-${tone}-300 border border-${tone}-700/40`}>{children}</span>
+  <span data-testid={testId} className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide border ${PILL_TONES[tone] || PILL_TONES.blue}`}>{children}</span>
 );
 
 const ScoreRing = ({ score }) => {

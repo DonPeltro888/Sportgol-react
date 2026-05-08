@@ -10,6 +10,28 @@
 - 🆕 **FASE 14 (Team Verifier refactor → Data Tools, SEO_PORTABLE_MODULE v3.0) COMPLETATA il 2026-05-08**
 - 🆕 **FASE 15 (Google Suite: Search Console + Indexing API + GA4 + PageSpeed) COMPLETATA il 2026-05-08**
 - 🆕 **FASE 16 (SEO Module → 100% Emergent-free) COMPLETATA il 2026-05-08**
+- 🆕 **FASE 17 (CWV Automation Center) COMPLETATA il 2026-05-08**
+
+## FASE 17 – CWV Automation Center (2026-05-08)
+**Scopo:** dashboard `/admin/seo/automation-center` per scansionare URL pubblici (golevents.com, ticketgol.com) sui 12 controlli Core Web Vitals e proporre 4 auto-fix + 8 manual patches pronti da copiare.
+
+**Backend:**
+- `services/cwv_html_analyzer.py` — fetch HTML + 12 detection rules (CWV-1 hero PNG, CWV-3 img senza w/h, CWV-4 font preload, CWV-6 SSR JSON-LD, CWV-7 lazy below-fold, CWV-8 preconnect CDN, CWV-9 blocking head scripts, CWV-10 aspect-ratio, CWV-11 critical CSS, CWV-12 Service Worker, CWV-2/5 backend-side) + bonus viewport/canonical. Score 0-100.
+- `services/cwv_image_optimizer.py` — Pillow + pillow_avif batch convert PNG/JPG → .webp + .avif siblings, calcola % saving.
+- `services/cwv_patch_generator.py` — 8 GENERATORS dict che producono snippet copy-paste (HeroPicture.jsx, App.js lazy patch, preload-fonts.html, preconnect.html, defer-scripts.html, aspect-ratio.css, sw.js, lazy-img-pattern.jsx).
+- `routes/cwv_automation.py` (prefix `/api/seo/cwv`) — 10 endpoint: `POST /scan`, `GET /scans`, `GET /scan/{id}`, `GET /actions`, `POST /auto-fix/{cwv_id}`, `POST /auto-fix-all`, `GET /patch/{cwv_id}`, `POST /mark-applied`, `POST /reset-action`, `GET /score-history`. Tutti gated da `verify_admin_token`.
+- DB collections nuove: `cwv_scans` (storico scan + items), `cwv_actions` (status TODO/GENERATED/DONE/OK per (target_url, cwv_id)).
+
+**Frontend:**
+- `pages/admin/seo/CwvAutomation.jsx` (433 righe) — Score ring SVG animato, 12 CWV cards split in Auto-Fix (4) + Manual Patch (8), modale Patch con Copy/Download, Mark Applied/Reset, Fix all auto button, Score history bar chart 90gg.
+- Card UI: P0/P1/P2 tier pills + AUTO/MANUAL kind pills (Tailwind static map per JIT-safe).
+- Wiring: `App.js:123` import + Route `/admin/seo/automation-center`; SeoDashboard quick-card `seo-quick-automation-center`.
+
+**Test risultati (testing_agent_v3_fork iteration_15):**
+- Backend: **25/25 PASS** (auth gate, scan persist + 12 items, scans no _id leak, scan detail + 404 path, actions list, 8 patch generators non-empty, CWV-1 patch correctly absent, auto-fix CWV-1 batch numeric, auto-fix CWV-5/6/11 messaggi, manual-only refused, mark-applied → DONE, reset-action → TODO, score-history)
+- Frontend: **100% PASS** (quick card → page → scan → 12 cards → patch modale + Copy → Mark applied DONE → Fix all auto)
+- LOW issues fixed: Pill component → static `PILL_TONES` map (JIT-safe Tailwind classes)
+- LOW non-bloccanti rimanenti: HTTP 200+ok:false vs 4xx convention (cosmetic), useEffect missing dep ESLint warning preesistente.
 
 ## FASE 16 – SEO Module 100% Emergent-free (2026-05-08)
 **Scopo:** rendere il modulo SEO portabile completamente indipendente da Emergent, così il dev di ticketgol.com lo deploya senza creare account/key Emergent.
