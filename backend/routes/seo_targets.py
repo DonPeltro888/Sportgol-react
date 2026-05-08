@@ -13,6 +13,7 @@ Schema applicato a ogni entity (campo opzionale):
 """
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
+import logging
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, ConfigDict
 from bson import ObjectId
@@ -21,6 +22,7 @@ from database import db
 from routes.admin_auth import verify_admin_token
 
 router = APIRouter(prefix="/api/seo", tags=["seo-targets"])
+logger = logging.getLogger(__name__)
 
 # ─── Mapping type → collection ──────────────────────────────────────────────
 COLLECTION_MAP = {
@@ -498,6 +500,30 @@ async def publish_draft(type: str, id: str, _=Depends(verify_admin_token)) -> Di
         update["seo_meta_schema_jsonld"] = doc["seo_draft_schema_jsonld"]
 
     await db[coll_name].update_one(_identifier_field(type, id), {"$set": update})
+
+    # Auto-trigger Google Indexing API after publish (best-effort, non-blocking)
+    try:
+        import os
+        from services.google_common import is_configured
+        from services.google_indexing import submit_url
+        if is_configured():
+            base = os.environ.get("BASE_URL", "https://golevents.com").rstrip("/")
+            slug = doc.get("slug")
+            if slug:
+                if type == "event":
+                    public_url = f"{base}/{slug}"
+                elif type == "team":
+                    public_url = f"{base}/team/{slug}"
+                elif type == "league":
+                    public_url = f"{base}/league/{slug}"
+                else:
+                    public_url = None
+                if public_url:
+                    import asyncio
+                    asyncio.create_task(submit_url(public_url, action="URL_UPDATED"))
+    except Exception as e:
+        logger.warning(f"Auto-indexing skipped after publish: {e}")
+
     return {"ok": True, "applied": applied, "skipped_locked": skipped_locked, "status": "Published", "direct_fields_written": len(direct_updates)}
 
 

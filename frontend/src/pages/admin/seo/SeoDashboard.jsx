@@ -172,6 +172,16 @@ const SeoDashboard = () => {
             </div>
             <p className="text-xs text-gray-400">Spesa API, last-used, latency, budget alerts, top expensive entities, drill-down logs</p>
           </Link>
+
+          <Link to="/admin/seo/google-suite" data-testid="seo-quick-google-suite" className="group rounded-xl border border-blue-700/40 bg-gradient-to-br from-blue-900/30 to-violet-900/20 p-5 hover:border-blue-500 hover:bg-gray-800/70 transition-all">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center">
+                <Search className="w-5 h-5 text-blue-400" />
+              </div>
+              <h3 className="text-white font-semibold">🔍 Google Suite</h3>
+            </div>
+            <p className="text-xs text-gray-400">Search Console, Indexing API, Analytics 4, PageSpeed Insights — tutto in un posto</p>
+          </Link>
         </div>
 
         {/* Filter & Status Panel (cascading: lega → squadra → evento) */}

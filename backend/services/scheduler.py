@@ -103,6 +103,30 @@ async def _run_normalize_backstop():
         logger.error(f"Backstop normalize error: {e}")
 
 
+async def _run_pagespeed_weekly():
+    """Settimanale: scansione PageSpeed delle top pagine pubbliche per traccia Core Web Vitals."""
+    try:
+        from services.google_pagespeed import scan
+        import os
+        base = os.environ.get("BASE_URL", "https://golevents.com").rstrip("/")
+        from database import db
+        urls = [base]
+        cursor = db.events.find(
+            {"_dropped_conflict": {"$ne": True}, "slug": {"$exists": True, "$ne": ""}},
+            {"slug": 1, "_id": 0},
+        ).sort("sort_date", 1).limit(20)
+        async for ev in cursor:
+            urls.append(f"{base}/{ev['slug']}")
+        ok = 0
+        for u in urls:
+            r = await scan(u, strategy="mobile")
+            if r.get("ok"):
+                ok += 1
+        logger.info(f"PageSpeed weekly: scanned {ok}/{len(urls)} URLs")
+    except Exception as e:
+        logger.error(f"PageSpeed weekly error: {e}")
+
+
 async def _run_conflict_resolver():
     """Risolve conflitti scheduling (stesso team in 2 match nello stesso giorno) post-sync."""
     try:
@@ -205,6 +229,14 @@ def start_scheduler():
         coalesce=True,
     )
     _scheduler.add_job(
+        _run_pagespeed_weekly,
+        CronTrigger(day_of_week="sun", hour=6, minute=0),  # Sunday 06:00 UTC
+        id="pagespeed_weekly",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
+    _scheduler.add_job(
         _run_health_autofix,
         CronTrigger(hour=3, minute=0),
         id="health_autofix",
@@ -262,7 +294,8 @@ def start_scheduler():
     _scheduler.start()
     logger.info("AsyncIOScheduler avviato: sync 04:00/19:00, normalize-backstop 04:30/19:30, "
                 "conflict-resolver 04:45/19:45, snapshot 02:00, health-autofix 03:00, "
-                "team-verifier weekly mon 05:00, alert-checks ogni 30min (UTC)")
+                "team-verifier weekly mon 05:00, pagespeed weekly sun 06:00, "
+                "alert-checks ogni 30min (UTC)")
 
 
 def stop_scheduler():

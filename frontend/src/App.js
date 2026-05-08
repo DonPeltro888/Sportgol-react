@@ -119,6 +119,7 @@ import SeoIntCannibalization from './pages/admin/seo/intelligence/Cannibalizatio
 import SeoIntHreflang from './pages/admin/seo/intelligence/Hreflang';
 import SeoIntFaqGenerator from './pages/admin/seo/intelligence/FaqGenerator';
 import SeoIntJsonLdValidator from './pages/admin/seo/intelligence/JsonLdValidator';
+import GoogleSuite from './pages/admin/seo/GoogleSuite';
 import DataToolsDashboard from './pages/admin/data-tools/DataToolsDashboard';
 import DataHealthDashboard from './pages/admin/data-tools/DataHealthDashboard';
 import SyncQualityDashboard from './pages/admin/data-tools/SyncQualityDashboard';
@@ -231,6 +232,9 @@ function App() {
             } />
             <Route path="/admin/seo/intelligence/jsonld-validator" element={
               <ProtectedRoute><SeoIntJsonLdValidator /></ProtectedRoute>
+            } />
+            <Route path="/admin/seo/google-suite" element={
+              <ProtectedRoute><GoogleSuite /></ProtectedRoute>
             } />
             <Route path="/admin/data-tools" element={
               <ProtectedRoute><DataToolsDashboard /></ProtectedRoute>
