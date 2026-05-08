@@ -73,6 +73,60 @@
 
 
 ## FASE 10 – SEO Intelligence Hub (2026-05-08)
+
+## 🗂️ Backlog dettagliato (post FASE 12)
+
+### P1 — Future tasks
+- **SERP gap analysis** vs SeatPick/StubHub via DataForSEO
+- **PageSpeed Insights** integration (slot già nel catalog, manca UI)
+- **Google Search Console** integration (OAuth heavy)
+
+### P2 — Schema & Performance (dettaglio aggiunto 2026-05-08)
+
+**A) VideoObject schema (Highlights match)** — ~150 righe
+- Scopo: far apparire carosello video Google nei SERP (CTR +30/50%) con thumbnail + duration + uploadDate
+- Implementazione:
+  - `services/seo_video_finder.py`: cron post-match (24h dopo evento) che cerca via YouTube Data API "{home_team} vs {away_team} highlights" + lega
+  - Salva su entity: `seo_video_url`, `seo_video_thumb`, `seo_video_duration`, `seo_video_upload_date`
+  - Component `VideoObjectSchema.jsx` injected in `EventDetail.jsx` quando dati presenti
+  - Fonti: YouTube embed (free 10k req/d), highlights ufficiali Lega Serie A (legali via iframe)
+- Costo: zero (YouTube Data API free tier)
+
+**B) Review schema (Recensioni reali)** — ~3 giorni
+- ⚠️ **PRIORITÀ ALTA SAFETY**: rimuovere/sostituire `AggregateRating ★4.8/1247` hardcoded attuale in `services/seo_gemini.py` per evitare manual action Google
+- Opzione A (consigliata): recensioni Organization-level sul servizio Golevents
+  - Schema: `db.reviews` `{event_id?, user_name, rating 1-5, text, verified, ts}`
+  - Form recensione post-acquisto + admin moderation anti-spam
+  - Schema injection Organization + AggregateRating reale + array `review[]` (top 5)
+- Opzione B (rapida): import recensioni Trustpilot via API (~$50/mese piano Pro)
+- Effetto: stelle ⭐⭐⭐⭐⭐ visibili nei SERP (boost CTR ~35%)
+
+**C) Core Web Vitals optimization (rimpiazza AMP, che è morto dal 2021)** — ~2 giorni
+- Target metriche: LCP <2.5s, INP <200ms, CLS <0.1, TTFB <600ms
+- Fix concreti:
+  1. **Hero image AVIF/WebP**: convertire output Nano Banana 2 (~1MB PNG → ~150KB AVIF), usare `<picture>` con fallback + `<link rel="preload" fetchpriority="high">` per LCP
+  2. **Code splitting admin**: `React.lazy()` su `AdminLayout` e tutti i `pages/admin/*` → visitor pubblici risparmiano ~150KB bundle
+  3. **CLS fix**: `width/height` espliciti su tutte le img (loghi team, hero, thumbnails) + skeleton placeholders
+  4. **Preconnect**: `<link rel="preconnect">` per googletagmanager, fonts, CDN loghi
+  5. **Lazy load schema**: spostare `SeoSchemaInjector` dopo first paint
+- Tool misurazione: PageSpeed Insights (integrato come tool nel catalog) + Lighthouse CI in scheduler settimanale
+- ⚠️ **NOT TO DO**: AMP — Google ha rimosso il bonus dal 2021, oggi non vale più la pena
+
+### P3 — Backlog originale legacy
+- Sistema scraping automatico per aggiornare prezzi (es. GitHub Actions)
+- Floating button WhatsApp (DONE)
+- Badge Urgency / Trust (DONE)
+- Pagina 404 personalizzata (DONE)
+- Sezione Blog/News per traffico organico
+- Sistema autenticazione utenti
+- Carrello e checkout
+- Integrazione pagamenti (Stripe)
+- Notifiche email (parziale via Resend FASE 12)
+- Analytics dashboard
+- A/B testing SEO
+- Mappe SVG dinamiche per stadi diversi (oggi solo San Siro)
+
+
 **Brief PM/SEO Engineer:** Implementati 4 P1 utente + 1 future + 1 mio suggerimento + 2 idee bonus mie da SEO Engineer per max impatto SEO. Hub unificato `/admin/seo/intelligence`.
 
 **Backend (services + 1 router):**
