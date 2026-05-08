@@ -1,6 +1,6 @@
 # GOLEVENTS Clone - Product Requirements Document
 
-## Status (2026-05-07)
+## Status (2026-05-08)
 - ✅ Sito live su https://golevents.com
 - 🟡 Deploy bloccato da bug piattaforma Emergent: "Internal Server Error" al click "Re-deploy changes" (ticket aperto support@emergent.sh)
 - ✅ Tutti i fix code-level deploy-ready applicati (BASE_URL, .gitignore, startup background, requirements.txt, upload.py)
@@ -10,6 +10,43 @@
 - 🆕 **FASE 9 (Multi-Source Data Recovery + AI Gap Detector) COMPLETATA il 2026-05-07**
 - 🆕 **FASE 10 (SEO Intelligence Hub: 7 tools) COMPLETATA il 2026-05-08**
 - 🆕 **FASE 11 (SEO Portable Module Documentation v2.0 + bash copy script per ticketgol.com) COMPLETATA il 2026-05-08**
+- 🆕 **FASE 12 (API Cost Observatory + Resend/SMTP alerts) COMPLETATA il 2026-05-08** — 53/53 backend pytest, 100% frontend E2E (iter_14)
+
+## FASE 12 – API Cost Observatory + Email Alerts (2026-05-08)
+**Scopo:** dashboard enterprise per tracciare spesa, latency, failure rate e budget di tutte le API LLM/SEO; alert via Resend (primary) + SMTP (fallback).
+
+**Backend:**
+- `services/api_cost_tracker.py` — decorator `@track_api_usage(provider, op_type)` che logga ogni call (cost, tokens, latency, status, entity) in `db.api_usage_logs`. Iniettato in tutti gli script SEO (Claude, Gemini, Perplexity, DeepL, DataForSEO).
+- `services/api_pricing.py` — pricing config per provider/op (cost_per_unit, currency); 5 provider seedati con override possibile.
+- `services/api_cost_observatory.py` — aggregazioni: overview (today/week/month + forecast + top_provider), per-provider rollup, top entities, by-type, daily chart, latency p50/p95.
+- `services/api_alerts.py` — alert engine + dispatch via Resend HTTP API + SMTP fallback. Trigger: BUDGET_WARNING / BUDGET_EXCEEDED / LOW_BALANCE / API_DOWN / API_INTERMITTENT. Graceful: se nessuna config, logga in `db.api_alerts` senza crash.
+- `services/api_balance_checker.py` — real polling per Claude/Gemini/Perplexity/DataForSEO/DeepL (DeepL → char_left, DataForSEO → balance API).
+- `routes/cost_observatory.py` (prefix `/api/seo/cost-observatory`): 19 endpoint:
+  - `GET /overview` `GET /providers` `GET /entities/top` `GET /entities/by-type` `GET /chart/daily` `GET /latency` `GET /logs`
+  - `GET/POST /budgets` `GET/POST /pricing`
+  - `GET /alerts/open` `POST /alerts/run-checks` `POST /alerts/{id}/ack`
+  - `GET/POST /alert-config` (smtp_pass mascherato + smtp_pass_set + resend_key_set boolean)
+  - `GET /balance` `GET /export?days=30` (CSV download) `POST /backfill?days=30` (ricostruisce log da seo_jobs)
+- `services/seo_tools_catalog.py` — slot `resend` per UI input API key in `/admin/seo/api-tools`.
+- Scheduler: `alert-checks` ogni 30min UTC.
+
+**Frontend:**
+- `pages/admin/seo/CostObservatory.jsx` (603 righe): 8 stat cards, provider table con budget bar + success rate + last_used, daily spend chart, latency p50/p95, top 10 entità, by-type, logs drill-down con filtri provider/status, open alerts panel con ack, balance polling. 3 modali: BudgetsModal, PricingModal, AlertConfigModal (Email/SMTP config + 5 trigger checkboxes).
+- Wiring: `App.js:115,214` route `/admin/seo/cost-observatory`; SeoDashboard quick card `seo-quick-cost-observatory`.
+- 8 testid stat-* + 4 testid azioni (cost-run-checks, cost-check-balance, cost-alert-config, cost-budgets-btn).
+
+**Test risultati (testing_agent_v3_fork iteration_14):**
+- Backend: **22/22** Cost Observatory pytest + **31/31** regression (SEO Intelligence + slug integrity + Coppa Italia case-insensitive) = **53/53 PASS** ✅
+- Frontend: **100% PASS** ✅ — tutti gli stat testid risolvono, modali apribili, action button funzionanti, quick card present.
+- Live data: 68 calls/mese, 5 provider tracciati ($2.07/mo, forecast $7.75), perplexity 69.6% success rate (RED indicator).
+- Resend/SMTP graceful: con API key non configurata, alert engine logga in db.api_alerts senza crash.
+
+**Action items LOW (non bloccanti):**
+- Alias `forecast` → `forecast_month_usd` su /overview per consumer esterni.
+- API_INTERMITTENT (24h window) potrebbe essere ampliato a monthly aggregate per demo path.
+- Resend API key da incollare in `/admin/seo/api-tools` per attivare email dispatch (fallback SMTP già OK).
+- Hydration warnings preesistenti dal layout admin condiviso (cosmetici, non in Cost Observatory).
+
 
 ## FASE 11 – SEO Portable Module v2.0 (2026-05-08)
 **Scopo:** preparare il modulo SEO all'integrazione su `www.ticketgol.com` (cliente del dev del cliente).
