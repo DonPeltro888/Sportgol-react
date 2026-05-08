@@ -147,9 +147,23 @@ app.include_router(cost_observatory.router)
 ```bash
 MONGO_URL=mongodb://...           # esistente
 DB_NAME=...                       # esistente
-EMERGENT_LLM_KEY=sk-emergent-...  # Universal key per Claude/Gemini/Nano Banana
 SEO_FERNET_KEY=...                # base64 32-byte key per encrypted storage chiavi 3rd party
+
+# API keys provider — opzionalmente in env (priorità sopra DB-stored).
+# Alternativa: lascia vuote e configura via UI /admin/seo/api-tools
+ANTHROPIC_API_KEY=                # https://console.anthropic.com (Claude)
+GEMINI_API_KEY=                   # https://aistudio.google.com/apikey (Gemini text + Nano Banana image)
+PERPLEXITY_API_KEY=               # https://www.perplexity.ai/settings/api
+DEEPL_API_KEY=                    # https://www.deepl.com/pro-api
+DATAFORSEO_LOGIN=                 # https://app.dataforseo.com
+DATAFORSEO_PASSWORD=
+RESEND_API_KEY=                   # opzionale, per email alerts Cost Observatory
 ```
+
+> Il modulo è **completamente indipendente da Emergent**: tutte le chiamate vanno
+> direttamente alle API ufficiali. Una sola key Google AI Studio copre Gemini text +
+> Vision + Nano Banana (image generation), perché tutti usano lo stesso endpoint
+> `generativelanguage.googleapis.com`.
 
 Genera `SEO_FERNET_KEY`:
 ```python
@@ -159,8 +173,7 @@ print(Fernet.generate_key().decode())
 
 #### Dipendenze Python
 ```bash
-pip install httpx motor pydantic apscheduler rapidfuzz cryptography emergentintegrations
-pip install emergentintegrations --extra-index-url https://d33sy5i8bnduwe.cloudfront.net/simple/
+pip install httpx motor pydantic apscheduler rapidfuzz cryptography python-dotenv pillow google-auth google-api-python-client
 ```
 
 ### 2. Frontend setup
@@ -346,7 +359,7 @@ POST /api/seo/cost-observatory/backfill?days=30      # Ricostruisce log da seo_j
 - DeepL: gratis fino 500k char/mese
 - Gemini 3 Pro: $0.02
 - Nano Banana 2: $0.04 (1024×1024 PNG)
-- **Totale per entity: ~$0.10** (o $0 se usi solo Emergent Universal Key + DeepL Free)
+- **Totale per entity: ~$0.10** (o $0 se usi piani free Google AI Studio + DeepL Free)
 
 ---
 
@@ -420,13 +433,13 @@ Per domande sull'integrazione del modulo, riferirsi a:
 
 - [ ] Copia 5 routes + 22 services backend (incl. Cost Observatory)
 - [ ] Copia 12 pages (6 SEO + 6 Intelligence) + 6 components + 1 util frontend
-- [ ] Aggiungi `EMERGENT_LLM_KEY` e `SEO_FERNET_KEY` in `.env`
-- [ ] Installa dipendenze Python (`rapidfuzz`, `cryptography`, `emergentintegrations`)
+- [ ] Aggiungi `SEO_FERNET_KEY` in `.env` (più API keys provider opzionali)
+- [ ] Installa dipendenze Python (`rapidfuzz`, `cryptography`, `httpx`, `python-dotenv`, `pillow`, `google-auth`, `google-api-python-client`)
 - [ ] Installa dipendenze npm (`lucide-react`, `sonner`)
 - [ ] Registra 12 routes in `App.js` (incl. `/admin/seo/cost-observatory`)
 - [ ] Registra 5 routers in `server.py` (incl. `cost_observatory.router`)
 - [ ] Verifica entity host abbiano campi richiesti (`slug`, `name`/`home_team`+`away_team`, `league`, `stadium`, `city`, `country`)
-- [ ] Apri `/admin/seo/api-tools` e configura API keys 3rd party (DataForSEO, Perplexity, DeepL, **Resend** per email alerts — opzionali se solo Universal Key)
+- [ ] Apri `/admin/seo/api-tools` e configura API keys 3rd party (Anthropic, Gemini, Perplexity, DeepL, DataForSEO, Resend) — oppure mettile in `.env`
 - [ ] Lancia primo Bulk Generate via `/admin/seo/bulk` su una lega di test
 - [ ] Verifica `/admin/seo/intelligence` mostra metriche (5 stat cards)
 - [ ] Verifica `/admin/seo/cost-observatory` mostra spesa real-time

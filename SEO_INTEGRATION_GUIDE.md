@@ -19,11 +19,17 @@ You will also need API keys for:
 
 | Provider | Required for | Where to get it |
 |---|---|---|
-| Emergent Universal LLM Key | Claude + Gemini + Nano Banana | https://app.emergent.sh → Profile → Universal Key |
-| Perplexity API | FAQ + sameAs + GeoCoordinates | https://www.perplexity.ai/settings/api |
+| Anthropic API | Claude (master copywriter IT + FAQ generator) | https://console.anthropic.com/settings/keys |
+| Google AI Studio | Gemini Pro (JSON-LD enrichment + Vision) + Nano Banana (hero image) | https://aistudio.google.com/apikey (free tier available) |
+| Perplexity API | FAQ + sameAs + GeoCoordinates + Team Verifier | https://www.perplexity.ai/settings/api |
 | DeepL API (Free or Pro) | IT → EN/ES translation | https://www.deepl.com/pro-api |
 | DataForSEO | Keyword research | https://app.dataforseo.com |
 | Resend (optional) | Email alerts on cost overruns | https://resend.com/api-keys |
+
+> **Nota**: il modulo è **completamente indipendente da Emergent**. Tutte le call vanno
+> direttamente alle API ufficiali dei provider. Una **sola** key Google AI Studio copre
+> sia Gemini Pro (text/JSON-LD/vision) sia Nano Banana (image generation), perché entrambi
+> sono accessibili tramite lo stesso endpoint `generativelanguage.googleapis.com`.
 
 ---
 
@@ -61,9 +67,11 @@ SEO_PORTABLE_MODULE.md      # full reference docs
 ```bash
 cd backend
 pip install fastapi uvicorn motor pydantic httpx apscheduler rapidfuzz cryptography python-dotenv pillow
-pip install emergentintegrations --extra-index-url https://d33sy5i8bnduwe.cloudfront.net/simple/
 pip freeze > requirements.txt
 ```
+
+> No `emergentintegrations`, no `EMERGENT_LLM_KEY`. The SEO module talks directly to
+> Anthropic / Google AI Studio / Perplexity / DeepL / DataForSEO HTTP endpoints.
 
 ### Frontend (only if you build the admin UI)
 
@@ -86,11 +94,18 @@ CORS_ORIGINS=https://ticketgol.com,https://www.ticketgol.com
 # Encryption key for storing 3rd-party API keys at rest
 SEO_FERNET_KEY=<generate with: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())">
 
-# Universal LLM key for Claude/Gemini/Nano Banana
-EMERGENT_LLM_KEY=<paste from app.emergent.sh>
-
 # Public base URL where the FastAPI service is reachable
 BASE_URL=https://seo-api.ticketgol.com
+
+# Provider API keys — Option A: set them here as env vars (priority over DB-stored keys)
+# Option B (recommended): leave empty here and configure them via /admin/seo/api-tools UI
+ANTHROPIC_API_KEY=
+GEMINI_API_KEY=
+PERPLEXITY_API_KEY=
+DEEPL_API_KEY=
+DATAFORSEO_LOGIN=
+DATAFORSEO_PASSWORD=
+RESEND_API_KEY=
 ```
 
 > Do not commit the `.env` file. Add it to `.gitignore`.
@@ -185,13 +200,13 @@ uvicorn server:app --host 0.0.0.0 --port 8001 --workers 4
 After the service is running, hit:
 
 ```bash
-curl -X POST https://seo-api.ticketgol.com/api/seo/admin/tools/perplexity/key \
+curl -X POST https://seo-api.ticketgol.com/api/seo/admin/tools/anthropic/key \
   -H "Authorization: Bearer <ADMIN_API_KEY>" \
   -H "Content-Type: application/json" \
-  -d '{"api_key":"<your-perplexity-key>"}'
+  -d '{"api_key":"<your-anthropic-key>"}'
 ```
 
-Repeat for: `deepl`, `dataforseo`, `resend`.
+Repeat for: `gemini`, `perplexity`, `deepl`, `dataforseo`, `resend`.
 
 Or, if you ship the admin UI, open `https://seo-api.ticketgol.com/admin/seo/api-tools` in the browser.
 
@@ -390,8 +405,9 @@ For the full file list and per-file purpose, read `SEO_PORTABLE_MODULE.md`.
 |---|---|---|
 | `401 Unauthorized` on every call | Wrong `ADMIN_API_KEY` | Re-check `.env` and the `Authorization` header |
 | `cryptography.fernet.InvalidToken` | `SEO_FERNET_KEY` changed | Use the same Fernet key everywhere; never rotate without re-encrypting |
-| Pipeline stuck on `step: claude` | Missing `EMERGENT_LLM_KEY` | Set the env var and restart |
-| Hero image not generated | Missing/expired Emergent key budget | Top up at app.emergent.sh → Profile → Universal Key |
+| Pipeline stuck on `step: claude` | Missing `ANTHROPIC_API_KEY` | Set it in `.env` OR paste it in `/admin/seo/api-tools` (slug `anthropic`) |
+| Pipeline stuck on `step: gemini` | Missing `GEMINI_API_KEY` | Set it in `.env` OR paste it in `/admin/seo/api-tools` (slug `gemini`) — same key for Nano Banana |
+| Hero image not generated | Missing/expired Google AI Studio key | Get a free one at https://aistudio.google.com/apikey |
 | Cost overview always 0 | No data yet | Run a Bulk Generate first; the dashboard fills as jobs run |
 
 ---

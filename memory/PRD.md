@@ -8,6 +8,28 @@
 - ✅ **SEO Automation Admin – FASE 1-12 COMPLETATE**
 - 🆕 **FASE 13 (Event Conflict Resolver + trust hierarchy) COMPLETATA il 2026-05-08**
 - 🆕 **FASE 14 (Team Verifier refactor → Data Tools, SEO_PORTABLE_MODULE v3.0) COMPLETATA il 2026-05-08**
+- 🆕 **FASE 15 (Google Suite: Search Console + Indexing API + GA4 + PageSpeed) COMPLETATA il 2026-05-08**
+- 🆕 **FASE 16 (SEO Module → 100% Emergent-free) COMPLETATA il 2026-05-08**
+
+## FASE 16 – SEO Module 100% Emergent-free (2026-05-08)
+**Scopo:** rendere il modulo SEO portabile completamente indipendente da Emergent, così il dev di ticketgol.com lo deploya senza creare account/key Emergent.
+
+**Refactor backend:**
+- `services/seo_image_gen.py`: riscritto da `emergentintegrations` a chiamata HTTP diretta a `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent` con `responseModalities: ["IMAGE", "TEXT"]`. Parse `inlineData` base64. Key precedence: env `GEMINI_API_KEY` → `seo_api_keys('gemini')`. NESSUN fallback Emergent.
+- `services/seo_ai_validator.py` (`verify_logo_with_gemini`): riscritto da `LlmChat + ImageContent` Emergent a chiamata diretta `gemini-2.5-pro` Vision con `inlineData.mimeType + data` base64. Idem key precedence.
+- `services/api_pricing.py`: aggiunte 10 nuove pricing rules per Google Suite (search-console / indexing / analytics / pagespeed) con `cost_per_unit=0.0` (free tier).
+
+**Risultati grep finali:**
+- 0 import `emergentintegrations` nel modulo SEO
+- 0 reference `EMERGENT_LLM_KEY` nel modulo SEO (tranne 1 comment docstring positivo "NESSUNA DIPENDENZA")
+- Cost Observatory regression: 200 OK
+- `/api/seo/tools`: 200 OK
+- 5 provider diretti: Anthropic, Google AI Studio (Gemini + Nano Banana), Perplexity, DeepL, DataForSEO
+
+**Documentazione aggiornata:**
+- `SEO_INTEGRATION_GUIDE.md` v3.1 + PDF rigenerato (80 KB) → tabella API keys aggiornata, requirements.txt senza `emergentintegrations`, troubleshooting per `ANTHROPIC_API_KEY` / `GEMINI_API_KEY`
+- `SEO_PORTABLE_MODULE.md` v3.1 → `.env` template con 5 keys provider dirette, dipendenze Python aggiornate, checklist integrazione riscritta
+- File pubblici: `/SEO_INTEGRATION_GUIDE.pdf` + `.md` (preview URL working)
 
 ## FASE 14 – Team Verifier refactor + SEO Module v3.0 (2026-05-08)
 **Scopo:** rendere il modulo SEO veramente portabile (per `ticketgol.com`). Il Team Verifier era nel modulo SEO solo per "convenienza grafica" ma è una funzione di **DB hygiene** (verifica metadati team vs Perplexity), non SEO.

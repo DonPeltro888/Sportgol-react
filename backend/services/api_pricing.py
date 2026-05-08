@@ -56,6 +56,18 @@ DEFAULT_PRICING: Dict[str, Dict[str, Any]] = {
     "wikimedia:logo:request":      {"unit": "request",   "cost_per_unit": 0.0,      "currency": "USD", "note": "Free"},
     "matchesio:export:request":    {"unit": "request",   "cost_per_unit": 0.0,      "currency": "USD", "note": "Free (deprecated 404)"},
     "apifootball:fetch:request":   {"unit": "request",   "cost_per_unit": 0.0,      "currency": "USD", "note": "Self-hosted free tier"},
+
+    # ===== Google APIs (free tier) =====
+    "google_search_console:query":         {"unit": "request", "cost_per_unit": 0.0, "currency": "USD", "note": "Free"},
+    "google_search_console:sites_list":    {"unit": "request", "cost_per_unit": 0.0, "currency": "USD", "note": "Free"},
+    "google_indexing:submit":              {"unit": "request", "cost_per_unit": 0.0, "currency": "USD", "note": "Free (200/day quota)"},
+    "google_indexing:metadata":            {"unit": "request", "cost_per_unit": 0.0, "currency": "USD", "note": "Free"},
+    "google_analytics:overview":           {"unit": "request", "cost_per_unit": 0.0, "currency": "USD", "note": "Free"},
+    "google_analytics:list_properties":    {"unit": "request", "cost_per_unit": 0.0, "currency": "USD", "note": "Free"},
+    "google_analytics:top_pages":          {"unit": "request", "cost_per_unit": 0.0, "currency": "USD", "note": "Free"},
+    "google_analytics:sources":            {"unit": "request", "cost_per_unit": 0.0, "currency": "USD", "note": "Free"},
+    "google_analytics:daily":              {"unit": "request", "cost_per_unit": 0.0, "currency": "USD", "note": "Free"},
+    "google_pagespeed:scan":               {"unit": "request", "cost_per_unit": 0.0, "currency": "USD", "note": "Free (25k/day quota)"},
 }
 
 

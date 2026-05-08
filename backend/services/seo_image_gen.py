@@ -1,27 +1,35 @@
 """
-Gemini Nano Banana 2 (gemini-3.1-flash-image-preview) — generazione hero banner
-1200x630 per pagine SEO ticketing calcio (squadre, leghe, eventi).
+Hero image generation via Google AI Studio direct API (Nano Banana / Gemini 2.5 Flash Image).
 
-Output: salva PNG in /app/backend/uploads/seo/ e ritorna URL pubblico /uploads/seo/<filename>.
-Uso EMERGENT_LLM_KEY (Universal Key) via emergentintegrations.
+Endpoint diretto: https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent
+Key: GEMINI_API_KEY (from .env) OR encrypted key 'gemini' in seo_api_keys collection.
+
+Output: salva PNG in /app/backend/uploads/seo/ e ritorna URL pubblico /api/seo/uploads/<filename>.
+
+NESSUNA DIPENDENZA da emergentintegrations / EMERGENT_LLM_KEY: il modulo è 100% portabile
+e funziona con la stessa API key Google usata da seo_gemini.py.
 """
-import os
 import base64
 import logging
+import os
 import re
 import uuid
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
+import httpx
 from dotenv import load_dotenv
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+from services.seo_keys import get_api_key
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 logger = logging.getLogger(__name__)
-MODEL_ID = "gemini-3.1-flash-image-preview"
+# Modello Nano Banana (Google AI Studio): https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-image
+MODEL_ID = os.getenv("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-image-preview")
 UPLOADS_DIR = Path("/app/backend/uploads/seo")
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
 
 def _slugify(text: str) -> str:
@@ -34,7 +42,6 @@ def _build_prompt(target_type: str, ctx: Dict[str, Any]) -> str:
     home = ctx.get("home_team") or ""
     away = ctx.get("away_team") or ""
     stadium = ctx.get("stadium") or ""
-    league = ctx.get("league") or ""
 
     base_style = (
         "Cinematic wide-format hero banner, 1200x630 aspect ratio, photorealistic, "
@@ -59,7 +66,6 @@ def _build_prompt(target_type: str, ctx: Dict[str, Any]) -> str:
             f"packed stands with abstract crowd colors, dramatic sky. NO logos, NO text, NO jerseys. "
             f"{base_style}"
         )
-    # team
     return (
         f"Football team hero banner for '{title}'. "
         f"{'Home stadium ' + stadium + ', ' if stadium else ''}"
@@ -69,6 +75,17 @@ def _build_prompt(target_type: str, ctx: Dict[str, Any]) -> str:
     )
 
 
+async def _resolve_api_key() -> Optional[str]:
+    """Cerca la key Gemini in ordine: env GEMINI_API_KEY → seo_api_keys('gemini')."""
+    key = os.getenv("GEMINI_API_KEY")
+    if key:
+        return key
+    try:
+        return await get_api_key("gemini")
+    except Exception:
+        return None
+
+
 async def generate_hero(
     target_type: str,
     ctx: Dict[str, Any],
@@ -76,34 +93,59 @@ async def generate_hero(
     base_url: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Genera hero banner. Ritorna {url, filename, prompt, status}.
-    Salva il file in /app/backend/uploads/seo/<slug>-<uuid8>.png.
+    Genera hero banner via Google AI Studio direct API.
+    Ritorna {url, filename, prompt, status, size_bytes}.
+    Salva file in /app/backend/uploads/seo/<slug>-<uuid8>.png.
     """
-    api_key = os.getenv("EMERGENT_LLM_KEY")
+    api_key = await _resolve_api_key()
     if not api_key:
-        return {"status": "error", "error": "EMERGENT_LLM_KEY missing"}
+        return {"status": "error", "error": "GEMINI_API_KEY missing (set in .env or in /admin/seo/api-tools)"}
 
     prompt = _build_prompt(target_type, ctx)
-    session_id = f"seo-image-{uuid.uuid4().hex[:8]}"
+    body = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        # Per Nano Banana: chiediamo image+text response. Il modello ritorna image bytes inline.
+        "generationConfig": {
+            "responseModalities": ["IMAGE", "TEXT"],
+        },
+    }
+    url = ENDPOINT.format(model=MODEL_ID) + f"?key={api_key}"
 
     try:
-        chat = LlmChat(api_key=api_key, session_id=session_id, system_message="You are a professional sports photography AI.")
-        chat.with_model("gemini", MODEL_ID).with_params(modalities=["image", "text"])
-        msg = UserMessage(text=prompt)
-        text, images = await chat.send_message_multimodal_response(msg)
+        async with httpx.AsyncClient(timeout=120) as cx:
+            r = await cx.post(url, json=body)
+        if r.status_code != 200:
+            logger.error(f"Nano Banana HTTP {r.status_code}: {r.text[:300]}")
+            return {"status": "error", "error": f"HTTP {r.status_code}: {r.text[:200]}"}
+        data = r.json()
     except Exception as e:
-        logger.error(f"Nano Banana generate error: {e}")
+        logger.error(f"Nano Banana request error: {e}")
         return {"status": "error", "error": str(e)}
 
-    if not images:
-        return {"status": "error", "error": "No image returned by model"}
-
-    # Salva la prima immagine
-    img = images[0]
+    # Parse response: cerca nel candidates[0].content.parts l'inlineData con mimeType image/*
+    image_b64: Optional[str] = None
     try:
-        image_bytes = base64.b64decode(img["data"])
+        candidates = data.get("candidates") or []
+        if not candidates:
+            return {"status": "error", "error": "no candidates in response"}
+        parts = candidates[0].get("content", {}).get("parts", []) or []
+        for p in parts:
+            inline = p.get("inlineData") or p.get("inline_data") or {}
+            mime = inline.get("mimeType") or inline.get("mime_type") or ""
+            if "image" in mime and inline.get("data"):
+                image_b64 = inline["data"]
+                break
     except Exception as e:
-        return {"status": "error", "error": f"Base64 decode error: {e}"}
+        logger.error(f"Nano Banana parse error: {e}")
+        return {"status": "error", "error": f"parse error: {e}"}
+
+    if not image_b64:
+        return {"status": "error", "error": "no image returned by model"}
+
+    try:
+        image_bytes = base64.b64decode(image_b64)
+    except Exception as e:
+        return {"status": "error", "error": f"base64 decode error: {e}"}
 
     filename = f"{_slugify(slug or target_type)}-{uuid.uuid4().hex[:8]}.png"
     file_path = UPLOADS_DIR / filename
@@ -113,11 +155,12 @@ async def generate_hero(
     if base_url:
         public_url = f"{base_url.rstrip('/')}{public_url}"
 
-    logger.info(f"Hero image saved: {filename} ({len(image_bytes)} bytes)")
+    logger.info(f"Hero image saved: {filename} ({len(image_bytes)} bytes) via direct Google AI Studio")
     return {
         "status": "success",
         "filename": filename,
         "url": public_url,
         "prompt": prompt[:200],
         "size_bytes": len(image_bytes),
+        "model": MODEL_ID,
     }
