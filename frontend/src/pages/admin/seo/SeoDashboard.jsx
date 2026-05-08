@@ -5,7 +5,7 @@ import { useAdminAuth } from '../../../contexts/AdminAuthContext';
 import { Link } from 'react-router-dom';
 import {
   Sparkles, FileText, Settings2, BarChart3, ShieldCheck, History, Download,
-  KeyRound, Wand2, Bot, Languages, Search, Image as ImageIcon, AlertCircle, Loader2, FileCode
+  KeyRound, Wand2, Bot, Languages, Search, Image as ImageIcon, AlertCircle, Loader2, FileCode, Activity
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -181,6 +181,16 @@ const SeoDashboard = () => {
               <h3 className="text-white font-semibold">🔍 Google Suite</h3>
             </div>
             <p className="text-xs text-gray-400">Search Console, Indexing API, Analytics 4, PageSpeed Insights — tutto in un posto</p>
+          </Link>
+
+          <Link to="/admin/seo/automation-center" data-testid="seo-quick-automation-center" className="group rounded-xl border border-cyan-700/40 bg-gradient-to-br from-cyan-900/30 to-blue-900/20 p-5 hover:border-cyan-500 hover:bg-gray-800/70 transition-all">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-lg bg-cyan-600/20 flex items-center justify-center">
+                <Activity className="w-5 h-5 text-cyan-400" />
+              </div>
+              <h3 className="text-white font-semibold">⚡ CWV Automation</h3>
+            </div>
+            <p className="text-xs text-gray-400">Scan URL pubblici, 5 auto-fix Core Web Vitals + 8 patch React/HTML pronti per ticketgol.com</p>
           </Link>
         </div>
 
