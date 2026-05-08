@@ -9,7 +9,7 @@ Questo modulo è stato **architetturalmente isolato** dal codebase host. Tutto c
 > **CHANGELOG v3.0 (2026-05-08)**:
 > - ➕ Aggiunto **API Cost Observatory** (FASE 12) — track spese, latency, budget, alert email Resend/SMTP
 > - ➖ Rimosso **Team Verifier** dal modulo SEO → spostato in Data Tools (è data hygiene, non SEO)
-> - 🆕 v3.0 file count: **40 file** (4 routes + 17 services backend + 11 pages + 6 components frontend + 1 util + cost-observatory aggregato)
+> - 🆕 v3.0 file count: **47 file** (5 routes + 22 services backend + 12 pages + 6 components frontend + 1 util + 1 README)
 
 ---
 
@@ -419,7 +419,7 @@ Per domande sull'integrazione del modulo, riferirsi a:
 ## 📋 Checklist integrazione ticketgol.com
 
 - [ ] Copia 5 routes + 22 services backend (incl. Cost Observatory)
-- [ ] Copia 11 pages + 6 components frontend
+- [ ] Copia 12 pages (6 SEO + 6 Intelligence) + 6 components + 1 util frontend
 - [ ] Aggiungi `EMERGENT_LLM_KEY` e `SEO_FERNET_KEY` in `.env`
 - [ ] Installa dipendenze Python (`rapidfuzz`, `cryptography`, `emergentintegrations`)
 - [ ] Installa dipendenze npm (`lucide-react`, `sonner`)
