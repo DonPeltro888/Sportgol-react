@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 // Helper function per country code
 function getCountryCode(location) {
@@ -153,4 +153,30 @@ export const BreadcrumbSchema = ({ items }) => {
   return null;
 };
 
-export default { EventSchema, OrganizationSchema, LeagueSchema, TeamSchema, BreadcrumbSchema };
+// FAQPage schema — boost rich snippets su Google PAA
+export const FAQPageSchema = ({ entityType, slug, lang = 'it' }) => {
+  const baseUrl = process.env.REACT_APP_BACKEND_URL || '';
+  const [faq, setFaq] = useState([]);
+  useEffect(() => {
+    if (!entityType || !slug) return;
+    fetch(`${baseUrl}/api/seo/intelligence/faq/${entityType}/${slug}/public?lang=${lang}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.faq?.length) setFaq(d.faq); })
+      .catch(() => {});
+  }, [entityType, slug, lang, baseUrl]);
+
+  const schema = (faq && faq.length > 0) ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faq.map(f => ({
+      "@type": "Question",
+      "name": f.q,
+      "acceptedAnswer": { "@type": "Answer", "text": f.a },
+    })),
+  } : null;
+
+  useJsonLd(schema, `schema-faq-${entityType}-${slug}`);
+  return null;
+};
+
+export default { EventSchema, OrganizationSchema, LeagueSchema, TeamSchema, BreadcrumbSchema, FAQPageSchema };

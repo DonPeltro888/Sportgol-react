@@ -197,8 +197,29 @@ def start_scheduler():
         max_instances=1,
         coalesce=True,
     )
+
+    # Weekly Team Verifier (lunedì 05:00 UTC) — Perplexity DB-driven check teams
+    async def _run_team_verifier_weekly():
+        try:
+            from services.seo_team_verifier import verify_all_teams
+            res = await verify_all_teams(limit=250, only_with_drift=False)
+            logger.info(f"Team Verifier weekly: checked={res.get('total_checked')}, "
+                        f"drift={res.get('teams_with_drift')}, logo_drifts={res.get('logo_drifts')}")
+        except Exception as e:
+            logger.error(f"Team Verifier weekly error: {e}")
+
+    _scheduler.add_job(
+        _run_team_verifier_weekly,
+        CronTrigger(day_of_week="mon", hour=5, minute=0),
+        id="team_verifier_weekly",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
+
     _scheduler.start()
-    logger.info("AsyncIOScheduler avviato: sync 04:00/19:00, normalize-backstop 04:30/19:30, snapshot 02:00, health-autofix 03:00 (UTC)")
+    logger.info("AsyncIOScheduler avviato: sync 04:00/19:00, normalize-backstop 04:30/19:30, "
+                "snapshot 02:00, health-autofix 03:00, team-verifier weekly mon 05:00 (UTC)")
 
 
 def stop_scheduler():

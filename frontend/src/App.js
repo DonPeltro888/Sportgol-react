@@ -112,6 +112,13 @@ import SeoApiTools from './pages/admin/seo/SeoApiTools';
 import SeoPagesList from './pages/admin/seo/SeoPagesList';
 import SeoTargetEditor from './pages/admin/seo/SeoTargetEditor';
 import SeoBulkRunner from './pages/admin/seo/SeoBulkRunner';
+import SeoIntelligenceHub from './pages/admin/seo/intelligence/SeoIntelligenceHub';
+import SeoIntTopicCluster from './pages/admin/seo/intelligence/TopicCluster';
+import SeoIntCannibalization from './pages/admin/seo/intelligence/Cannibalization';
+import SeoIntHreflang from './pages/admin/seo/intelligence/Hreflang';
+import SeoIntFaqGenerator from './pages/admin/seo/intelligence/FaqGenerator';
+import SeoIntTeamVerifier from './pages/admin/seo/intelligence/TeamVerifier';
+import SeoIntJsonLdValidator from './pages/admin/seo/intelligence/JsonLdValidator';
 import DataToolsDashboard from './pages/admin/data-tools/DataToolsDashboard';
 import DataHealthDashboard from './pages/admin/data-tools/DataHealthDashboard';
 import SyncQualityDashboard from './pages/admin/data-tools/SyncQualityDashboard';
@@ -202,6 +209,27 @@ function App() {
             } />
             <Route path="/admin/seo/bulk" element={
               <ProtectedRoute><SeoBulkRunner /></ProtectedRoute>
+            } />
+            <Route path="/admin/seo/intelligence" element={
+              <ProtectedRoute><SeoIntelligenceHub /></ProtectedRoute>
+            } />
+            <Route path="/admin/seo/intelligence/topic-cluster" element={
+              <ProtectedRoute><SeoIntTopicCluster /></ProtectedRoute>
+            } />
+            <Route path="/admin/seo/intelligence/cannibalization" element={
+              <ProtectedRoute><SeoIntCannibalization /></ProtectedRoute>
+            } />
+            <Route path="/admin/seo/intelligence/hreflang" element={
+              <ProtectedRoute><SeoIntHreflang /></ProtectedRoute>
+            } />
+            <Route path="/admin/seo/intelligence/faq" element={
+              <ProtectedRoute><SeoIntFaqGenerator /></ProtectedRoute>
+            } />
+            <Route path="/admin/seo/intelligence/team-verifier" element={
+              <ProtectedRoute><SeoIntTeamVerifier /></ProtectedRoute>
+            } />
+            <Route path="/admin/seo/intelligence/jsonld-validator" element={
+              <ProtectedRoute><SeoIntJsonLdValidator /></ProtectedRoute>
             } />
             <Route path="/admin/data-tools" element={
               <ProtectedRoute><DataToolsDashboard /></ProtectedRoute>

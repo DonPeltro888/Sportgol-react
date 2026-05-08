@@ -6,7 +6,7 @@ import Footer from '../components/Footer';
 import EventListItem from '../components/EventListItem';
 import SEOHead from '../components/SEOHead';
 import Breadcrumbs from '../components/Breadcrumbs';
-import { LeagueSchema, BreadcrumbSchema } from '../components/SchemaOrg';
+import { LeagueSchema, BreadcrumbSchema, FAQPageSchema } from '../components/SchemaOrg';
 import SeoContentBlock, { getSeoMetaTitle, getSeoMetaDescription, getSeoH1 } from '../components/SeoContentBlock';
 import SeoSchemaInjector from '../components/SeoSchemaInjector';
 import { ArrowLeft, Loader2, Trophy } from 'lucide-react';
@@ -181,6 +181,7 @@ const LeaguePage = ({ urlType }) => {
         { name: 'Home', url: '/' },
         { name: leagueName, url: null }
       ]} />
+      <FAQPageSchema entityType="league" slug={actualLeague} lang={lang} />
       
       <Header />
       

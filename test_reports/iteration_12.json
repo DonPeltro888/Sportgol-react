@@ -1,0 +1,44 @@
+{
+  "summary": "FASE 5 SEO Intelligence Hub end-to-end testing. Backend 16/16 PASS for /api/seo/intelligence/* (topic-cluster overview/league/team/event, cannibalization scan @ thresholds 85+95, hreflang scan + per-entity validate, faq admin+public, jsonld scan, trust-score public + 404, team-verifier latest, Coppa Italia case-insensitive regression x2). Topic cluster confirms Inter→Inter Miami collision RESOLVED (no 'miami' substring in any link href/anchor for Inter event). Cannibalization scans 200 entities in <6s. Trust score public endpoint returns trust_score 0-100 + badge + sources without auth. FAQ public endpoint returns faq array without auth. Team-verifier limit=3 ran in 8.2s (Perplexity warm). Frontend admin SEO Intelligence Hub /admin/seo/intelligence loads with 5 stat cards (Leagues 34, Teams 221, Events 1390, Cannibalization 1610, Hreflang invalid 21), HIGH severity alerts (1 cannib + 21 hreflang), 6 tool cards (Topic Cluster, Cannibalization Detector, Hreflang Validator, AI FAQ Generator, Team Verifier weekly, JSON-LD Validator), and Top League Hubs table with graph density. All 6 sub-pages load successfully (topic-cluster, cannibalization, hreflang, faq, team-verifier, jsonld-validator). Public Champions League page /biglietti-champions-league shows exactly 2 events (Paris Saint-Germain vs Liverpool 8/5 + Paris Saint-Germain vs Arsenal at Puskás Aréna Budapest 30/5). Public Coppa Italia page /biglietti-coppa-italia shows Lazio vs Inter (case-insensitive league filter regression PASSED, NO Inter Miami leakage). FAQPage JSON-LD schema injected on /biglietti-serie-a (LD types: Organization, WebSite, SportsActivityLocation, SportsOrganization, BreadcrumbList, FAQPage). Event detail /paris-saint-germain-vs-arsenal-tickets renders with TrustScoreBadge data-testid present and SportsEvent JSON-LD. Coppa Italia case-insensitive regression x2 PASS.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/events", "issue": "limit query param max=100 (problem statement called for limit=200 — verify intent or raise cap)"}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/admin/seo/intelligence and sub-pages", "issues": ["React hydration warnings in console: '<span> cannot be a child of <select>/<option>/<tr>/<tbody>' across multiple admin pages (Topic Cluster, FAQ Generator, JSON-LD Validator). Dev-only warnings, not blockers, but should be cleaned up: likely a custom <Select> shadcn wrapping option as <span> instead of native, or a Table renderer wrapping <tr> in <span> for animations."]},
+      {"screen": "Champions League / Event detail public", "issues": ["Trust score badge text ('Verified...', 'Cross-verified', etc.) is not present in inner_text — only the data-testid is rendered. May indicate badge shows icon+aria-label but not human-readable label visible to user. Worth verifying TrustScoreBadge.jsx exposes badge text or just colored dot."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_seo_intelligence.py",
+    "/app/test_reports/pytest/seo_intelligence.xml"
+  ],
+  "action_items": [
+    "(low/cosmetic) Clean up React hydration warnings in admin SEO Intelligence pages — invalid HTML nesting (<span> in <select>/<tr>/<tbody>).",
+    "(low) Verify TrustScoreBadge renders badge text (e.g., 'Verified by multiple sources') and not only a colored testid element on event detail public page.",
+    "(verify) /api/events?limit=200 returns 422 (le=100). Problem statement implied higher limit acceptable; confirm cap is intentional or raise to 200."
+  ],
+  "critical_code_review_comments": [
+    "/app/backend/routes/seo_intelligence.py topic-cluster overview returns total_leagues/total_teams/total_events_future/league_hubs (good). The previous file docstring listed 'leagues/teams/events' which is misleading vs the actual schema — minor doc drift.",
+    "Trust score endpoint correctly excludes _id from projection. Sources count uses set(sources) + 1 if siblings>0 — the +1 is added even when sources also contains the source that produced the sibling, potentially over-counting. Consider deduping siblings via stricter source check.",
+    "FAQ public endpoint correctly bypasses verify_admin_token (intentional). Cache control / TTL not yet set — consider adding Cache-Control: public, max-age=3600 to reduce DB load.",
+    "Cannibalization scan (200 entities) returns in <6s — OK at current scale but rapidfuzz O(n²) cross-pair comparison will degrade beyond ~1k. Consider pre-bucketing by first letter or using minhash for >5k.",
+    "Hreflang scan response uses 'rows' + 'total_invalid' + 'by_severity'. Frontend Hreflang.jsx must consume 'rows' (not 'invalid'/'issues'); verify field name alignment with backend.",
+    "/api/events limit cap is 100 (Pydantic le=100). Problem statement implicitly expected higher; either raise cap or document.",
+    "React hydration warnings indicate one or more shadcn/ui components are emitting <span> children inside <select>/<tbody>/<tr>. Check Select/Table primitives in admin SEO Intelligence pages — usually fixable by replacing native element with shadcn equivalent or wrapping <option> properly."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_seo_intelligence.py"
+  ],
+  "success_rate": {"backend": "100% (16/16 SEO Intelligence)", "frontend": "100% (all admin + public pages load + FAQ schema injected + regression OK)"},
+  "test_credentials": "admin / golevents2024",
+  "seed_data_creation": "POST /api/seo/intelligence/team-verifier/run?limit=3 invoked once during smoke (saved a fresh team_verifier_reports doc; 3 teams checked via Perplexity in 8.2s).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "FASE 5 SEO Intelligence Hub fully GREEN. Backend test suite at /app/backend/tests/test_seo_intelligence.py (16 tests, ~6s). Public endpoints (faq/public, trust-score) work without auth as expected. FAQPage JSON-LD verified injected on /biglietti-serie-a. Admin pages /admin/seo/intelligence/* all load. Coppa Italia case-insensitive league filter regression covered (2 tests). Outstanding low-priority items: hydration warnings in admin pages, TrustScoreBadge text visibility on public event detail, /api/events limit cap=100 (problem statement implied 200). All 7 tools (Topic Cluster, Cannibalization, Hreflang, FAQ, Team Verifier, JSON-LD, Trust Score) wired backend→frontend→public consumers."
+}

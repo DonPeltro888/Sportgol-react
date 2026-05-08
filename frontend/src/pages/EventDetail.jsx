@@ -4,7 +4,7 @@ import { eventsAPI } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Breadcrumbs from '../components/Breadcrumbs';
-import { EventSchema, BreadcrumbSchema } from '../components/SchemaOrg';
+import { EventSchema, BreadcrumbSchema, FAQPageSchema } from '../components/SchemaOrg';
 import SanSiroMap from '../components/SanSiroMap';
 import UrgencyBadges from '../components/UrgencyBadges';
 import TrustBadges from '../components/TrustBadges';
@@ -18,6 +18,7 @@ import { getTranslation } from '../translations';
 import { getSeoTitle, getSeoDescription, getTeamUrl, getLeagueUrl, getEventUrl } from '../utils/seoHelpers';
 import { getTeamLogo } from '../data/teamLogos';
 import { resolveSeoHeroUrl } from '../utils/seoHero';
+import TrustScoreBadge from '../components/TrustScoreBadge';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -170,6 +171,7 @@ const EventDetail = () => {
       <SEOHead title={seoTitle} description={seoDescription} canonicalUrl={canonicalUrl} ogImage={heroImageUrl || event.imageUrl || event.image} />
       <EventSchema event={event} lang={lang} />
       <BreadcrumbSchema items={[{ name: 'Home', url: '/' }, { name: event.league, url: getLeagueUrl(event.league?.toLowerCase().replace(/\s+/g, '-'), lang) }, { name: eventTitle, url: null }]} />
+      <FAQPageSchema entityType="event" slug={event.slug} lang={lang} />
       
       <Header />
       
@@ -204,6 +206,7 @@ const EventDetail = () => {
             <div className="flex flex-wrap items-center justify-center gap-4 mt-3 text-gray-300 text-sm">
               <span className="flex items-center gap-1"><Calendar className="w-4 h-4" /> {event.date}</span>
               <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {event.stadium}, {eventLocation}</span>
+              <TrustScoreBadge entityType="event" slug={event.slug} compact />
             </div>
             
             {/* Tags */}

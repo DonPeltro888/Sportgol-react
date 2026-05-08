@@ -196,6 +196,16 @@ const SeoDashboard = () => {
             </div>
             <p className="text-xs text-gray-400">Genera SEO in batch per intere leghe + export JSON/CSV</p>
           </Link>
+
+          <Link to="/admin/seo/intelligence" data-testid="seo-quick-intelligence" className="group rounded-xl border border-emerald-700/40 bg-gradient-to-br from-emerald-900/20 to-blue-900/20 p-5 hover:border-emerald-500 hover:bg-gray-800/70 transition-all">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-lg bg-emerald-600/20 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-emerald-400" />
+              </div>
+              <h3 className="text-white font-semibold">🧠 Intelligence Hub</h3>
+            </div>
+            <p className="text-xs text-gray-400">Topic Cluster, Cannibalization, Hreflang, FAQ AI, Team Verifier, JSON-LD Validator</p>
+          </Link>
         </div>
 
         {/* Filter & Status Panel (cascading: lega → squadra → evento) */}
