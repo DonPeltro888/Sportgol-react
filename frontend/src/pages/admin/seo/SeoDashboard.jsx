@@ -162,6 +162,16 @@ const SeoDashboard = () => {
             </div>
             <p className="text-xs text-gray-400">Topic Cluster, Cannibalization, Hreflang, FAQ AI, Team Verifier, JSON-LD Validator</p>
           </Link>
+
+          <Link to="/admin/seo/cost-observatory" data-testid="seo-quick-cost-observatory" className="group rounded-xl border border-emerald-700/40 bg-gradient-to-br from-emerald-900/30 to-amber-900/20 p-5 hover:border-emerald-500 hover:bg-gray-800/70 transition-all">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-lg bg-emerald-600/20 flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-emerald-400" />
+              </div>
+              <h3 className="text-white font-semibold">💰 Cost Observatory</h3>
+            </div>
+            <p className="text-xs text-gray-400">Spesa API, last-used, latency, budget alerts, top expensive entities, drill-down logs</p>
+          </Link>
         </div>
 
         {/* Filter & Status Panel (cascading: lega → squadra → evento) */}

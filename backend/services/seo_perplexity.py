@@ -7,31 +7,46 @@ Perplexity Sonar — live research per:
 import json
 import logging
 import re
+import time
 import httpx
 from typing import List, Dict, Any, Optional
 from services.seo_keys import get_api_key
+from services.api_cost_tracker import manual_log
 
 logger = logging.getLogger(__name__)
 
 
-async def _call_sonar(prompt: str, max_tokens: int = 600) -> str:
+async def _call_sonar(prompt: str, max_tokens: int = 600, sub_type: str = "sonar") -> str:
     api_key = await get_api_key("perplexity")
     if not api_key:
         return ""
     body = {
-        "model": "sonar",
+        "model": sub_type,
         "messages": [{"role": "user", "content": prompt}],
         "max_tokens": max_tokens,
         "temperature": 0.2,
     }
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    t0 = time.time()
     try:
         async with httpx.AsyncClient(timeout=45) as cx:
             r = await cx.post("https://api.perplexity.ai/chat/completions", headers=headers, json=body)
+        latency = int((time.time() - t0) * 1000)
         if r.status_code in (200, 201):
+            await manual_log("perplexity", sub_type, "request",
+                              units_used=1, status="ok", latency_ms=latency,
+                              function="perplexity._call_sonar", http_status=r.status_code)
             return r.json()["choices"][0]["message"]["content"]
+        await manual_log("perplexity", sub_type, "request",
+                          status="failed", latency_ms=latency,
+                          function="perplexity._call_sonar",
+                          http_status=r.status_code, response_body_preview=r.text[:300])
         logger.warning(f"Perplexity HTTP {r.status_code}: {r.text[:200]}")
     except Exception as e:
+        latency = int((time.time() - t0) * 1000)
+        await manual_log("perplexity", sub_type, "request",
+                          status="failed", latency_ms=latency, error_msg=str(e)[:300],
+                          function="perplexity._call_sonar")
         logger.error(f"Perplexity error: {e}")
     return ""
 

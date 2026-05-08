@@ -217,9 +217,29 @@ def start_scheduler():
         coalesce=True,
     )
 
+    # Alert checks ogni 30 minuti (budget, low balance, API down)
+    async def _run_alert_checks():
+        try:
+            from services.api_alerts import run_all_alert_checks
+            res = await run_all_alert_checks()
+            if res.get("new_alerts_count"):
+                logger.warning(f"Alert checks: {res['new_alerts_count']} nuovi alert generati")
+        except Exception as e:
+            logger.error(f"Alert checks error: {e}")
+
+    _scheduler.add_job(
+        _run_alert_checks,
+        CronTrigger(minute="*/30"),  # ogni 30 min
+        id="alert_checks_30min",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
+
     _scheduler.start()
     logger.info("AsyncIOScheduler avviato: sync 04:00/19:00, normalize-backstop 04:30/19:30, "
-                "snapshot 02:00, health-autofix 03:00, team-verifier weekly mon 05:00 (UTC)")
+                "snapshot 02:00, health-autofix 03:00, team-verifier weekly mon 05:00, "
+                "alert-checks ogni 30min (UTC)")
 
 
 def stop_scheduler():

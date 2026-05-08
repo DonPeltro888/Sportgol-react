@@ -1,0 +1,45 @@
+{
+  "summary": "FASE Cost Observability tested end-to-end. Backend: 22/22 pytest passing across 19 endpoints (overview/chart/providers/entities top+by-type/logs +filters provider+status/latency/pricing GET+POST override/budgets GET+POST/alerts open+run-checks/balance/backfill/alert-config GET+POST/export CSV) + auth-required gate + resend in tools catalog. Frontend: /admin/seo/cost-observatory loads cleanly post-login with all 8 stat cards visible (Today $0.0840, Week $2.07, Month $2.07, Forecast $7.75, Calls today 5, Success 89.7%, Avg latency 2227ms, Top provider deepl). Provider table renders 5 rows (deepl, claude, gemini, perplexity, dataforseo) with cost/budget bar (4.2%/1.2%/1.1%/0.5%/0.1% green) + colored success rate (perplexity 69.6% RED with 7 fails — matches mock data). Header buttons (Run alert check / Check balance / Export CSV / Email-SMTP / Backfill 30g / Refresh) all present and functional via testids. Budget modal opens listing 5 configured budgets (claude=$50, perplexity=$30, deepl=$20, gemini=$40, dataforseo=$10) + 'Aggiungi/Modifica' form. Email/SMTP modal opens with SMTP fields + 5 alert-type checkboxes. Alert engine run-checks returned 200 with 0 alerts (mock data spread across 10 days; intermittent threshold 30% over 24h window not triggered — verify in main agent if alert dispatch on backfilled data is expected).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/seo/cost-observatory/overview", "issue": "Returns 'forecast_month_usd' (frontend consumes correctly). Field name inconsistent with mention 'forecast' in problem statement — minor naming drift, not a bug."},
+      {"endpoint": "/api/seo/cost-observatory/alerts/run-checks", "issue": "On current mock data (1 RATE_LIMIT failure, ~69% success on perplexity in /providers view) the engine reports new_alerts_count=0. Likely cause: API_INTERMITTENT threshold uses 24h window but mock data spans 10d so <30% fails fall in 24h. Verify if alerting on aggregated month should be added or if mock data should concentrate in 24h."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "CostObservatory stat cards", "issue": "Only 3 of 8 stat cards expose data-testid (stat-today, stat-month, stat-forecast). Missing on Stat 'Week', 'Calls today', 'Success rate', 'Avg latency', 'Top provider' — should be stat-week, stat-calls, stat-success, stat-latency, stat-top-provider. Cards render correctly visually with values; testids needed for automation per problem statement.", "selector": "[data-testid='stat-week|stat-calls|stat-success|stat-latency|stat-top-provider']", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/admin/seo/cost-observatory", "issues": ["Pre-existing React hydration warnings persist (<span> in <select>/<option>/<tr>/<tbody>) — already documented in iteration_12. Not specific to Cost Observatory but visible in console here too."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_cost_observatory.py",
+    "/app/test_reports/pytest/cost_observatory.xml"
+  ],
+  "action_items": [
+    "(LOW) Add missing data-testid attributes to 5 stat cards in CostObservatory.jsx: stat-week, stat-calls, stat-success, stat-latency, stat-top-provider (problem statement explicitly required all 8 cards testable).",
+    "(VERIFY) Alert engine returns 0 new alerts on current mock data despite perplexity showing 69.6% success rate / 7 fails in monthly view. Confirm intent: API_INTERMITTENT (30% fail rate, 24h window) is correct; if so, mock data should include >3 perplexity failures within last 24h to demonstrate the alert path. Otherwise widen window or also evaluate monthly aggregate.",
+    "(LOW) Field naming: backend returns 'forecast_month_usd', problem statement / docstring mention 'forecast'. Alias for clarity if external consumers expected 'forecast'."
+  ],
+  "critical_code_review_comments": [
+    "/app/backend/routes/cost_observatory.py: alert-config GET correctly hides smtp_pass and exposes smtp_pass_set + resend_key_set flags — good security pattern. POST also avoids overwriting smtp_pass on empty input — good.",
+    "Pricing POST endpoint accepts arbitrary provider/op_type strings without validation against a known list. Consider a Literal/Enum to prevent typos seeding bad pricing rows.",
+    "Backfill endpoint capped at days<=90, good. But /backfill returns full result synchronously — if seo_jobs collection grows large this can timeout. Consider 202 + background job pattern.",
+    "Export CSV streams via io.StringIO buffered (not true streaming). For 30+ days x many providers this could consume RAM. Convert to async generator yielding rows for true stream.",
+    "CostObservatory.jsx Stat component pattern reused with optional testid prop; only first 3 cards passed it — easy fix, just propagate testid={'stat-...'} to remaining 5.",
+    "Budget bar color logic uses budget_status field from backend (exceeded/warning/ok). Confirm /providers endpoint always populates this even when monthly_limit_usd is null (currently appears to fall back to bg-emerald-500 implicit — verify on a provider with no budget configured)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_cost_observatory.py"
+  ],
+  "success_rate": {"backend": "100% (22/22)", "frontend": "95% (8/8 stat cards visible + all modals work; 5 missing testids only)"},
+  "test_credentials": "admin / golevents2024",
+  "seed_data_creation": "Set perplexity budget to $30/80% via POST /budgets/perplexity. Set claude pricing override (sub_type=test_sonnet) via POST /pricing — TEST_pricing_override note. Saved alert-config doc with example SMTP config (smtp.example.com).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Cost Observatory backend GREEN (22/22). All 19 endpoints validated. Frontend dashboard renders all 8 cards and 3 modals (Budgets, Pricing button visible, Email/SMTP). Two follow-ups: (1) add 5 missing testids on stat cards, (2) confirm alert engine fires on mock data within 24h window or update seed/window. Test suite at /app/backend/tests/test_cost_observatory.py reusable for regression."
+}

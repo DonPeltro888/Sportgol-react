@@ -112,6 +112,7 @@ import SeoApiTools from './pages/admin/seo/SeoApiTools';
 import SeoPagesList from './pages/admin/seo/SeoPagesList';
 import SeoTargetEditor from './pages/admin/seo/SeoTargetEditor';
 import SeoBulkRunner from './pages/admin/seo/SeoBulkRunner';
+import CostObservatory from './pages/admin/seo/CostObservatory';
 import SeoIntelligenceHub from './pages/admin/seo/intelligence/SeoIntelligenceHub';
 import SeoIntTopicCluster from './pages/admin/seo/intelligence/TopicCluster';
 import SeoIntCannibalization from './pages/admin/seo/intelligence/Cannibalization';
@@ -209,6 +210,9 @@ function App() {
             } />
             <Route path="/admin/seo/bulk" element={
               <ProtectedRoute><SeoBulkRunner /></ProtectedRoute>
+            } />
+            <Route path="/admin/seo/cost-observatory" element={
+              <ProtectedRoute><CostObservatory /></ProtectedRoute>
             } />
             <Route path="/admin/seo/intelligence" element={
               <ProtectedRoute><SeoIntelligenceHub /></ProtectedRoute>

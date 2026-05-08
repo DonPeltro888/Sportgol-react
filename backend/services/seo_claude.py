@@ -5,9 +5,11 @@ Output esteso: meta+h1+intro+main_content+cta+og_*+internal_links+image_alt_text
 import json
 import logging
 import re
+import time
 import httpx
 from typing import Dict, Any, Optional, List
 from services.seo_keys import get_api_key
+from services.api_cost_tracker import manual_log
 
 logger = logging.getLogger(__name__)
 MODEL = "claude-sonnet-4-5"
@@ -47,22 +49,49 @@ async def generate_master_it(
     }
 
     last_error = ""
+    entity_slug = ctx.get("slug") or ctx.get("id")
     for attempt in range(MAX_RETRIES):
+        t0 = time.time()
         try:
             async with httpx.AsyncClient(timeout=120) as cx:
                 r = await cx.post("https://api.anthropic.com/v1/messages", headers=headers, json=body)
+            latency = int((time.time() - t0) * 1000)
             if r.status_code == 200:
                 data = r.json()
                 text = data["content"][0]["text"]
+                usage = data.get("usage", {})
+                t_in = int(usage.get("input_tokens") or 0)
+                t_out = int(usage.get("output_tokens") or 0)
+                await manual_log(
+                    "claude", "sonnet-4.5", None,
+                    tokens_in=t_in, tokens_out=t_out, units_used=1,
+                    status="ok", latency_ms=latency,
+                    entity_type=target_type, entity_slug=entity_slug,
+                    function="claude.generate_master_it", http_status=200,
+                )
                 parsed = _parse_json(text)
                 if parsed:
                     return parsed
                 last_error = "Empty/invalid JSON"
             else:
                 last_error = f"HTTP {r.status_code}: {r.text[:200]}"
+                await manual_log(
+                    "claude", "sonnet-4.5", None,
+                    status="failed", latency_ms=latency,
+                    entity_type=target_type, entity_slug=entity_slug,
+                    function="claude.generate_master_it",
+                    http_status=r.status_code, response_body_preview=r.text[:300],
+                )
                 logger.warning(f"Claude {last_error}")
         except Exception as e:
+            latency = int((time.time() - t0) * 1000)
             last_error = str(e)
+            await manual_log(
+                "claude", "sonnet-4.5", None, status="failed",
+                latency_ms=latency, error_msg=str(e)[:300],
+                entity_type=target_type, entity_slug=entity_slug,
+                function="claude.generate_master_it",
+            )
             logger.error(f"Claude call failed (attempt {attempt+1}): {e}")
     logger.error(f"Claude FINAL FAIL: {last_error}")
     return {}

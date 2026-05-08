@@ -122,6 +122,18 @@ TOOLS_CATALOG: List[Dict[str, Any]] = [
         "requires_login": False,
         "p1_only": True,
     },
+    # ── Notification / Alert ─────────────────────────────────────────────
+    {
+        "slug": "resend",
+        "name": "Resend (Email Alerts)",
+        "category": "notification",
+        "description": "Email transazionale per alert API: budget exceeded, low balance, API down. Free tier 3000 email/month.",
+        "website": "https://resend.com/api-keys",
+        "cost_type": "freemium",
+        "use_cases": ["budget_alerts", "low_balance_alerts", "api_down_alerts"],
+        "requires_login": False,
+        "p1_only": False,
+    },
 ]
 
 
