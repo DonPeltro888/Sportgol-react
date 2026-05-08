@@ -37,7 +37,9 @@ const TrustScoreBadge = ({ entityType, slug, compact = false }) => {
         title={`Trust score ${data.trust_score}/100 — ${data.sources.join(', ')}`}
         data-testid="trust-score-badge"
       >
-        <ShieldCheck className="w-3 h-3" /> {data.source_count}
+        <ShieldCheck className="w-3 h-3" />
+        <span>{data.badge}</span>
+        <span className="opacity-70">({data.source_count})</span>
       </span>
     );
   }

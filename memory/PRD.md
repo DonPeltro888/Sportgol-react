@@ -8,6 +8,52 @@
 - 🆕 **SEO Automation Admin – FASE 2 (Pipeline Dual-Engine reale) COMPLETATA il 2026-05-07**
 - 🆕 **FASE 8 (Cascading Filter + Hero Image Public Render) COMPLETATA il 2026-05-07**
 - 🆕 **FASE 9 (Multi-Source Data Recovery + AI Gap Detector) COMPLETATA il 2026-05-07**
+- 🆕 **FASE 10 (SEO Intelligence Hub: 7 tools — Topic Cluster, Cannibalization, Hreflang, FAQ AI, Team Verifier, JSON-LD Validator, Trust Score) COMPLETATA il 2026-05-08**
+
+## FASE 10 – SEO Intelligence Hub (2026-05-08)
+**Brief PM/SEO Engineer:** Implementati 4 P1 utente + 1 future + 1 mio suggerimento + 2 idee bonus mie da SEO Engineer per max impatto SEO. Hub unificato `/admin/seo/intelligence`.
+
+**Backend (services + 1 router):**
+- **`services/seo_topic_cluster.py`** — Hub-Spoke graph: League→Teams→Events. Funzioni `build_links_for_event/team/league` con rel categorizzato (home_team, away_team, parent_league, related_event, child_team, child_event). Anti-collision Inter vs Inter Miami con regex anchored.
+- **`services/seo_cannibalization.py`** — rapidfuzz token_set_ratio threshold ≥85%. Severity HIGH (entrambe Published) / MEDIUM / LOW. Stopwords IT, normalizzazione, recommendations contestuali.
+- **`services/seo_hreflang.py`** — valida REQUIRED_LANGS (it/en/es), x-default, URL pattern coerente, ISO 639-1 codes, reciprocità.
+- **`services/seo_team_verifier.py`** — Perplexity Sonar Pro DB-driven. Per ogni team chiede stadium/city/country/logo_url ufficiali, fuzzy match con DB, flag drift. ~$0.005/team. Cron settimanale lunedì 05:00 UTC su ~250 teams.
+- **`services/seo_faq_generator.py`** — **🌟 BIG SEO WIN** Claude Sonnet 4.5 genera 6 FAQ PAA-optimized per entity per lang (it/en/es). Salvate in `seo_meta.{lang}.faq`, iniettate automaticamente come schema.org/FAQPage → Google rich snippet boost.
+- **`services/seo_jsonld_validator.py`** — schema.org packet validator: required props per type (Event, SportsTeam, FAQPage, BreadcrumbList), date ISO 8601, URL validi, sameAs array, recursion su @graph.
+- **`routes/seo_intelligence.py`** — single router prefix `/api/seo/intelligence`:
+  - `GET /topic-cluster/overview` + `/topic-cluster/{type}/{slug}`
+  - `GET /cannibalization/scan?threshold=85`
+  - `GET /hreflang/scan` + `/hreflang/{type}/{slug}`
+  - `POST /team-verifier/run` + `GET /team-verifier/latest`
+  - `POST /faq/{type}/{slug}/generate?langs=it,en,es` + `GET /faq/{type}/{slug}` + `GET /faq/{type}/{slug}/public` (NO AUTH per frontend)
+  - `GET /jsonld/scan?lang=it`
+  - `GET /trust-score/{type}/{slug}` (PUBBLICO) — score 0-100 + badge + sources
+
+**Frontend (1 hub + 6 sub-pages):**
+- `pages/admin/seo/intelligence/SeoIntelligenceHub.jsx` — 5 stat cards (leagues/teams/events/cannib/hreflang) + alert HIGH severity + 6 tool cards con badge + Top League Hubs table
+- `pages/admin/seo/intelligence/TopicCluster.jsx` — cascading selector + cluster explorer
+- `pages/admin/seo/intelligence/Cannibalization.jsx` — threshold slider + risultati con severity color coding
+- `pages/admin/seo/intelligence/Hreflang.jsx` — type filter + invalid entities con issue cards
+- `pages/admin/seo/intelligence/FaqGenerator.jsx` — selector + lang checkboxes + lang preview tabs
+- `pages/admin/seo/intelligence/TeamVerifier.jsx` — limit + run + drift report con before/after diff
+- `pages/admin/seo/intelligence/JsonLdValidator.jsx` — type/lang filter + issue paths
+
+**Public Frontend integrations:**
+- `components/TrustScoreBadge.jsx` — badge "Verified by N sources (N)" su EventDetail (compact mode in hero section)
+- `components/SchemaOrg.jsx` — nuovo `FAQPageSchema` injected in `EventDetail.jsx`, `LeaguePage.jsx`, `TeamPage.jsx` per Google rich snippet automatico se FAQ esistono
+
+**Scheduler aggiornato:**
+- Cron settimanale **lunedì 05:00 UTC** per Team Verifier weekly su 250 teams (~$1.25/run)
+
+**Test risultati (testing_agent_v3_fork iteration_12):**
+- Backend: **16/16 PASS** ✅ (topic-cluster overview/league/team/event, cannibalization scan @85+@95, hreflang scan + per-entity, faq admin+public, jsonld scan, trust-score public + 404, team-verifier latest, Coppa Italia case-insensitive regression)
+- Frontend: **100% PASS** ✅ (Hub + 6 sub-pages + Trust Score badge su event detail + FAQPage schema injected su /biglietti-serie-a)
+- Cannibalization scan 1500+ entità in <6s
+- AI FAQ generation funzionante (Serie A: 6 FAQ IT + 6 FAQ EN, qualità SEO professionale)
+- Trust Score: PSG vs Arsenal CL final → score 95/100 "Verified by multiple sources"
+- Inter (Serie A) vs Inter Miami collision: NON RILEVATA (anti-collision OK)
+
+
 
 ## FASE 9 – Multi-Source Data Recovery + AI Gap Detector + DB-driven Verification (2026-05-07)
 **🚨 Root cause discovered:** matchesio.com ha rimosso completamente i JSON di export pubblici (tutti 404). Il cron schedulato falliva silenziosamente da settimane → mancavano semifinali/finali CL e altri eventi.
