@@ -36,12 +36,14 @@ cp "$SOURCE/backend/routes/seo_admin.py"        "$TARGET/backend/routes/"
 cp "$SOURCE/backend/routes/seo_targets.py"      "$TARGET/backend/routes/"
 cp "$SOURCE/backend/routes/seo_tools.py"        "$TARGET/backend/routes/"
 cp "$SOURCE/backend/routes/seo_intelligence.py" "$TARGET/backend/routes/"
+cp "$SOURCE/backend/routes/cost_observatory.py" "$TARGET/backend/routes/"
 
 echo "[2/6] Copying backend services..."
 for f in seo_keys seo_crypto seo_tools_catalog seo_orchestrator seo_claude \
          seo_gemini seo_perplexity seo_deepl seo_dataforseo seo_validator \
          seo_entity_context seo_image_gen seo_topic_cluster seo_cannibalization \
-         seo_hreflang seo_team_verifier seo_faq_generator seo_jsonld_validator; do
+         seo_hreflang seo_faq_generator seo_jsonld_validator \
+         api_cost_tracker api_cost_observatory api_pricing api_alerts api_balance_checker; do
   cp "$SOURCE/backend/services/${f}.py" "$TARGET/backend/services/" 2>/dev/null \
     && echo "  ✓ ${f}.py" \
     || echo "  ⚠ ${f}.py NOT FOUND (skip)"
@@ -49,13 +51,13 @@ done
 
 # ===== FRONTEND PAGES =====
 echo "[3/6] Copying frontend pages..."
-for f in SeoDashboard SeoApiTools SeoPagesList SeoTargetEditor SeoBulkRunner; do
+for f in SeoDashboard SeoApiTools SeoPagesList SeoTargetEditor SeoBulkRunner CostObservatory; do
   cp "$SOURCE/frontend/src/pages/admin/seo/${f}.jsx" "$TARGET/frontend/src/pages/admin/seo/" \
     && echo "  ✓ ${f}.jsx"
 done
 
 echo "[4/6] Copying intelligence pages..."
-for f in SeoIntelligenceHub TopicCluster Cannibalization Hreflang FaqGenerator TeamVerifier JsonLdValidator; do
+for f in SeoIntelligenceHub TopicCluster Cannibalization Hreflang FaqGenerator JsonLdValidator; do
   cp "$SOURCE/frontend/src/pages/admin/seo/intelligence/${f}.jsx" \
      "$TARGET/frontend/src/pages/admin/seo/intelligence/" \
     && echo "  ✓ intelligence/${f}.jsx"
@@ -93,11 +95,12 @@ echo "3. Install npm deps in $TARGET/frontend/:"
 echo "   yarn add lucide-react sonner react-router-dom"
 echo ""
 echo "4. Register routes in $TARGET/backend/server.py:"
-echo "   from routes import seo_admin, seo_targets, seo_tools, seo_intelligence"
+echo "   from routes import seo_admin, seo_targets, seo_tools, seo_intelligence, cost_observatory"
 echo "   app.include_router(seo_admin.router)"
 echo "   app.include_router(seo_targets.router)"
 echo "   app.include_router(seo_tools.router)"
 echo "   app.include_router(seo_intelligence.router)"
+echo "   app.include_router(cost_observatory.router)"
 echo ""
 echo "5. Read $TARGET/SEO_PORTABLE_MODULE.md for full integration guide."
 echo ""

@@ -7,8 +7,6 @@ Endpoints:
 - /api/seo/intelligence/cannibalization/scan
 - /api/seo/intelligence/hreflang/scan
 - /api/seo/intelligence/hreflang/{type}/{slug}
-- /api/seo/intelligence/team-verifier/run
-- /api/seo/intelligence/team-verifier/latest
 - /api/seo/intelligence/faq/{type}/{slug}/generate
 - /api/seo/intelligence/faq/{type}/{slug}
 - /api/seo/intelligence/jsonld/scan
@@ -21,7 +19,7 @@ from database import db
 from routes.admin_auth import verify_admin_token
 from services import (
     seo_topic_cluster, seo_cannibalization, seo_hreflang,
-    seo_team_verifier, seo_faq_generator, seo_jsonld_validator,
+    seo_faq_generator, seo_jsonld_validator,
 )
 
 logger = logging.getLogger(__name__)
@@ -71,22 +69,6 @@ async def hreflang_scan(
 @router.get("/hreflang/{entity_type}/{slug}")
 async def hreflang_validate_one(entity_type: str, slug: str, _=Depends(verify_admin_token)):
     return await seo_hreflang.validate_entity(entity_type, slug)
-
-
-# ================= Team Verifier =================
-@router.post("/team-verifier/run")
-async def team_verifier_run(
-    limit: int = Query(50, ge=1, le=300),
-    only_with_drift: bool = Query(False),
-    _=Depends(verify_admin_token),
-):
-    """Lancia verifica AI Perplexity su tutti i team. Default 50 (controllato per costi)."""
-    return await seo_team_verifier.verify_all_teams(limit=limit, only_with_drift=only_with_drift)
-
-
-@router.get("/team-verifier/latest")
-async def team_verifier_latest(_=Depends(verify_admin_token)):
-    return await seo_team_verifier.latest_report()
 
 
 # ================= FAQ Generator =================

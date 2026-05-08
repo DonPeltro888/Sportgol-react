@@ -224,7 +224,7 @@ def start_scheduler():
     # Weekly Team Verifier (lunedì 05:00 UTC) — Perplexity DB-driven check teams
     async def _run_team_verifier_weekly():
         try:
-            from services.seo_team_verifier import verify_all_teams
+            from services.data_tools_team_verifier import verify_all_teams
             res = await verify_all_teams(limit=250, only_with_drift=False)
             logger.info(f"Team Verifier weekly: checked={res.get('total_checked')}, "
                         f"drift={res.get('teams_with_drift')}, logo_drifts={res.get('logo_drifts')}")

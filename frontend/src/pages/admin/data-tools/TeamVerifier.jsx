@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import AdminLayout from '../../../../components/admin/AdminLayout';
-import { useAdminAuth } from '../../../../contexts/AdminAuthContext';
+import AdminLayout from '../../../components/admin/AdminLayout';
+import { useAdminAuth } from '../../../contexts/AdminAuthContext';
 import { Link } from 'react-router-dom';
 import { Loader2, ShieldCheck, ChevronLeft, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
@@ -15,7 +15,7 @@ const TeamVerifier = () => {
   const [onlyDrift, setOnlyDrift] = useState(false);
 
   const loadLatest = async () => {
-    const r = await authFetch(`${API_URL}/api/seo/intelligence/team-verifier/latest`);
+    const r = await authFetch(`${API_URL}/api/data-tools/team-verifier/latest`);
     if (r.ok) setReport(await r.json());
   };
 
@@ -25,7 +25,7 @@ const TeamVerifier = () => {
     if (!window.confirm(`Lancio verifica AI su ${limit} squadre?\nUsa Perplexity Sonar Pro (~$${(0.005 * limit).toFixed(2)}). Tempo: ~${Math.ceil(limit * 1.5 / 60)} min.`)) return;
     setRunning(true);
     try {
-      const r = await authFetch(`${API_URL}/api/seo/intelligence/team-verifier/run?limit=${limit}&only_with_drift=${onlyDrift}`, { method: 'POST' });
+      const r = await authFetch(`${API_URL}/api/data-tools/team-verifier/run?limit=${limit}&only_with_drift=${onlyDrift}`, { method: 'POST' });
       const d = await r.json();
       if (r.ok && !d.error) {
         toast.success(`Verifica completata: ${d.total_checked} teams, ${d.teams_with_drift} drift`);
@@ -40,8 +40,8 @@ const TeamVerifier = () => {
   return (
     <AdminLayout>
       <div className="p-6 lg:p-8 max-w-6xl mx-auto">
-        <Link to="/admin/seo/intelligence" className="text-sm text-gray-400 hover:text-white inline-flex items-center gap-1 mb-3">
-          <ChevronLeft className="w-4 h-4" /> Torna a Intelligence Hub
+        <Link to="/admin/data-tools" className="text-sm text-gray-400 hover:text-white inline-flex items-center gap-1 mb-3">
+          <ChevronLeft className="w-4 h-4" /> Torna a Data Tools
         </Link>
         <h1 className="text-2xl font-bold text-white inline-flex items-center gap-2">
           <ShieldCheck className="w-7 h-7 text-cyan-400" /> Team Verifier (AI weekly)

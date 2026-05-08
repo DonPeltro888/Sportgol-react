@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import AdminLayout from '../../../../components/admin/AdminLayout';
 import { useAdminAuth } from '../../../../contexts/AdminAuthContext';
 import {
-  Network, Copy, Globe2, MessageCircleQuestion, ShieldCheck, FileCode2,
+  Network, Copy, Globe2, MessageCircleQuestion, FileCode2,
   ChevronRight, Sparkles, Loader2, AlertTriangle, ChevronLeft,
 } from 'lucide-react';
 
@@ -154,13 +154,6 @@ const SeoIntelligenceHub = () => {
             desc="Claude Sonnet 4.5 genera 6 FAQ ottimizzate per Google PAA + FAQPage rich snippet (it/en/es)."
             icon={MessageCircleQuestion}
             color="bg-emerald-600"
-          />
-          <Card
-            to="/admin/seo/intelligence/team-verifier"
-            title="👁️ Team Verifier (weekly)"
-            desc="Perplexity Sonar Pro confronta DB teams con dati ufficiali: stadium, city, country, logo drift."
-            icon={ShieldCheck}
-            color="bg-cyan-600"
           />
           <Card
             to="/admin/seo/intelligence/jsonld-validator"

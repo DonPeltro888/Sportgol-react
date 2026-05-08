@@ -118,12 +118,12 @@ import SeoIntTopicCluster from './pages/admin/seo/intelligence/TopicCluster';
 import SeoIntCannibalization from './pages/admin/seo/intelligence/Cannibalization';
 import SeoIntHreflang from './pages/admin/seo/intelligence/Hreflang';
 import SeoIntFaqGenerator from './pages/admin/seo/intelligence/FaqGenerator';
-import SeoIntTeamVerifier from './pages/admin/seo/intelligence/TeamVerifier';
 import SeoIntJsonLdValidator from './pages/admin/seo/intelligence/JsonLdValidator';
 import DataToolsDashboard from './pages/admin/data-tools/DataToolsDashboard';
 import DataHealthDashboard from './pages/admin/data-tools/DataHealthDashboard';
 import SyncQualityDashboard from './pages/admin/data-tools/SyncQualityDashboard';
 import DataRecoveryDashboard from './pages/admin/data-tools/DataRecoveryDashboard';
+import DataToolsTeamVerifier from './pages/admin/data-tools/TeamVerifier';
 import NotFound from './pages/NotFound';
 import WhatsAppButton from './components/WhatsAppButton';
 
@@ -229,9 +229,6 @@ function App() {
             <Route path="/admin/seo/intelligence/faq" element={
               <ProtectedRoute><SeoIntFaqGenerator /></ProtectedRoute>
             } />
-            <Route path="/admin/seo/intelligence/team-verifier" element={
-              <ProtectedRoute><SeoIntTeamVerifier /></ProtectedRoute>
-            } />
             <Route path="/admin/seo/intelligence/jsonld-validator" element={
               <ProtectedRoute><SeoIntJsonLdValidator /></ProtectedRoute>
             } />
@@ -246,6 +243,13 @@ function App() {
             } />
             <Route path="/admin/data-tools/data-recovery" element={
               <ProtectedRoute><DataRecoveryDashboard /></ProtectedRoute>
+            } />
+            <Route path="/admin/data-tools/team-verifier" element={
+              <ProtectedRoute><DataToolsTeamVerifier /></ProtectedRoute>
+            } />
+            {/* Legacy redirect path (1 release) */}
+            <Route path="/admin/seo/intelligence/team-verifier" element={
+              <ProtectedRoute><DataToolsTeamVerifier /></ProtectedRoute>
             } />
             <Route path="/admin/translations" element={
               <ProtectedRoute><AdminTranslations /></ProtectedRoute>

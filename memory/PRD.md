@@ -2,16 +2,45 @@
 
 ## Status (2026-05-08)
 - ✅ Sito live su https://golevents.com
-- 🟡 Deploy bloccato da bug piattaforma Emergent: "Internal Server Error" al click "Re-deploy changes" (ticket aperto support@emergent.sh)
+- 🟡 Deploy bloccato da bug piattaforma Emergent: "Internal Server Error" al click "Re-deploy changes" (ticket aperto support@emergent.sh, da diversi giorni senza risposta — utente valuta deploy alternativo via GoDaddy + Render/Railway)
 - ✅ Tutti i fix code-level deploy-ready applicati (BASE_URL, .gitignore, startup background, requirements.txt, upload.py)
-- ✅ **SEO Automation Admin – FASE 1 (Foundation) COMPLETATA**
-- 🆕 **SEO Automation Admin – FASE 2 (Pipeline Dual-Engine reale) COMPLETATA il 2026-05-07**
-- 🆕 **FASE 8 (Cascading Filter + Hero Image Public Render) COMPLETATA il 2026-05-07**
-- 🆕 **FASE 9 (Multi-Source Data Recovery + AI Gap Detector) COMPLETATA il 2026-05-07**
-- 🆕 **FASE 10 (SEO Intelligence Hub: 7 tools) COMPLETATA il 2026-05-08**
-- 🆕 **FASE 11 (SEO Portable Module Documentation v2.0 + bash copy script per ticketgol.com) COMPLETATA il 2026-05-08**
-- 🆕 **FASE 12 (API Cost Observatory + Resend/SMTP alerts) COMPLETATA il 2026-05-08** — 53/53 backend pytest, 100% frontend E2E (iter_14)
+- ✅ google-site-verification file aggiunto in `frontend/public/googleb12ef6044432f516.html`
+- ✅ **SEO Automation Admin – FASE 1-12 COMPLETATE**
 - 🆕 **FASE 13 (Event Conflict Resolver + trust hierarchy) COMPLETATA il 2026-05-08**
+- 🆕 **FASE 14 (Team Verifier refactor → Data Tools, SEO_PORTABLE_MODULE v3.0) COMPLETATA il 2026-05-08**
+
+## FASE 14 – Team Verifier refactor + SEO Module v3.0 (2026-05-08)
+**Scopo:** rendere il modulo SEO veramente portabile (per `ticketgol.com`). Il Team Verifier era nel modulo SEO solo per "convenienza grafica" ma è una funzione di **DB hygiene** (verifica metadati team vs Perplexity), non SEO.
+
+**Refactor backend:**
+- `services/seo_team_verifier.py` → `services/data_tools_team_verifier.py` (rinominato)
+- `routes/data_tools_team_verifier.py` (NEW): nuovi endpoint `/api/data-tools/team-verifier/run` + `/latest`
+- `routes/seo_intelligence.py`: rimossi gli endpoint `/team-verifier/*` (solo SEO Intelligence Hub)
+- `services/scheduler.py`: cron `team_verifier_weekly` aggiornato per usare nuovo path
+- `server.py`: registrato nuovo router `data_tools_team_verifier`
+
+**Refactor frontend:**
+- `pages/admin/seo/intelligence/TeamVerifier.jsx` → `pages/admin/data-tools/TeamVerifier.jsx` (spostato + import path fix + breadcrumb a Data Tools)
+- `App.js`: nuova route `/admin/data-tools/team-verifier`, vecchia route mantenuta come **legacy redirect** verso il nuovo componente (1 release di transizione)
+- `SeoIntelligenceHub.jsx`: rimosso card Team Verifier + import `ShieldCheck`
+- `DataToolsDashboard.jsx`: aggiunto card "Team Verifier (AI weekly)" con icona Eye
+
+**Documentazione aggiornata (`SEO_PORTABLE_MODULE.md` v3.0):**
+- ➕ Sezione FASE 12 Cost Observatory completa (5 services + 1 route + 1 page + 19 endpoint documentati)
+- ➖ Rimossi tutti i riferimenti a Team Verifier
+- File count aggiornato: era 41 (v2.0) → ora **40** (v3.0): 5 routes + 22 services backend + 11 pages + 6 components + 1 util
+- Cron section: rimosso team_verifier_weekly, aggiunto alert_checks_30min
+- Checklist integrazione aggiornata (5 routes + 22 services + Resend slot + cost-observatory)
+- `copy_seo_module.sh` aggiornato: include cost_observatory.py + api_*.py + CostObservatory.jsx; esclude seo_team_verifier.py + TeamVerifier.jsx
+
+**Test verifica (manuale + screenshot):**
+- ✅ `/api/data-tools/team-verifier/latest` → 200 OK con report storico (3 teams checked)
+- ✅ `/api/seo/intelligence/team-verifier/latest` → 404 (correttamente rimosso)
+- ✅ `/api/seo/cost-observatory/overview` → 200 OK (regression negativa)
+- ✅ `/admin/data-tools` mostra 4 cards (Health, Sync Quality, Data Recovery, Team Verifier)
+- ✅ `/admin/data-tools/team-verifier` carica con report storico drift (Atalanta, Bologna, Cagliari)
+- ✅ `/admin/seo/intelligence` non mostra più la card Team Verifier (5 cards SEO core)
+
 
 ## FASE 13 – Event Conflict Resolver (2026-05-08)
 **Problema rilevato:** un team poteva apparire in due eventi nello stesso giorno (es. "Inter vs Como" 19:00 + "Lazio vs Inter" 21:00 in Coppa Italia 13/5/2026), perché AI Gap Detector inseriva match allucinati e nessun controllo cross-source verificava la coerenza. Inoltre `league` salvato in case diverse (`Coppa Italia` vs `COPPA ITALIA`).

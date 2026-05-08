@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AdminLayout from '../../../components/admin/AdminLayout';
-import { ShieldCheck, TrendingUp, Wrench, Database, Trash2, ListChecks, Loader2 } from 'lucide-react';
+import { ShieldCheck, TrendingUp, Wrench, Database, Trash2, ListChecks, Loader2, Eye } from 'lucide-react';
 import { useAdminAuth } from '../../../contexts/AdminAuthContext';
 import { toast } from 'sonner';
 
@@ -88,6 +88,19 @@ const DataToolsDashboard = () => {
             <p className="text-sm text-gray-400">
               Multi-source aggregator: <strong className="text-blue-300">ESPN</strong> (primary, no auth),
               OpenFootball, TheSportsDB + AI Gap Detector via Perplexity. Resync on-demand per lega.
+            </p>
+          </Link>
+
+          <Link to="/admin/data-tools/team-verifier" data-testid="dt-quick-team-verifier" className="group rounded-xl border border-gray-700 bg-gray-800/40 p-6 hover:border-cyan-500 hover:bg-gray-800/70 transition-all">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 rounded-lg bg-cyan-600/20 flex items-center justify-center">
+                <Eye className="w-6 h-6 text-cyan-400" />
+              </div>
+              <h3 className="text-lg text-white font-semibold">Team Verifier (AI weekly)</h3>
+            </div>
+            <p className="text-sm text-gray-400">
+              Perplexity Sonar Pro confronta i metadati DB delle squadre con dati ufficiali aggiornati:
+              stadium, città, paese, logo URL. Drift detection settimanale con review.
             </p>
           </Link>
         </div>

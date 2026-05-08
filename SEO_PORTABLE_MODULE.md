@@ -1,10 +1,15 @@
-# SEO Automation Module — Portable v2.0
+# SEO Automation Module — Portable v3.0
 
-> **Versione**: 2.0 (2026-05-08)
+> **Versione**: 3.0 (2026-05-08)
 > **Modulo SEO portabile completo**. Riusabile in qualsiasi progetto FastAPI + React + MongoDB.
 > Specificamente progettato per portali di **ticketing sportivo** (calcio, eventi live).
 
 Questo modulo è stato **architetturalmente isolato** dal codebase host. Tutto ciò che riguarda DB hygiene specifica di GoLevents (`/admin/data-tools/*`, `/api/data-tools/*`) è **fuori** dal modulo. Questo README descrive **solo** ciò che serve per integrare il modulo SEO in un nuovo progetto come `ticketgol.com`.
+
+> **CHANGELOG v3.0 (2026-05-08)**:
+> - ➕ Aggiunto **API Cost Observatory** (FASE 12) — track spese, latency, budget, alert email Resend/SMTP
+> - ➖ Rimosso **Team Verifier** dal modulo SEO → spostato in Data Tools (è data hygiene, non SEO)
+> - 🆕 v3.0 file count: **40 file** (4 routes + 17 services backend + 11 pages + 6 components frontend + 1 util + cost-observatory aggregato)
 
 ---
 
@@ -22,9 +27,20 @@ Questo modulo è stato **architetturalmente isolato** dal codebase host. Tutto c
 - **Cannibalization Detector** — rapidfuzz token_set_ratio, severity tiers
 - **Hreflang Validator** — required langs, x-default, ISO 639-1, URL pattern
 - **AI FAQ Generator** — Claude genera 6 FAQ PAA-optimized per lang → **FAQPage rich snippet**
-- **Team Verifier** — Perplexity DB-driven weekly drift check (stadium/city/country/logo)
 - **JSON-LD Validator** — schema.org packet validator
 - **Trust Score** — endpoint pubblico per badge "Verified by N sources"
+
+### 💰 API Cost Observatory (FASE 12)
+- **Decorator `@track_api_usage(provider, op_type)`** loggante cost/tokens/latency/status su ogni call
+- **Dashboard 17 metriche enterprise**: today/week/month, forecast, top provider, success rate, avg latency
+- **Per-provider rollup**: budget bar + last_used + success rate
+- **Top 10 entità più costose**, by-type, daily chart, latency p50/p95
+- **Logs drill-down** con filtri provider/status
+- **Alert engine**: BUDGET_WARNING / BUDGET_EXCEEDED / LOW_BALANCE / API_DOWN / API_INTERMITTENT
+- **Email dispatch**: Resend (primary) + SMTP (fallback) graceful
+- **Real polling** balance: Claude/Gemini/Perplexity/DataForSEO/DeepL
+- **Backfill**: ricostruisce log da seo_jobs storici
+- **Scheduler**: alert checks ogni 30min UTC
 
 ### 🌐 Public Frontend Components
 - `SeoSchemaInjector` — JSON-LD nel `<head>`
@@ -38,19 +54,20 @@ Questo modulo è stato **architetturalmente isolato** dal codebase host. Tutto c
 
 ### Backend `/backend/`
 
-#### Routes (4 file in `routes/`)
+#### Routes (5 file in `routes/`)
 ```
-routes/seo_admin.py          # Catalog 10 tool API + key encrypted (Fernet)
+routes/seo_admin.py          # Catalog 11 tool API (incl. Resend) + key encrypted (Fernet)
 routes/seo_targets.py        # List/edit/generate/publish entity SEO
 routes/seo_tools.py          # Hero Image + Export + Bulk Generate by League
-routes/seo_intelligence.py   # 🆕 Topic Cluster + Cannibalization + Hreflang + FAQ + Team Verifier + JSON-LD Validator + Trust Score
+routes/seo_intelligence.py   # Topic Cluster + Cannibalization + Hreflang + FAQ + JSON-LD Validator + Trust Score
+routes/cost_observatory.py   # 🆕 API Cost Observatory (overview/providers/logs/alerts/budgets/pricing/balance/export/backfill)
 ```
 
-#### Services (15 file in `services/`)
+#### Services (17 file in `services/`)
 ```
 services/seo_keys.py              # Encrypted storage Fernet
 services/seo_crypto.py            # Fernet helper
-services/seo_tools_catalog.py     # Catalog tool API
+services/seo_tools_catalog.py     # Catalog tool API (incl. Resend slot per email alerts)
 services/seo_orchestrator.py      # Pipeline state machine async
 services/seo_claude.py            # Master IT copywriting
 services/seo_gemini.py            # JSON-LD schema graph
@@ -60,31 +77,39 @@ services/seo_dataforseo.py        # Keyword research
 services/seo_validator.py         # Max-length + density + score 0-100
 services/seo_entity_context.py    # DB lookup related entities
 services/seo_image_gen.py         # Nano Banana 2 hero
-services/seo_topic_cluster.py     # 🆕 Hub-Spoke graph builder
-services/seo_cannibalization.py   # 🆕 rapidfuzz keyword overlap
-services/seo_hreflang.py          # 🆕 Hreflang validator
-services/seo_team_verifier.py     # 🆕 Perplexity weekly verifier
-services/seo_faq_generator.py     # 🆕 Claude FAQ 6× lang
-services/seo_jsonld_validator.py  # 🆕 schema.org packet validator
+services/seo_topic_cluster.py     # Hub-Spoke graph builder
+services/seo_cannibalization.py   # rapidfuzz keyword overlap
+services/seo_hreflang.py          # Hreflang validator
+services/seo_faq_generator.py     # Claude FAQ 6× lang
+services/seo_jsonld_validator.py  # schema.org packet validator
+services/api_cost_tracker.py      # 🆕 @track_api_usage decorator + log persistence
+services/api_cost_observatory.py  # 🆕 Aggregations (overview/providers/entities/chart/latency)
+services/api_pricing.py           # 🆕 cost_per_unit per provider/op_type
+services/api_alerts.py            # 🆕 Alert engine + Resend HTTP + SMTP fallback
+services/api_balance_checker.py   # 🆕 Real polling balance per provider
 ```
+
+> **Nota**: `seo_team_verifier.py` è stato **rimosso** dal modulo SEO in v3.0 (spostato in Data Tools nel progetto host). Non includerlo in `ticketgol.com` — la verifica metadati team è una funzione di DB hygiene, non SEO.
 
 ### Frontend `/frontend/src/`
 
-#### Pages (12 file in `pages/admin/seo/`)
+#### Pages (11 file in `pages/admin/seo/`)
 ```
 pages/admin/seo/SeoDashboard.jsx
 pages/admin/seo/SeoApiTools.jsx
 pages/admin/seo/SeoPagesList.jsx
 pages/admin/seo/SeoTargetEditor.jsx
 pages/admin/seo/SeoBulkRunner.jsx              # cascading filter Lega → Squadra → Evento
-pages/admin/seo/intelligence/SeoIntelligenceHub.jsx     # 🆕
-pages/admin/seo/intelligence/TopicCluster.jsx           # 🆕
-pages/admin/seo/intelligence/Cannibalization.jsx        # 🆕
-pages/admin/seo/intelligence/Hreflang.jsx               # 🆕
-pages/admin/seo/intelligence/FaqGenerator.jsx           # 🆕
-pages/admin/seo/intelligence/TeamVerifier.jsx           # 🆕
-pages/admin/seo/intelligence/JsonLdValidator.jsx        # 🆕
+pages/admin/seo/CostObservatory.jsx            # 🆕 v3.0 (FASE 12)
+pages/admin/seo/intelligence/SeoIntelligenceHub.jsx
+pages/admin/seo/intelligence/TopicCluster.jsx
+pages/admin/seo/intelligence/Cannibalization.jsx
+pages/admin/seo/intelligence/Hreflang.jsx
+pages/admin/seo/intelligence/FaqGenerator.jsx
+pages/admin/seo/intelligence/JsonLdValidator.jsx
 ```
+
+> **Rimosso in v3.0**: `pages/admin/seo/intelligence/TeamVerifier.jsx` (spostato in `pages/admin/data-tools/TeamVerifier.jsx` perché è data hygiene, non SEO).
 
 #### Components (5 file in `components/`)
 ```
@@ -109,12 +134,13 @@ utils/seoHero.js                  # 🆕 helper resolveSeoHeroUrl(raw)
 
 ```python
 # server.py
-from routes import seo_admin, seo_targets, seo_tools, seo_intelligence
+from routes import seo_admin, seo_targets, seo_tools, seo_intelligence, cost_observatory
 
 app.include_router(seo_admin.router)
 app.include_router(seo_targets.router)
 app.include_router(seo_tools.router)
 app.include_router(seo_intelligence.router)
+app.include_router(cost_observatory.router)
 ```
 
 #### Variabili `.env` richieste
@@ -146,12 +172,12 @@ import SeoApiTools from './pages/admin/seo/SeoApiTools';
 import SeoPagesList from './pages/admin/seo/SeoPagesList';
 import SeoTargetEditor from './pages/admin/seo/SeoTargetEditor';
 import SeoBulkRunner from './pages/admin/seo/SeoBulkRunner';
+import CostObservatory from './pages/admin/seo/CostObservatory';
 import SeoIntelligenceHub from './pages/admin/seo/intelligence/SeoIntelligenceHub';
 import SeoIntTopicCluster from './pages/admin/seo/intelligence/TopicCluster';
 import SeoIntCannibalization from './pages/admin/seo/intelligence/Cannibalization';
 import SeoIntHreflang from './pages/admin/seo/intelligence/Hreflang';
 import SeoIntFaqGenerator from './pages/admin/seo/intelligence/FaqGenerator';
-import SeoIntTeamVerifier from './pages/admin/seo/intelligence/TeamVerifier';
 import SeoIntJsonLdValidator from './pages/admin/seo/intelligence/JsonLdValidator';
 
 // SEO Routes
@@ -160,12 +186,12 @@ import SeoIntJsonLdValidator from './pages/admin/seo/intelligence/JsonLdValidato
 <Route path="/admin/seo/pages" element={<SeoPagesList />} />
 <Route path="/admin/seo/targets/:type/:id" element={<SeoTargetEditor />} />
 <Route path="/admin/seo/bulk" element={<SeoBulkRunner />} />
+<Route path="/admin/seo/cost-observatory" element={<CostObservatory />} />
 <Route path="/admin/seo/intelligence" element={<SeoIntelligenceHub />} />
 <Route path="/admin/seo/intelligence/topic-cluster" element={<SeoIntTopicCluster />} />
 <Route path="/admin/seo/intelligence/cannibalization" element={<SeoIntCannibalization />} />
 <Route path="/admin/seo/intelligence/hreflang" element={<SeoIntHreflang />} />
 <Route path="/admin/seo/intelligence/faq" element={<SeoIntFaqGenerator />} />
-<Route path="/admin/seo/intelligence/team-verifier" element={<SeoIntTeamVerifier />} />
 <Route path="/admin/seo/intelligence/jsonld-validator" element={<SeoIntJsonLdValidator />} />
 ```
 
@@ -250,12 +276,15 @@ seo_api_keys          # encrypted Fernet
 seo_jobs              # async pipeline queue
 seo_geo_cache         # Perplexity geocoding cache
 seo_entity_links      # sameAs Wikipedia links cache
-team_verifier_logs    # Team Verifier weekly reports
+api_usage_logs        # 🆕 v3.0 — log di ogni call tracciata (provider, op, cost, tokens, lat, status)
+api_alerts            # 🆕 v3.0 — alert generati (BUDGET/LOW_BALANCE/API_DOWN/INTERMITTENT)
+api_budgets           # 🆕 v3.0 — budget per provider (monthly limit + warning %)
+api_pricing           # 🆕 v3.0 — overrides custom su pricing default
 ```
 
 ---
 
-## 🌍 API Endpoints (prefix `/api/seo` + `/api/seo/intelligence`)
+## 🌍 API Endpoints (prefix `/api/seo` + `/api/seo/intelligence` + `/api/seo/cost-observatory`)
 
 ### Generation pipeline
 ```
@@ -279,13 +308,33 @@ GET  /api/seo/intelligence/topic-cluster/{type}/{slug}
 GET  /api/seo/intelligence/cannibalization/scan?threshold=85
 GET  /api/seo/intelligence/hreflang/scan
 GET  /api/seo/intelligence/hreflang/{type}/{slug}
-POST /api/seo/intelligence/team-verifier/run?limit=50
-GET  /api/seo/intelligence/team-verifier/latest
 POST /api/seo/intelligence/faq/{type}/{slug}/generate?langs=it,en,es
 GET  /api/seo/intelligence/faq/{type}/{slug}
 GET  /api/seo/intelligence/faq/{type}/{slug}/public  # 🌍 NO AUTH (per frontend)
 GET  /api/seo/intelligence/jsonld/scan
 GET  /api/seo/intelligence/trust-score/{type}/{slug} # 🌍 NO AUTH (per frontend)
+```
+
+### Cost Observatory (FASE 12)
+```
+GET  /api/seo/cost-observatory/overview              # Today/Week/Month + forecast + top provider
+GET  /api/seo/cost-observatory/providers             # Per-provider rollup mese corrente
+GET  /api/seo/cost-observatory/entities/top          # Top 10 entità più costose
+GET  /api/seo/cost-observatory/entities/by-type      # Aggregato per tipo entità
+GET  /api/seo/cost-observatory/chart/daily           # Spesa giornaliera (grafico 30g)
+GET  /api/seo/cost-observatory/latency               # Latency p50/p95 per provider
+GET  /api/seo/cost-observatory/logs                  # Drill-down log con filtri
+GET  /api/seo/cost-observatory/alerts/open           # Alert aperti
+POST /api/seo/cost-observatory/alerts/run-checks     # Trigger manuale alert engine
+POST /api/seo/cost-observatory/alerts/{id}/ack       # Ack alert
+GET  /api/seo/cost-observatory/budgets               # Budget per provider
+POST /api/seo/cost-observatory/budgets/{provider}    # Set/update budget
+GET  /api/seo/cost-observatory/pricing               # Pricing config
+GET  /api/seo/cost-observatory/alert-config          # Email/SMTP/Resend config
+POST /api/seo/cost-observatory/alert-config          # Save config
+GET  /api/seo/cost-observatory/balance               # Real polling balance per provider
+GET  /api/seo/cost-observatory/export?days=30        # CSV download
+POST /api/seo/cost-observatory/backfill?days=30      # Ricostruisce log da seo_jobs
 ```
 
 ---
@@ -323,16 +372,19 @@ Il modulo genera un grafo JSON-LD completo:
 Aggiungi a `services/scheduler.py` del progetto host:
 
 ```python
-async def _seo_team_verifier_weekly():
-    from services.seo_team_verifier import verify_all_teams
-    await verify_all_teams(limit=250, only_with_drift=False)
+# Alert checks ogni 30 minuti (budget warning/exceeded, low balance, API down)
+async def _api_alert_checks():
+    from services.api_alerts import run_all_alert_checks
+    await run_all_alert_checks()
 
 scheduler.add_job(
-    _seo_team_verifier_weekly,
-    CronTrigger(day_of_week="mon", hour=5, minute=0),
-    id="team_verifier_weekly",
+    _api_alert_checks,
+    CronTrigger(minute="*/30"),
+    id="alert_checks_30min",
 )
 ```
+
+> **Rimosso in v3.0**: il cron `team_verifier_weekly` non è più parte del modulo SEO portabile — appartiene al modulo Data Tools nel progetto host (è DB hygiene, non SEO). Se ti serve, implementalo separatamente al di fuori di questo modulo.
 
 ---
 
@@ -366,21 +418,22 @@ Per domande sull'integrazione del modulo, riferirsi a:
 
 ## 📋 Checklist integrazione ticketgol.com
 
-- [ ] Copia 4 routes + 18 services backend
-- [ ] Copia 12 pages + 6 components frontend
+- [ ] Copia 5 routes + 22 services backend (incl. Cost Observatory)
+- [ ] Copia 11 pages + 6 components frontend
 - [ ] Aggiungi `EMERGENT_LLM_KEY` e `SEO_FERNET_KEY` in `.env`
 - [ ] Installa dipendenze Python (`rapidfuzz`, `cryptography`, `emergentintegrations`)
 - [ ] Installa dipendenze npm (`lucide-react`, `sonner`)
-- [ ] Registra 12 routes in `App.js`
-- [ ] Registra 4 routers in `server.py`
+- [ ] Registra 12 routes in `App.js` (incl. `/admin/seo/cost-observatory`)
+- [ ] Registra 5 routers in `server.py` (incl. `cost_observatory.router`)
 - [ ] Verifica entity host abbiano campi richiesti (`slug`, `name`/`home_team`+`away_team`, `league`, `stadium`, `city`, `country`)
-- [ ] Apri `/admin/seo/api-tools` e configura API keys 3rd party (DataForSEO, Perplexity, DeepL — opzionali se solo Universal Key)
+- [ ] Apri `/admin/seo/api-tools` e configura API keys 3rd party (DataForSEO, Perplexity, DeepL, **Resend** per email alerts — opzionali se solo Universal Key)
 - [ ] Lancia primo Bulk Generate via `/admin/seo/bulk` su una lega di test
-- [ ] Verifica `/admin/seo/intelligence` mostra metriche
+- [ ] Verifica `/admin/seo/intelligence` mostra metriche (5 stat cards)
+- [ ] Verifica `/admin/seo/cost-observatory` mostra spesa real-time
 - [ ] Aggiungi `<EventSchema>`, `<FAQPageSchema>`, `<TrustScoreBadge>` in pagine pubbliche
-- [ ] Setup cron Team Verifier weekly (opzionale)
+- [ ] Setup cron `alert-checks` ogni 30min (Cost Observatory)
 
 ---
 
-**Versione**: 2.0 — last update 2026-05-08
+**Versione**: 3.0 — last update 2026-05-08
 **License**: proprietary GoLevents (uso interno e progetti affiliati)
