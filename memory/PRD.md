@@ -8,7 +8,32 @@
 - 🆕 **SEO Automation Admin – FASE 2 (Pipeline Dual-Engine reale) COMPLETATA il 2026-05-07**
 - 🆕 **FASE 8 (Cascading Filter + Hero Image Public Render) COMPLETATA il 2026-05-07**
 - 🆕 **FASE 9 (Multi-Source Data Recovery + AI Gap Detector) COMPLETATA il 2026-05-07**
-- 🆕 **FASE 10 (SEO Intelligence Hub: 7 tools — Topic Cluster, Cannibalization, Hreflang, FAQ AI, Team Verifier, JSON-LD Validator, Trust Score) COMPLETATA il 2026-05-08**
+- 🆕 **FASE 10 (SEO Intelligence Hub: 7 tools) COMPLETATA il 2026-05-08**
+- 🆕 **FASE 11 (SEO Portable Module Documentation v2.0 + bash copy script per ticketgol.com) COMPLETATA il 2026-05-08**
+
+## FASE 11 – SEO Portable Module v2.0 (2026-05-08)
+**Scopo:** preparare il modulo SEO all'integrazione su `www.ticketgol.com` (cliente del dev del cliente).
+
+**Deliverables:**
+- **`/app/SEO_PORTABLE_MODULE.md`** (NEW, 15KB) — Documentazione enterprise-grade aggiornata con:
+  - Lista completa dei **41 file** del modulo (4 routes + 18 services backend, 12 pages + 6 components frontend, 1 util)
+  - Setup backend/frontend step-by-step
+  - Variabili `.env` richieste (`EMERGENT_LLM_KEY`, `SEO_FERNET_KEY`)
+  - Dipendenze Python (`rapidfuzz`, `cryptography`, `emergentintegrations`) + npm (`lucide-react`, `sonner`)
+  - 12 routes frontend da registrare in `App.js`
+  - 4 routers backend da registrare in `server.py`
+  - Schema MongoDB richiesto (struttura `seo_meta.{lang}`, collections automatiche)
+  - **Tutti gli endpoint API** documentati: Generation pipeline + Intelligence Hub
+  - Costi per entity (~$0.10 / generazione completa)
+  - Schema.org coverage (Event, Team, FAQPage, Breadcrumb, HowTo, Speakable, GeoCoordinates)
+  - Cron jobs opzionali (Team Verifier weekly)
+  - Checklist integrazione 13-step
+- **`/app/copy_seo_module.sh`** (NEW) — Bash script automatico che copia tutti i 41 file in un repo target. Usage: `./copy_seo_module.sh /path/to/ticketgol/repo`. Stampa i next-step (env vars, deps, route registration).
+- **`/app/backend/services/SEO_MODULE_README.md`** aggiornato — punta al nuovo doc canonico.
+
+**Verifica integrità:** ✅ tutti i 41 file presenti e ready per copy.
+
+
 
 ## FASE 10 – SEO Intelligence Hub (2026-05-08)
 **Brief PM/SEO Engineer:** Implementati 4 P1 utente + 1 future + 1 mio suggerimento + 2 idee bonus mie da SEO Engineer per max impatto SEO. Hub unificato `/admin/seo/intelligence`.
